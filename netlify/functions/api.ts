@@ -1,0 +1,179 @@
+import type { Context, Config } from "@netlify/functions";
+import { getStore } from "@netlify/blobs";
+
+function makeStore(){ return getStore({ name: "adda-v03", consistency: "strong" }); }
+const JSON_HEADERS = { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" };
+const ok = (data:any, status=200) => new Response(JSON.stringify(data), { status, headers: JSON_HEADERS });
+const bad = (message:string, status=400) => ok({ error: message }, status);
+const clean = (v:any, max=120) => String(v ?? "").trim().slice(0,max);
+const id = (prefix="") => prefix + crypto.randomUUID().replace(/-/g,"").slice(0,10);
+const now = () => new Date().toISOString();
+
+async function getJSON(store:any,key:string){ return await store.get(key, { type:"json" }) as any; }
+async function listJSON(store:any,prefix:string, limit=100){
+  const { blobs } = await store.list({ prefix });
+  const chosen = blobs.slice(-limit);
+  const rows = await Promise.all(chosen.map(async b => ({ key:b.key, data: await getJSON(store,b.key) })));
+  return rows.filter(x=>x.data).map(x=>x.data);
+}
+
+export default async (req: Request, context: Context) => {
+  try {
+    const store = makeStore();
+    const url = new URL(req.url);
+    const action = url.searchParams.get("action") || "";
+    const body = req.method === "POST" ? await req.json().catch(()=>({})) : {};
+
+    if (action === "createCrew" && req.method === "POST") {
+      const name = clean(body.name, 42);
+      const nickname = clean(body.nickname, 24);
+      if (!name || !nickname) return bad("Crew name and your name are required.");
+      const crewId = id("c_");
+      const participantId = clean(body.participantId, 40) || id("p_");
+      const crew = { id:crewId, name, createdAt:now(), createdBy:participantId };
+      await store.setJSON(`crew/${crewId}`, crew);
+      await store.setJSON(`member/${crewId}/${participantId}`, { id:participantId, nickname, joinedAt:now() });
+      return ok({ crew, participantId });
+    }
+
+    if (action === "joinCrew" && req.method === "POST") {
+      const crewId = clean(body.crewId, 40), nickname = clean(body.nickname,24);
+      const participantId = clean(body.participantId,40) || id("p_");
+      const crew = await getJSON(store,`crew/${crewId}`);
+      if (!crew) return bad("Crew not found.",404);
+      if (!nickname) return bad("Your name is required.");
+      await store.setJSON(`member/${crewId}/${participantId}`, { id:participantId, nickname, joinedAt:now() });
+      return ok({ crew, participantId });
+    }
+
+    if (action === "getCrew") {
+      const crewId = clean(url.searchParams.get("crewId"),40);
+      const crew = await getJSON(store,`crew/${crewId}`);
+      if (!crew) return bad("Crew not found.",404);
+      const members = await listJSON(store,`member/${crewId}/`, 100);
+      return ok({ crew, members });
+    }
+
+    if (action === "createDrop" && req.method === "POST") {
+      const crewId=clean(body.crewId,40), participantId=clean(body.participantId,40);
+      const crew=await getJSON(store,`crew/${crewId}`);
+      const member=await getJSON(store,`member/${crewId}/${participantId}`);
+      if(!crew||!member) return bad("Join the Crew first.",403);
+      const type=["likely","either","vote","rate"].includes(body.type)?body.type:"vote";
+      const question=clean(body.question,120);
+      if(!question) return bad("Add a question.");
+      let options:any[]=[];
+      if(type==="likely"){
+        const members=await listJSON(store,`member/${crewId}/`,100);
+        options=members.map((m:any)=>({id:m.id,label:m.nickname}));
+        if(options.length<2) return bad("At least 2 Crew members are needed for this Drop.");
+      } else if(type==="either") {
+        options=[clean(body.optionA,40),clean(body.optionB,40)].filter(Boolean).map((x,i)=>({id:`o${i+1}`,label:x}));
+        if(options.length!==2) return bad("Add both choices.");
+      } else if(type==="vote") {
+        options=(Array.isArray(body.options)?body.options:[]).map((x:any)=>clean(x,40)).filter(Boolean).slice(0,4).map((x:string,i:number)=>({id:`o${i+1}`,label:x}));
+        if(options.length<2) return bad("Add at least 2 choices.");
+      } else {
+        options=[1,2,3,4,5].map(n=>({id:String(n),label:String(n)}));
+      }
+      const dropId=id("d_");
+      const thresholdMode = body.thresholdMode === "everyone" ? "everyone" : "count";
+      const thresholdCount = Math.max(2, Math.min(20, Number(body.thresholdCount)||3));
+      const currentMembers = await listJSON(store,`member/${crewId}/`,100);
+      const memberCountAtCreate = Math.max(2,currentMembers.length);
+      const drop={id:dropId,crewId,type,question,options,createdBy:participantId,creatorName:member.nickname,createdAt:now(),thresholdMode,thresholdCount,memberCountAtCreate,status:"open"};
+      await store.setJSON(`drop/${crewId}/${dropId}`,drop);
+      await store.setJSON(`dropIndex/${crewId}/${drop.createdAt}-${dropId}`,{dropId,createdAt:drop.createdAt});
+      return ok({drop});
+    }
+
+    if (action === "listDrops") {
+      const crewId=clean(url.searchParams.get("crewId"),40), participantId=clean(url.searchParams.get("participantId"),40);
+      const indexes=await listJSON(store,`dropIndex/${crewId}/`,50);
+      indexes.sort((a:any,b:any)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+      const drops=await Promise.all(indexes.map(async (i:any)=>{
+        const d=await getJSON(store,`drop/${crewId}/${i.dropId}`); if(!d) return null;
+        const responses=await listJSON(store,`response/${crewId}/${d.id}/`,100);
+        const mine=responses.find((r:any)=>r.participantId===participantId)||null;
+        const members=await listJSON(store,`member/${crewId}/`,100);
+        const threshold=d.thresholdMode==="everyone"?Math.max(2,d.memberCountAtCreate||members.length):d.thresholdCount;
+        return {...d,responseCount:responses.length,threshold,revealed:responses.length>=threshold,myResponse:mine};
+      }));
+      return ok({drops:drops.filter(Boolean)});
+    }
+
+    if (action === "getDrop") {
+      const crewId=clean(url.searchParams.get("crewId"),40), dropId=clean(url.searchParams.get("dropId"),40), participantId=clean(url.searchParams.get("participantId"),40);
+      const drop=await getJSON(store,`drop/${crewId}/${dropId}`); if(!drop) return bad("Drop not found.",404);
+      const responses=await listJSON(store,`response/${crewId}/${dropId}/`,100);
+      const members=await listJSON(store,`member/${crewId}/`,100);
+      const threshold=drop.thresholdMode==="everyone"?Math.max(2,drop.memberCountAtCreate||members.length):drop.thresholdCount;
+      const revealed=responses.length>=threshold;
+      const mine=responses.find((r:any)=>r.participantId===participantId)||null;
+      let result:any=null;
+      if(revealed){
+        const counts:any={}; responses.forEach((r:any)=>counts[r.answer]=(counts[r.answer]||0)+1);
+        const ranked=Object.entries(counts).map(([answer,count])=>({answer,count:Number(count)})).sort((a,b)=>b.count-a.count);
+        result={ranked,total:responses.length};
+      }
+      return ok({drop,responsesCount:responses.length,threshold,revealed,myResponse:mine,result,members});
+    }
+
+    if (action === "answerDrop" && req.method === "POST") {
+      const crewId=clean(body.crewId,40), dropId=clean(body.dropId,40), participantId=clean(body.participantId,40), answer=clean(body.answer,60);
+      const drop=await getJSON(store,`drop/${crewId}/${dropId}`); const member=await getJSON(store,`member/${crewId}/${participantId}`);
+      if(!drop||!member) return bad("Drop or member not found.",404);
+      const valid=drop.options.some((o:any)=>String(o.id)===answer); if(!valid) return bad("Invalid answer.");
+      await store.setJSON(`response/${crewId}/${dropId}/${participantId}`,{participantId,nickname:member.nickname,answer,answeredAt:now()});
+      return ok({saved:true});
+    }
+
+    if (action === "chatList") {
+      const crewId=clean(url.searchParams.get("crewId"),40);
+      const rows=await listJSON(store,`chat/${crewId}/`,80);
+      rows.sort((a:any,b:any)=>String(a.createdAt).localeCompare(String(b.createdAt)));
+      return ok({messages:rows.slice(-50)});
+    }
+
+    if (action === "chatSend" && req.method === "POST") {
+      const crewId=clean(body.crewId,40), participantId=clean(body.participantId,40), text=clean(body.text,240);
+      const member=await getJSON(store,`member/${crewId}/${participantId}`); if(!member) return bad("Join the Crew first.",403);
+      if(!text) return bad("Message is empty.");
+      const message={id:id("m_"),participantId,nickname:member.nickname,text,createdAt:now()};
+      await store.setJSON(`chat/${crewId}/${message.createdAt}-${message.id}`,message);
+      return ok({message});
+    }
+
+    if (action === "stats") {
+      const researchKey = Netlify.env.get("ADDA_RESEARCH_KEY") || "";
+      const supplied = req.headers.get("x-research-key") || "";
+      if(!researchKey || supplied !== researchKey) return bad("Not authorized.",401);
+      const crewId=clean(url.searchParams.get("crewId"),40);
+      if(!crewId) return bad("Crew ID required.");
+      const crew=await getJSON(store,`crew/${crewId}`); if(!crew) return bad("Crew not found.",404);
+      const members=await listJSON(store,`member/${crewId}/`,100);
+      const indexes=await listJSON(store,`dropIndex/${crewId}/`,100);
+      const dropRows=[];
+      for(const i of indexes){ const d=await getJSON(store,`drop/${crewId}/${i.dropId}`); if(!d) continue; const responses=await listJSON(store,`response/${crewId}/${d.id}/`,100); dropRows.push({...d,responseCount:responses.length}); }
+      const chats=await listJSON(store,`chat/${crewId}/`,500);
+      const events=await listJSON(store,`event/${crewId}/`,1000);
+      const counts:any={}; events.forEach((e:any)=>counts[e.event]=(counts[e.event]||0)+1);
+      return ok({crew,members,drops:dropRows,chats:chats.length,eventCounts:counts,events:events.slice(-200)});
+    }
+
+    if (action === "track" && req.method === "POST") {
+      const crewId=clean(body.crewId||"anon",40), participantId=clean(body.participantId||"anon",40);
+      const event=clean(body.event,60); if(!event) return bad("Missing event.");
+      const rec={event,crewId,participantId,meta:body.meta||{},createdAt:now(),ua:req.headers.get("user-agent")||""};
+      await store.setJSON(`event/${crewId}/${rec.createdAt}-${id("e_")}`,rec);
+      return ok({saved:true});
+    }
+
+    return bad("Unknown action.",404);
+  } catch (e:any) {
+    console.error(e);
+    return bad("Something went wrong. Try again.",500);
+  }
+};
+
+export const config: Config = { path: "/api" };
