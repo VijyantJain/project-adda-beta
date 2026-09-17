@@ -1,0 +1,10 @@
+{
+  "name": "adda-functional-beta-v03",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@netlify/blobs": "^10.0.0",
+    "@netlify/functions": "^4.2.5"
+  }
+}
