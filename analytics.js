@@ -92,6 +92,15 @@ function errorsPanel(){
   const rows=(D?.recentEvents||[]).filter(e=>e.event==='client_error');
   return `<div class="analyticsPanel"><h3>Client errors</h3><div class="errorList">${rows.length?rows.slice(0,20).map(e=>`<div><b>${esc(e.meta?.message||'Unknown error')}</b><span>${fmt(e.createdAt)} · ${esc(e.name||e.participantId||'')}</span></div>`).join(''):'<p class="emptyText">No tracked client errors.</p>'}</div></div>`
 }
+
+function dropTypesPanel(){
+  const rows=D?.dropTypes||[];
+  return `<div class="analyticsPanel wide"><div class="panelHead"><div><div class="tiny">DROP ENGINE</div><h3>Format performance</h3></div><span class="analyticsHint">Current Drops + tracked opens/shares</span></div><div class="tableWrap"><table><thead><tr><th>Format</th><th>Drops</th><th>Responses</th><th>Avg / Drop</th><th>Opens</th><th>Share actions</th><th>Media</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(keyLabel(x.type))}</b></td><td>${n(x.drops)}</td><td>${n(x.responses)}</td><td>${x.avgResponses}</td><td>${n(x.opens)}</td><td>${n(x.shares)}</td><td>${n(x.mediaDrops)}</td></tr>`).join('')}</tbody></table></div></div>`
+}
+function topDropsPanel(){
+  const rows=(D?.dropPerformance||[]).slice(0,30);
+  return `<div class="analyticsPanel wide"><div class="panelHead"><div><div class="tiny">CONTENT</div><h3>Top Drops</h3></div><button onclick="exportDrops()">Export CSV</button></div><div class="tableWrap"><table><thead><tr><th>Question</th><th>Type</th><th>Crew</th><th>Responses</th><th>Opens</th><th>Shares</th><th>Creator</th></tr></thead><tbody>${rows.map(x=>`<tr><td><b>${esc(x.question)}</b><small>${esc(x.dropId)}</small></td><td>${esc(keyLabel(x.type))}</td><td>${esc(x.crewName||x.crewId||'—')}</td><td>${n(x.responses)}</td><td>${n(x.opens)}</td><td>${n(x.shares)}</td><td>${esc(x.creatorName||'—')}</td></tr>`).join('')}</tbody></table></div></div>`
+}
 function exportCSV(name,rows){
   if(!rows?.length)return toast('No data to export');
   const keys=[...new Set(rows.flatMap(r=>Object.keys(r)))],cell=v=>{const x=typeof v==='object'&&v!==null?JSON.stringify(v):String(v??'');return `"${x.replace(/"/g,'""')}"`};
@@ -101,6 +110,7 @@ function exportCSV(name,rows){
 window.exportVisitors=()=>exportCSV(`adda-visitors-${new Date().toISOString().slice(0,10)}.csv`,D?.visitors||[]);
 window.exportEvents=()=>exportCSV(`adda-events-${new Date().toISOString().slice(0,10)}.csv`,D?.recentEvents||[]);
 window.exportCrews=()=>exportCSV(`adda-crews-${new Date().toISOString().slice(0,10)}.csv`,D?.crews||[]);
+window.exportDrops=()=>exportCSV(`adda-drops-${new Date().toISOString().slice(0,10)}.csv`,D?.dropPerformance||[]);
 
 function renderDashboard(){
   const s=D.summary,b=D.breakdowns;
@@ -134,6 +144,8 @@ function renderDashboard(){
       ${barList('Network type',b.networks)}
       <div class="analyticsPanel"><h3>Performance</h3><div class="bigMetric"><b>${n(s.performance.avgPageLoadMs)} ms</b><span>average page load</span></div><div class="bigMetric"><b>${n(s.performance.avgTTFBMs)} ms</b><span>average TTFB</span></div></div>
       ${errorsPanel()}
+      ${dropTypesPanel()}
+      ${topDropsPanel()}
       ${crewTable(D.crews)}
       ${visitorsPanel()}
       ${eventsPanel()}
