@@ -13,3 +13,41 @@ body{display:grid;place-items:center;padding:18px}.app{width:min(430px,100%);min
 .notice{padding:11px 12px;border-radius:15px;background:#fff9d7;border:1px solid #eee2a6;font-size:12px;line-height:1.4}.empty{display:grid;place-items:center;text-align:center;min-height:280px}.error{color:#9f2e2e;background:#ffeaea;border:1px solid #ffc9c9;border-radius:14px;padding:10px;font-size:12px}.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:#111;color:#fff;padding:10px 14px;border-radius:999px;font-size:12px;font-weight:800;opacity:0;pointer-events:none;transition:.2s;z-index:100}.toast.show{opacity:1;transform:translate(-50%,0)}
 @media(max-width:520px){body{padding:0;background:var(--bg)}.app{width:100%;min-height:100dvh;border-radius:0;box-shadow:none}.view{min-height:100dvh;padding-top:max(16px,env(safe-area-inset-top));padding-bottom:92px}.formats{gap:6px}.format{min-height:70px}}
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important;animation:none!important}.choice.selected{transform:none}}
+
+
+/* v0.4 visual energy pass */
+.app{border:1px solid rgba(255,255,255,.72);box-shadow:0 24px 70px rgba(36,25,82,.16)}
+.primary{background:linear-gradient(135deg,#6d4aff,#8b5cff 58%,#ff5e9d);box-shadow:0 12px 30px rgba(109,74,255,.30)}
+.hero{background:linear-gradient(145deg,#121018,#21192f 58%,#17131f);box-shadow:0 14px 34px rgba(30,20,58,.22)}
+.hero:before{content:"";position:absolute;width:110px;height:110px;border:22px solid rgba(223,255,87,.10);border-radius:50%;left:-58px;bottom:-64px;transform:rotate(-12deg)}
+.card{box-shadow:0 7px 22px rgba(29,23,48,.055)}
+.drop{border-left:4px solid var(--purple);box-shadow:0 6px 18px rgba(29,23,48,.055);transition:.16s ease}
+.drop:active{transform:scale(.99)}
+.createHero{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:4px 2px 2px}
+.createHero h1{font-size:28px;max-width:330px}
+.sparkle{font-size:34px;color:var(--purple);transform:rotate(12deg);text-shadow:0 8px 24px rgba(109,74,255,.2)}
+.formats{grid-template-columns:repeat(3,1fr);gap:8px}
+.format{min-height:88px;padding:10px;border-radius:18px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;overflow:hidden;position:relative;box-shadow:0 5px 16px rgba(25,20,45,.045)}
+.format .fic{font-size:24px;margin:0}
+.format .ftxt{display:block}
+.format .ftxt b{display:block;font-size:11px;line-height:1.1}
+.format .ftxt small{display:block;font-size:9px;color:#777;margin-top:3px;line-height:1.2}
+.format[data-type="short"]{background:linear-gradient(145deg,#fff,#f2efff)}
+.format[data-type="likely"]{background:linear-gradient(145deg,#fff,#fff0f6)}
+.format[data-type="either"]{background:linear-gradient(145deg,#fff,#f5ffd9)}
+.format[data-type="vote"]{background:linear-gradient(145deg,#fff,#fff7d8)}
+.format[data-type="rate"]{background:linear-gradient(145deg,#fff,#eef8ff)}
+.format[data-type="predict"]{background:linear-gradient(145deg,#fff,#f6efff)}
+.format.on{border-color:var(--purple);box-shadow:0 9px 24px rgba(109,74,255,.15);transform:translateY(-2px)}
+.format.locked{opacity:.38;filter:grayscale(.25);transform:none}
+.createCard{border-color:#ded6ff;box-shadow:0 12px 30px rgba(58,40,126,.08)}
+.choice{box-shadow:0 5px 16px rgba(25,20,45,.045)}
+.choice.selected{border-color:var(--purple);background:linear-gradient(135deg,#f0ebff,#fff2f8);transform:scale(1.025);box-shadow:0 10px 25px rgba(109,74,255,.16)}
+.deleteLink{border:0;background:#fff0f0;color:#b52c2c;border-radius:999px;padding:7px 10px;font-size:11px;font-weight:850}
+.answerStack{display:grid;gap:9px}
+.answerCard{background:#fff;border:1px solid var(--line);border-radius:18px;padding:13px 14px;box-shadow:0 5px 16px rgba(25,20,45,.045)}
+.answerCard b{font-size:11px;color:var(--purple)}
+.answerCard p{font-size:14px;line-height:1.4;margin-top:4px}
+.composer{position:sticky;bottom:82px;background:linear-gradient(180deg,rgba(247,244,238,0),var(--bg) 26%);padding-top:14px}
+.composer input:focus{border-color:var(--purple);box-shadow:0 0 0 4px rgba(109,74,255,.09)}
+@media(max-width:380px){.formats{grid-template-columns:repeat(2,1fr)}.format{min-height:78px}}
