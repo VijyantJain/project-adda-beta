@@ -59,17 +59,22 @@ export default async (req: Request, context: Context) => {
       const crew=await getJSON(store,`crew/${crewId}`);
       const member=await getJSON(store,`member/${crewId}/${participantId}`);
       if(!crew||!member) return bad("Join the Crew first.",403);
-      const type=["likely","either","vote","rate"].includes(body.type)?body.type:"vote";
+      const type=["short","likely","either","vote","rate","predict"].includes(body.type)?body.type:"vote";
       const question=clean(body.question,120);
       if(!question) return bad("Add a question.");
       let options:any[]=[];
-      if(type==="likely"){
+      if(type==="short"){
+        options=[];
+      } else if(type==="likely"){
         const members=await listJSON(store,`member/${crewId}/`,100);
         options=members.map((m:any)=>({id:m.id,label:m.nickname}));
         if(options.length<2) return bad("At least 2 Crew members are needed for this Drop.");
       } else if(type==="either") {
         options=[clean(body.optionA,40),clean(body.optionB,40)].filter(Boolean).map((x,i)=>({id:`o${i+1}`,label:x}));
         if(options.length!==2) return bad("Add both choices.");
+      } else if(type==="predict") {
+        const a=clean(body.optionA,40)||"Yes"; const b=clean(body.optionB,40)||"No";
+        options=[{id:"o1",label:a},{id:"o2",label:b}];
       } else if(type==="vote") {
         options=(Array.isArray(body.options)?body.options:[]).map((x:any)=>clean(x,40)).filter(Boolean).slice(0,4).map((x:string,i:number)=>({id:`o${i+1}`,label:x}));
         if(options.length<2) return bad("Add at least 2 choices.");
@@ -112,9 +117,13 @@ export default async (req: Request, context: Context) => {
       const mine=responses.find((r:any)=>r.participantId===participantId)||null;
       let result:any=null;
       if(revealed){
-        const counts:any={}; responses.forEach((r:any)=>counts[r.answer]=(counts[r.answer]||0)+1);
-        const ranked=Object.entries(counts).map(([answer,count])=>({answer,count:Number(count)})).sort((a,b)=>b.count-a.count);
-        result={ranked,total:responses.length};
+        if(drop.type==="short"){
+          result={entries:responses.map((r:any)=>({nickname:r.nickname,answer:r.answer,answeredAt:r.answeredAt})),total:responses.length};
+        } else {
+          const counts:any={}; responses.forEach((r:any)=>counts[r.answer]=(counts[r.answer]||0)+1);
+          const ranked=Object.entries(counts).map(([answer,count])=>({answer,count:Number(count)})).sort((a,b)=>b.count-a.count);
+          result={ranked,total:responses.length};
+        }
       }
       return ok({drop,responsesCount:responses.length,threshold,revealed,myResponse:mine,result,members});
     }
@@ -123,9 +132,21 @@ export default async (req: Request, context: Context) => {
       const crewId=clean(body.crewId,40), dropId=clean(body.dropId,40), participantId=clean(body.participantId,40), answer=clean(body.answer,60);
       const drop=await getJSON(store,`drop/${crewId}/${dropId}`); const member=await getJSON(store,`member/${crewId}/${participantId}`);
       if(!drop||!member) return bad("Drop or member not found.",404);
-      const valid=drop.options.some((o:any)=>String(o.id)===answer); if(!valid) return bad("Invalid answer.");
+      const valid=drop.type==="short" ? answer.length>0 : drop.options.some((o:any)=>String(o.id)===answer); if(!valid) return bad("Invalid answer.");
       await store.setJSON(`response/${crewId}/${dropId}/${participantId}`,{participantId,nickname:member.nickname,answer,answeredAt:now()});
       return ok({saved:true});
+    }
+
+    if (action === "deleteDrop" && req.method === "POST") {
+      const crewId=clean(body.crewId,40), dropId=clean(body.dropId,40), participantId=clean(body.participantId,40);
+      const drop=await getJSON(store,`drop/${crewId}/${dropId}`);
+      if(!drop) return bad("Drop not found.",404);
+      if(drop.createdBy!==participantId) return bad("Only the creator can delete this Drop.",403);
+      const { blobs:responseBlobs } = await store.list({ prefix:`response/${crewId}/${dropId}/` });
+      await Promise.all(responseBlobs.map((b:any)=>store.delete(b.key)));
+      await store.delete(`drop/${crewId}/${dropId}`);
+      await store.delete(`dropIndex/${crewId}/${drop.createdAt}-${dropId}`);
+      return ok({deleted:true});
     }
 
     if (action === "chatList") {
