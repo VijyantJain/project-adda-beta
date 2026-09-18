@@ -133,6 +133,7 @@ function render(err=''){stopPolling();
  if(screen==='vibe')return renderVibe();
  if(screen==='crewSettings')return renderCrewSettings();
  if(screen==='recap')return renderRecap();
+ if(screen==='crewInsights')return renderCrewInsights();
  if(screen==='chat')return renderChat();
  if(screen==='start')return renderStart();
  if(screen==='join')return renderJoin();
@@ -166,13 +167,22 @@ async function renderVibe(){
 async function renderCrewSettings(){
   if(!crewId||!crew){return window._home()}
   await refreshCrew();const admin=crew.createdBy===pid;
-  app.innerHTML=shell(`${top('Crew settings','crew')}<div class="card"><div class="row between"><div><div class="tiny">CREW</div><h2>${esc(crew.name)}</h2></div><span class="chip">${admin?'Admin':'Member'}</span></div>${admin?`<div class="sp12"></div><div class="field"><label>Rename Crew</label><div class="row"><input id="renameCrew" value="${esc(crew.name)}"><button class="miniPrimary" onclick="window._renameCrew()">Save</button></div></div>`:''}</div><div class="sp12"></div><div class="card"><div class="row between"><h3>Members</h3><span class="chip">${members.length}</span></div><div class="sp12"></div>${members.map(m=>`<div class="settingsRow memberRow"><span class="memberName">${avatarHtml(m.nickname)}<span>${esc(m.nickname)}${m.id===crew.createdBy?' · Admin':''}</span></span>${admin&&m.id!==pid?`<button class="dangerMini" onclick="window._removeMember('${m.id}')">Remove</button>`:''}</div>`).join('')}</div><div class="sp12"></div><button class="btn ghost" onclick="window._shareCrew()">Share Crew invite</button><div class="sp12"></div>${admin?`<button class="btn dangerBtn" onclick="window._deleteCrew()">Delete Crew</button>`:`<button class="btn dangerBtn" onclick="window._leaveCrew()">Leave Crew</button>`}`)
+  app.innerHTML=shell(`${top('Crew settings','crew')}<div class="card"><div class="row between"><div><div class="tiny">CREW</div><h2>${esc(crew.name)}</h2></div><span class="chip">${admin?'Admin':'Member'}</span></div>${admin?`<div class="sp12"></div><div class="field"><label>Rename Crew</label><div class="row"><input id="renameCrew" value="${esc(crew.name)}"><button class="miniPrimary" onclick="window._renameCrew()">Save</button></div></div>`:''}</div><div class="sp12"></div><div class="card"><div class="row between"><h3>Members</h3><span class="chip">${members.length}</span></div><div class="sp12"></div>${members.map(m=>`<div class="settingsRow memberRow"><span class="memberName">${avatarHtml(m.nickname)}<span>${esc(m.nickname)}${m.id===crew.createdBy?' · Admin':''}</span></span>${admin&&m.id!==pid?`<button class="dangerMini" onclick="window._removeMember('${m.id}')">Remove</button>`:''}</div>`).join('')}</div><div class="sp12"></div><button class="btn ghost" onclick="window._shareCrew()">Share Crew invite</button><div class="sp12"></div>${admin?`<button class="btn ghost" onclick="window._go('crewInsights')">Field-test insights</button><div class="sp12"></div><button class="btn dangerBtn" onclick="window._deleteCrew()">Delete Crew</button>`:`<buttton class="btn dangerBtn" onclick="window._leaveCrew()">Leave Crew</button>`}`)
 }
 window._renameCrew=async()=>{const name=$('#renameCrew')?.value.trim();if(!name)return;try{const j=await api('renameCrew',{method:'POST',body:{crewId,participantId:pid,name}});crew=j.crew;rememberCrew(crew);toast('Crew renamed');renderCrewSettings()}catch(e){toast(e.message)}};
 window._removeMember=async targetId=>{if(!confirm('Remove this member from the Crew?'))return;try{await api('removeMember',{method:'POST',body:{crewId,participantId:pid,targetId}});await refreshCrew();renderCrewSettings()}catch(e){toast(e.message)}};
 window._leaveCrew=async()=>{if(!confirm('Leave this Crew?'))return;try{await api('leaveCrew',{method:'POST',body:{crewId,participantId:pid}});forgetCrew(crewId);window._home()}catch(e){toast(e.message)}};
 window._deleteCrew=async()=>{if(!confirm('Delete this Crew and all its activity?'))return;try{await api('deleteCrew',{method:'POST',body:{crewId,participantId:pid}});forgetCrew(crewId);window._home()}catch(e){toast(e.message)}};
 
+
+
+async function renderCrewInsights(){
+  if(!crewId||!crew)return window._home();
+  let j;try{j=await api('crewMetrics',{params:{crewId,participantId:pid}})}
+  catch(e){toast(e.message);screen='crewSettings';return render()}
+  const mix=Object.entries(j.byType||{}).map(([k,v])=>`${labelType(k)} × ${v}`).join(' · ')||'No Drops yet';
+  app.innerHTML=shell(`${top('Field-test insights','crewSettings')}<div class="insightHero"><span>BEHAVIOR</span><h1>${esc(crew.name)}</h1><p>What people actually did inside this Crew.</p></div><div class="sp12"></div><div class="statGrid"><div><b>${j.memberCount}</b><span>People</span></div><div><b>${j.responseCount}</b><span>Answers</span></div><div><b>${j.dropCount}</b><span>Drops</span></div></div><div class="sp12"></div><div class="card"><div class="settingsRow"><span>Unique responders</span><b>${j.uniqueRespondents}</b></div><div class="settingsRow"><span>Chat messages</span><b>${j.chatCount}</b></div><div class="settingsRow"><span>Feedback responses</span><b>${j.feedbackCount||0}</b></div></div><div class="sp12"></div><div class="card"><h3>Drop mix</h3><p class="sub" style="margin-top:8px">${mix}</p></div>${j.feedbackCount?`<div class="sp12"></div><div class="card"><h3>Feedback snapshot</h3><div class="sp12"></div><div class="settingsRow"><span>Clarity</span><b>${j.avgClarity??'—'} / 5</b></div><div class="settingsRow"><span>Fun</span><b>${j.avgFun??'—'} / 5</b></div><div class="settingsRow"><span>Would share</span><b>${j.wouldShare.yes} yes · ${j.wouldShare.maybe} maybe · ${j.wouldShare.no} no</b></div></div>`:''}`)
+}
 
 async function renderRecap(){
   if(!crewId||!crew)return window._home();
