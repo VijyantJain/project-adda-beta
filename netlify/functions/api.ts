@@ -497,6 +497,8 @@ export default async (req: Request, context: Context) => {
       const legacyEvents=(await listJSON(store,"event/",100000)).filter((e:any)=>e.participantId===participantId);
 
       const memberships=memberBlobs.filter((b:any)=>b.key.endsWith("/"+participantId));
+      const membershipRows=(await Promise.all(memberships.slice(-20).map(async (b:any)=>getJSON(store,b.key)))).filter(Boolean);
+      const displayName=membershipRows.slice().sort((a:any,b:any)=>String(b.joinedAt||"").localeCompare(String(a.joinedAt||"")))[0]?.nickname||"";
       const myResponses=responseBlobs.filter((b:any)=>b.key.endsWith("/"+participantId));
       const myDrops=dropRows.filter((d:any)=>d.createdBy===participantId);
       const myChats=chatRows.filter((m:any)=>m.participantId===participantId);
@@ -581,7 +583,7 @@ export default async (req: Request, context: Context) => {
       return ok({
         score,level:{...level,index:levelIndex+1},nextLevel:next,progress,pointsToNext:next?Math.max(0,next.min-score):0,
         streak,activeDays:dates.length,answers,dropsMade,chatsSent,shares,crews,sessions:Number(visitor?.sessionCount)||0,
-        signature,typeCounts,badges,nextUnlock,crewRank
+        displayName,signature,typeCounts,badges,nextUnlock,crewRank
       });
     }
 
