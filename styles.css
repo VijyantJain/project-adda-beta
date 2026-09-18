@@ -183,3 +183,9 @@ html,body{background:
  .compareCreate{grid-template-columns:1fr;gap:9px}.versusBubble{margin:0 auto}.mediaCreatePreview{height:150px}
  .choiceWithMedia{grid-template-columns:72px 1fr}.choiceMedia{width:72px;height:72px}
 }
+
+.insightHero{border-radius:25px;padding:20px;background:
+ radial-gradient(circle at 88% 8%,rgba(238,95,189,.38),transparent 32%),
+ linear-gradient(145deg,#2a1850,#4b2c7e);color:#fff;box-shadow:0 14px 32px rgba(56,34,102,.18)}
+.insightHero span{font-size:10px;font-weight:900;letter-spacing:.09em;color:var(--lime)}
+.insightHero p{font-size:12px;color:#d9d1e4;margin-top:7px}
