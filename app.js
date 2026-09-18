@@ -7,39 +7,53 @@ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 function esc(s=''){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1400)}
 async function api(action,opts={}){const method=opts.method||'GET';const params=new URLSearchParams({action,...(opts.params||{})});const r=await fetch(`${API}?${params}`,{method,headers:{'content-type':'application/json'},body:method==='POST'?JSON.stringify(opts.body||{}):undefined});const j=await r.json();if(!r.ok)throw new Error(j.error||'Something went wrong');return j}
-function track(event,meta={}){api('track',{method:'POST',body:{crewId:crewId||'anon',participantId:pid,event,meta}}).catch(()=>{})}
-function shell(inner,nav=true){return `<section class="app"><div class="view">${inner}</div>${nav&&crew?navHtml():''}</section>`}
-function top(title=crew?.name||'Adda',back=''){return `<div class="top">${back?`<button class="linkbtn" onclick="window._go('${back}')">←</button>`:`<div class="brand">Adda</div>`}<div class="grow"><h3>${esc(title)}</h3></div>${crew?`<span class="chip">${members.length} 👥</span>`:''}</div>`}
-function navHtml(){return `<nav class="nav"><button class="${tab==='drops'?'active':''}" onclick="window._tab('drops')">⚡<br>Drops</button><button class="create" onclick="window._go('create')">+</button><button class="${tab==='chat'?'active':''}" onclick="window._tab('chat')">💬<br>Chat</button></nav>`}
-window._go=s=>{screen=s;stopPolling();render()};window._tab=t=>{tab=t;screen='crew';stopPolling();render()};
+function localStats(){try{return JSON.parse(localStorage.addaStats||'{}')}catch{return {}}}
+function bumpStat(k){const x=localStats();x[k]=(x[k]||0)+1;localStorage.addaStats=JSON.stringify(x)}
+function getKnownCrews(){try{return JSON.parse(localStorage.addaCrews||'[]')}catch{return []}}
+function rememberCrew(c){if(!c?.id)return;const list=getKnownCrews().filter(x=>x.id!==c.id);list.unshift({id:c.id,name:c.name,lastSeen:Date.now()});localStorage.addaCrews=JSON.stringify(list.slice(0,20))}
+function forgetCrew(id){localStorage.addaCrews=JSON.stringify(getKnownCrews().filter(x=>x.id!==id))}
+function track(event,meta={}){bumpStat(event);api('track',{method:'POST',body:{crewId:crewId||'anon',participantId:pid,event,meta}}).catch(()=>{})}
+function shell(inner,nav=true){return `<section class="app"><div class="view">${inner}</div>${nav?navHtml():''}</section>`}
+function top(title=crew?.name||'Adda',back=''){return `<div class="top">${back?`<button class="linkbtn" onclick="window._go('${back}')">←</button>`:`<button class="brand brandBtn" onclick="window._home()">Adda</button>`}<div class="grow"><h3>${esc(title)}</h3></div>${crew?`<button class="chip chipBtn" onclick="window._go('crewSettings')">${members.length} 👥</button>`:''}</div>`}
+function navHtml(){const a=x=>screen===x?'active':'';return `<nav class="nav nav5"><button class="${a('home')}" onclick="window._home()">⌂<br>Home</button><button class="${screen==='crew'?'active':''}" onclick="window._openCurrentCrew()">⚡<br>Crew</button><button class="create" onclick="window._createAction()">+</button><button class="${a('vibe')}" onclick="window._go('vibe')">✦<br>Vibe</button><button class="${a('profile')}" onclick="window._go('profile')">☺<br>Profile</button></nav>`}
+window._go=s=>{screen=s;stopPolling();render()};window._tab=t=>{screen=t==='chat'?'chat':'crew';stopPolling();render()};
+window._home=()=>{stopPolling();crewId='';dropId='';crew=null;members=[];drops=[];history.replaceState({},'','/');screen='home';render()};
+window._openCurrentCrew=()=>{if(crewId&&crew){screen='crew';render()}else{const first=getKnownCrews()[0];if(first)window._openKnownCrew(first.id);else{screen='start';render()}}};
+window._createAction=()=>{if(crewId&&crew){screen='create';render()}else{screen='start';render()}};
+window._openKnownCrew=id=>{crewId=id;dropId='';history.replaceState({},'',`/?crew=${id}`);screen='boot';boot()};
 function stopPolling(){clearInterval(pollTimer);clearInterval(chatTimer)}
 function share(url,text='Join my Adda Crew 👀'){if(navigator.share)navigator.share({title:'Adda',text,url}).catch(()=>{});else navigator.clipboard?.writeText(url).then(()=>toast('Link copied'))}
 window._shareCrew=()=>share(`${location.origin}/?crew=${crewId}`,`Join ${crew.name} on Adda 👀`);
 window._shareDrop=(id)=>share(`${location.origin}/?crew=${crewId}&drop=${id}`,`Answer this Drop in ${crew.name} 👀`);
 
 async function boot(){try{
- if(!crewId){screen='start';render();return}
+ if(!crewId){screen=getKnownCrews().length?'home':'start';render();return}
  const c=await api('getCrew',{params:{crewId}});crew=c.crew;members=c.members;
  const member=members.find(m=>m.id===pid);
  if(!member){screen=dropId?'joinDrop':'join';render();return}
- meName=member.nickname;localStorage.addaName=meName;
+ meName=member.nickname;localStorage.addaName=meName;rememberCrew(crew);
  if(dropId){screen='drop';render();return}
  screen='crew';render();
 }catch(e){screen='notfound';render(e.message)}}
 
 function render(err=''){stopPolling();
+ if(screen==='home')return renderHome();
+ if(screen==='profile')return renderProfile();
+ if(screen==='vibe')return renderVibe();
+ if(screen==='crewSettings')return renderCrewSettings();
+ if(screen==='chat')return renderChat();
  if(screen==='start')return renderStart();
  if(screen==='join')return renderJoin();
  if(screen==='joinDrop')return renderJoinDrop();
  if(screen==='notfound')return app.innerHTML=shell(`<div class="empty"><div><h1>Link not working</h1><p class="sub" style="margin-top:8px">${esc(err||'Ask your friend for a fresh link.')}</p><div class="sp18"></div><button class="btn dark" onclick="location.href='/'">Start Adda</button></div></div>`,false);
- if(screen==='crew')return tab==='chat'?renderChat():renderCrew();
+ if(screen==='crew')return renderCrew();
  if(screen==='create')return renderCreate();
  if(screen==='drop')return renderDrop();
 }
 function renderStart(){app.innerHTML=shell(`<div class="hero"><span class="chip darkchip">YOUR PRIVATE CIRCLE</span><div class="sp18"></div><h1>Start with your people.</h1><p style="color:#cbc5d2;margin-top:9px">A Crew is your private friend group on Adda.</p></div><div class="sp18"></div><div class="card"><div class="field"><label>Your name</label><input id="name" maxlength="24" placeholder="e.g. Vijyant"></div><div class="sp12"></div><div class="field"><label>Name your Crew</label><input id="crewName" maxlength="42" placeholder="e.g. Weekend Crew"></div><div class="sp18"></div><button class="btn primary" onclick="window._createCrew()">Start Crew</button></div>`,false)}
-window._createCrew=async()=>{const nickname=$('#name').value.trim(),name=$('#crewName').value.trim();if(!nickname||!name)return toast('Add your name and Crew name');try{const j=await api('createCrew',{method:'POST',body:{nickname,name,participantId:pid}});crewId=j.crew.id;crew=j.crew;meName=nickname;localStorage.addaName=nickname;history.replaceState({},'',`/?crew=${crewId}`);track('crew_created');await refreshCrew();screen='crew';render()}catch(e){toast(e.message)}};
+window._createCrew=async()=>{const nickname=$('#name').value.trim(),name=$('#crewName').value.trim();if(!nickname||!name)return toast('Add your name and Crew name');try{const j=await api('createCrew',{method:'POST',body:{nickname,name,participantId:pid}});crewId=j.crew.id;crew=j.crew;meName=nickname;localStorage.addaName=nickname;rememberCrew(crew);history.replaceState({},'',`/?crew=${crewId}`);track('crew_created');await refreshCrew();screen='crew';render()}catch(e){toast(e.message)}};
 function renderJoin(){app.innerHTML=shell(`${top(crew?.name||'Join Crew')}<div class="hero"><span class="chip darkchip">INVITE ONLY</span><div class="sp18"></div><h1>${esc(crew.name)}</h1><p style="color:#cbc5d2;margin-top:8px">${members.length} friends are here.</p></div><div class="sp18"></div><div class="card"><div class="field"><label>What should your Crew call you?</label><input id="joinName" maxlength="24" value="${esc(meName)}" placeholder="Your name"></div><div class="sp18"></div><button class="btn primary" onclick="window._joinCrew()">Join Crew</button></div>`,false)}
-window._joinCrew=async()=>{const nickname=$('#joinName').value.trim();if(!nickname)return toast('Add your name');try{await api('joinCrew',{method:'POST',body:{crewId,nickname,participantId:pid}});meName=nickname;localStorage.addaName=nickname;track('crew_joined');await refreshCrew();screen=dropId?'drop':'crew';render()}catch(e){toast(e.message)}};
+window._joinCrew=async()=>{const nickname=$('#joinName').value.trim();if(!nickname)return toast('Add your name');try{await api('joinCrew',{method:'POST',body:{crewId,nickname,participantId:pid}});meName=nickname;localStorage.addaName=nickname;track('crew_joined');await refreshCrew();rememberCrew(crew);screen=dropId?'drop':'crew';render()}catch(e){toast(e.message)}};
 async function renderJoinDrop(){
   let j;try{j=await api('getDrop',{params:{crewId,dropId,participantId:pid}})}catch(e){screen='notfound';return render(e.message)}
   const d=j.drop;activeDropType=d.type;
@@ -49,7 +63,7 @@ async function renderJoinDrop(){
   app.innerHTML=shell(`${top(crew?.name||'Adda')}<div class="tiny">${labelType(d.type).toUpperCase()}</div><h1 style="margin-top:5px">${esc(d.question)}</h1><div class="sp12"></div>${answerUi}<div class="sp12"></div><div class="field"><label>Your name</label><input id="guestName" maxlength="24" value="${esc(meName)}" placeholder="What should friends call you?"></div><div class="sp18"></div><button id="guestSubmit" class="btn primary" style="font-size:18px" onclick="window._answerAndJoin()" ${d.type!=='short'&&!guestAnswer?'disabled style="opacity:.45;font-size:18px"':''}>Answer →</button><p class="sub center" style="margin-top:9px">Answering adds you to ${esc(crew.name)}.</p>`,false)
 }
 window._selectGuest=id=>{guestAnswer=id;document.querySelectorAll('.choice').forEach(el=>{const on=el.dataset.answer===id;el.classList.toggle('selected',on);el.setAttribute('aria-pressed',on?'true':'false')});const b=$('#guestSubmit');if(b){b.disabled=false;b.style.opacity='1'}};
-window._answerAndJoin=async()=>{const nickname=$('#guestName')?.value.trim();if(!nickname)return toast('Add your name');const answer=activeDropType==='short'?$('#guestShort')?.value.trim():guestAnswer;if(!answer)return toast('Add your answer');try{await api('joinCrew',{method:'POST',body:{crewId,nickname,participantId:pid}});meName=nickname;localStorage.addaName=nickname;track('crew_joined_via_drop');await api('answerDrop',{method:'POST',body:{crewId,dropId,participantId:pid,answer}});track('response_submitted');await refreshCrew();screen='drop';render()}catch(e){toast(e.message)}};
+window._answerAndJoin=async()=>{const nickname=$('#guestName')?.value.trim();if(!nickname)return toast('Add your name');const answer=activeDropType==='short'?$('#guestShort')?.value.trim():guestAnswer;if(!answer)return toast('Add your answer');try{await api('joinCrew',{method:'POST',body:{crewId,nickname,participantId:pid}});meName=nickname;localStorage.addaName=nickname;track('crew_joined_via_drop');rememberCrew(crew);await api('answerDrop',{method:'POST',body:{crewId,dropId,participantId:pid,answer}});track('response_submitted');await refreshCrew();screen='drop';render()}catch(e){toast(e.message)}};
 async function refreshCrew(){const c=await api('getCrew',{params:{crewId}});crew=c.crew;members=c.members}
 async function refreshDrops(){const j=await api('listDrops',{params:{crewId,participantId:pid}});drops=j.drops}
 async function renderCrew(){clearInterval(pollTimer);await refreshCrew();await refreshDrops();app.innerHTML=shell(`${top()}<div class="row between"><div><div class="tiny">YOUR CREW</div><h1>${esc(crew.name)}</h1></div><button class="chip" onclick="window._shareCrew()">Invite friends</button></div><div class="sp18"></div>${drops.length?drops.map(d=>`<button class="drop" style="width:100%;text-align:left" onclick="window._openDrop('${d.id}')"><div class="row between"><span class="chip">${labelType(d.type)}</span><span class="meta">${d.responseCount}/${d.threshold}</span></div><div class="q">${esc(d.question)}</div><div class="meta">${d.type==='short'?(d.responseCount?`${d.responseCount} repl${d.responseCount===1?'y':'ies'} · live`:'Be first to reply'):d.revealed?'Result ready ✨':d.myResponse?'Waiting for friends…':'Tap to answer'}</div></button>`).join(''):`<div class="empty"><div><div style="font-size:44px">⚡</div><h2 style="margin-top:8px">No Drops yet</h2><p class="sub" style="margin-top:6px">Create one, then share it. Friends join when they answer.</p><div class="sp18"></div><button class="btn primary" onclick="window._go('create')">Create first Drop</button></div></div>`}`);pollTimer=setInterval(()=>{if(screen==='crew'&&tab==='drops')renderCrew()},4500)}
