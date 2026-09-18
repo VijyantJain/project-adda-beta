@@ -171,6 +171,8 @@ export default async (req: Request, context: Context) => {
       const dropKeys=(await store.list({prefix:"dropIndex/"})).blobs.map((b:any)=>b.key);
       const responseKeys=(await store.list({prefix:"response/"})).blobs.map((b:any)=>b.key);
       const chatKeys=(await store.list({prefix:"chat/"})).blobs.map((b:any)=>b.key);
+      const currentDrops=await listJSON(store,"drop/",100000);
+      const responseCountByDrop:any={};responseKeys.forEach((k:string)=>{const p=k.split("/");if(p[1]&&p[2]){const dk=p[1]+"/"+p[2];responseCountByDrop[dk]=(responseCountByDrop[dk]||0)+1}});
 
       const crewAgg:any={};
       const ensureCrew=(id:string)=>crewAgg[id]||(crewAgg[id]={crewId:id,name:crewMap[id]?.name||id,createdAt:crewMap[id]?.createdAt||"",members:0,drops:0,responses:0,chats:0});
@@ -179,16 +181,21 @@ export default async (req: Request, context: Context) => {
       responseKeys.forEach((k:string)=>{const p=k.split("/");if(p[1])ensureCrew(p[1]).responses++});
       chatKeys.forEach((k:string)=>{const p=k.split("/");if(p[1])ensureCrew(p[1]).chats++});
 
-      const participantActions:any={},eventCounts:any={},uniqueByEvent:any={};
+      const participantActions:any={},participantDrops:any={},eventCounts:any={},uniqueByEvent:any={},dropEventCounts:any={};
       events.forEach((e:any)=>{
         const ev=e.event||"unknown";eventCounts[ev]=(eventCounts[ev]||0)+1;
         if(!uniqueByEvent[ev])uniqueByEvent[ev]=new Set();if(e.participantId&&e.participantId!=="anon")uniqueByEvent[ev].add(e.participantId);
         if(e.participantId&&e.participantId!=="anon"){participantActions[e.participantId]=participantActions[e.participantId]||{};participantActions[e.participantId][ev]=(participantActions[e.participantId][ev]||0)+1;}
+        if(e.event==="response_submitted"&&e.participantId&&e.participantId!=="anon"){
+          participantDrops[e.participantId]=participantDrops[e.participantId]||new Set();
+          const dk=e.dropId||e.meta?.dropId||"";if(dk)participantDrops[e.participantId].add(dk);
+        }
+        const dk=e.dropId||e.meta?.dropId||"";if(dk){dropEventCounts[dk]=dropEventCounts[dk]||{};dropEventCounts[dk][ev]=(dropEventCounts[dk][ev]||0)+1}
       });
       const ids=(ev:string)=>new Set((events.filter((e:any)=>e.event===ev&&e.participantId&&e.participantId!=="anon")).map((e:any)=>e.participantId));
       const joined=new Set([...ids("crew_joined"),...ids("crew_joined_via_drop"),...ids("crew_created")]);
       const answered=ids("response_submitted"),creators=ids("drop_created"),sharers=new Set([...ids("drop_shared"),...ids("crew_shared"),...ids("share_attempted")]),chatters=ids("chat_message_sent");
-      let answered2=0,answered5=0;Object.values(participantActions).forEach((x:any)=>{const n=Number(x.response_submitted)||0;if(n>=2)answered2++;if(n>=5)answered5++});
+      let answered2=0,answered5=0;Object.keys(participantActions).forEach((pid:string)=>{const distinct=participantDrops[pid]?.size||0;const fallback=Number(participantActions[pid]?.response_submitted)||0;const n=distinct||fallback;if(n>=2)answered2++;if(n>=5)answered5++});
 
       const visitorRows=visitors.map((v:any)=>{
         const a=participantActions[v.participantId]||{},n=nameMap[v.participantId]?.name||"";
@@ -198,7 +205,7 @@ export default async (req: Request, context: Context) => {
           browser:v.lastServer?.browser||"",os:v.lastServer?.os||"",deviceType:v.lastServer?.deviceType||"",
           platform:v.lastClient?.platform||"",language:v.lastClient?.language||"",timezone:v.lastClient?.timezone||v.lastServer?.geo?.timezone||"",
           viewport:v.lastClient?.viewport||{},screen:v.lastClient?.screen||{},connection:v.lastClient?.connection||{},hardwareConcurrency:v.lastClient?.hardwareConcurrency||0,deviceMemory:v.lastClient?.deviceMemory||0,
-          source:v.firstSource||"",referrer:v.firstReferrer||"",firstEntry:v.firstEntry||{},lastEntry:v.lastEntry||{},answerCount:a.response_submitted||0,dropCreates:a.drop_created||0,chatMessages:a.chat_message_sent||0,shares:(a.drop_shared||0)+(a.crew_shared||0)+(a.share_attempted||0)
+          source:v.firstSource||"",referrer:v.firstReferrer||"",firstEntry:v.firstEntry||{},lastEntry:v.lastEntry||{},answerCount:(participantDrops[v.participantId]?.size||a.response_submitted||0),dropCreates:a.drop_created||0,chatMessages:a.chat_message_sent||0,shares:(a.drop_shared||0)+(a.crew_shared||0)+(a.share_attempted||0)
         }
       }).sort((a:any,b:any)=>String(b.lastSeen).localeCompare(String(a.lastSeen)));
 
@@ -214,6 +221,8 @@ export default async (req: Request, context: Context) => {
 
       const dayMap:any={};events.forEach((e:any)=>{const d=String(e.createdAt||"").slice(0,10);if(!d)return;dayMap[d]=dayMap[d]||{date:d,events:0,answers:0,joins:0,creates:0,shares:0};dayMap[d].events++;if(e.event==="response_submitted")dayMap[d].answers++;if(["crew_joined","crew_joined_via_drop","crew_created"].includes(e.event))dayMap[d].joins++;if(e.event==="drop_created")dayMap[d].creates++;if(["drop_shared","crew_shared","share_attempted"].includes(e.event))dayMap[d].shares++;});
       const recentEvents=events.slice(-250).reverse().map((e:any)=>({createdAt:e.createdAt,event:e.event,participantId:e.participantId,name:nameMap[e.participantId]?.name||"",crewId:e.crewId||"",crewName:crewMap[e.crewId]?.name||"",dropId:e.dropId||"",meta:e.meta||{},legacy:!!e.legacy,ip:e.server?.ip||"",city:e.server?.geo?.city||"",country:e.server?.geo?.country||"",deviceType:e.server?.deviceType||"",browser:e.server?.browser||""}));
+      const dropPerformance=currentDrops.map((d:any)=>{const ev=dropEventCounts[d.id]||{},responses=responseCountByDrop[(d.crewId||"")+"/"+d.id]||0,opens=(ev.drop_opened||0)+(ev.drop_link_opened||0),shares=ev.drop_shared||0;return {dropId:d.id,crewId:d.crewId||"",crewName:crewMap[d.crewId]?.name||"",type:d.type||"",question:d.question||"",createdAt:d.createdAt||"",creatorName:d.creatorName||nameMap[d.createdBy]?.name||"",responses,opens,shares,answerRate:pct(responses,opens),hasMedia:!!(d.mediaA||d.mediaB)}}).sort((a:any,b:any)=>b.responses-a.responses);
+      const typeMap:any={};dropPerformance.forEach((d:any)=>{const t=d.type||"unknown";typeMap[t]=typeMap[t]||{type:t,drops:0,responses:0,opens:0,shares:0,mediaDrops:0};const x=typeMap[t];x.drops++;x.responses+=d.responses;x.opens+=d.opens;x.shares+=d.shares;if(d.hasMedia)x.mediaDrops++});Object.values(typeMap).forEach((x:any)=>{x.avgResponses=x.drops?Math.round(x.responses/x.drops*10)/10:0;x.answerRate=pct(x.responses,x.opens)});
 
       return ok({
         generatedAt:now(),days,analyticsStartedAt:ANALYTICS_STARTED_AT,
@@ -248,6 +257,7 @@ export default async (req: Request, context: Context) => {
         },
         daily:Object.values(dayMap).sort((a:any,b:any)=>a.date.localeCompare(b.date)),
         crews:Object.values(crewAgg).sort((a:any,b:any)=>b.responses-a.responses),
+        dropPerformance:dropPerformance.slice(0,500),dropTypes:Object.values(typeMap).sort((a:any,b:any)=>b.responses-a.responses),
         visitors:visitorRows.slice(0,1000),
         recentEvents,eventCounts
       });
