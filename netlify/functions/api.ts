@@ -86,7 +86,8 @@ export default async (req: Request, context: Context) => {
       const thresholdCount = Math.max(2, Math.min(20, Number(body.thresholdCount)||3));
       const currentMembers = await listJSON(store,`member/${crewId}/`,100);
       const memberCountAtCreate = Math.max(2,currentMembers.length);
-      const drop={id:dropId,crewId,type,question,options,createdBy:participantId,creatorName:member.nickname,createdAt:now(),thresholdMode,thresholdCount,memberCountAtCreate,status:"open"};
+      const showNames=body.showNames===true; const allowChange=body.allowChange!==false;
+      const drop={id:dropId,crewId,type,question,options,createdBy:participantId,creatorName:member.nickname,createdAt:now(),thresholdMode,thresholdCount,memberCountAtCreate,showNames,allowChange,status:"open"};
       await store.setJSON(`drop/${crewId}/${dropId}`,drop);
       await store.setJSON(`dropIndex/${crewId}/${drop.createdAt}-${dropId}`,{dropId,createdAt:drop.createdAt});
       return ok({drop});
@@ -125,7 +126,8 @@ export default async (req: Request, context: Context) => {
           result={ranked,total:responses.length};
         }
       }
-      return ok({drop,responsesCount:responses.length,threshold,revealed,myResponse:mine,result,members});
+      const voters=(revealed&&drop.showNames)?responses.map((r:any)=>({participantId:r.participantId,nickname:r.nickname,answer:r.answer})):[];
+      return ok({drop,responsesCount:responses.length,threshold,revealed,myResponse:mine,result,members,voters});
     }
 
     if (action === "answerDrop" && req.method === "POST") {
@@ -133,6 +135,8 @@ export default async (req: Request, context: Context) => {
       const drop=await getJSON(store,`drop/${crewId}/${dropId}`); const member=await getJSON(store,`member/${crewId}/${participantId}`);
       if(!drop||!member) return bad("Drop or member not found.",404);
       const valid=drop.type==="short" ? answer.length>0 : drop.options.some((o:any)=>String(o.id)===answer); if(!valid) return bad("Invalid answer.");
+      const existing=await getJSON(store,`response/${crewId}/${dropId}/${participantId}`);
+      if(existing && drop.allowChange===false) return bad("Your answer is already locked.");
       await store.setJSON(`response/${crewId}/${dropId}/${participantId}`,{participantId,nickname:member.nickname,answer,answeredAt:now()});
       return ok({saved:true});
     }
@@ -147,6 +151,39 @@ export default async (req: Request, context: Context) => {
       await store.delete(`drop/${crewId}/${dropId}`);
       await store.delete(`dropIndex/${crewId}/${drop.createdAt}-${dropId}`);
       return ok({deleted:true});
+    }
+
+
+    if (action === "renameCrew" && req.method === "POST") {
+      const crewId=clean(body.crewId,40), participantId=clean(body.participantId,40), name=clean(body.name,42);
+      const crew=await getJSON(store,`crew/${crewId}`); if(!crew) return bad("Crew not found.",404);
+      if(crew.createdBy!==participantId) return bad("Only the Crew admin can rename it.",403);
+      if(!name) return bad("Add a Crew name.");
+      crew.name=name; crew.updatedAt=now(); await store.setJSON(`crew/${crewId}`,crew); return ok({crew});
+    }
+
+    if (action === "removeMember" && req.method === "POST") {
+      const crewId=clean(body.crewId,40), participantId=clean(body.participantId,40), targetId=clean(body.targetId,40);
+      const crew=await getJSON(store,`crew/${crewId}`); if(!crew) return bad("Crew not found.",404);
+      if(crew.createdBy!==participantId) return bad("Only the Crew admin can remove members.",403);
+      if(targetId===crew.createdBy) return bad("The Crew admin cannot remove themselves.");
+      await store.delete(`member/${crewId}/${targetId}`); return ok({removed:true});
+    }
+
+    if (action === "leaveCrew" && req.method === "POST") {
+      const crewId=clean(body.crewId,40), participantId=clean(body.participantId,40);
+      const crew=await getJSON(store,`crew/${crewId}`); if(!crew) return bad("Crew not found.",404);
+      if(crew.createdBy===participantId) return bad("Admin must transfer ownership or delete the Crew.");
+      await store.delete(`member/${crewId}/${participantId}`); return ok({left:true});
+    }
+
+    if (action === "deleteCrew" && req.method === "POST") {
+      const crewId=clean(body.crewId,40), participantId=clean(body.participantId,40);
+      const crew=await getJSON(store,`crew/${crewId}`); if(!crew) return bad("Crew not found.",404);
+      if(crew.createdBy!==participantId) return bad("Only the Crew admin can delete it.",403);
+      const prefixes=[`member/${crewId}/`,`drop/${crewId}/`,`dropIndex/${crewId}/`,`response/${crewId}/`,`chat/${crewId}/`,`event/${crewId}/`];
+      for(const prefix of prefixes){ const {blobs}=await store.list({prefix}); await Promise.all(blobs.map((b:any)=>store.delete(b.key))); }
+      await store.delete(`crew/${crewId}`); return ok({deleted:true});
     }
 
     if (action === "chatList") {
