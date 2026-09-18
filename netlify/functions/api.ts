@@ -485,6 +485,106 @@ export default async (req: Request, context: Context) => {
       return ok({saved:true});
     }
 
+    if (action === "getVibe") {
+      const participantId=clean(url.searchParams.get("participantId"),40),crewId=clean(url.searchParams.get("crewId"),40);
+      if(!participantId)return bad("Participant required.");
+
+      const memberBlobs=(await store.list({prefix:"member/"})).blobs;
+      const responseBlobs=(await store.list({prefix:"response/"})).blobs;
+      const dropRows=await listJSON(store,"drop/",100000);
+      const chatRows=await listJSON(store,"chat/",100000);
+      const analyticsEvents=(await listJSON(store,"analytics/event/",100000)).filter((e:any)=>e.participantId===participantId);
+      const legacyEvents=(await listJSON(store,"event/",100000)).filter((e:any)=>e.participantId===participantId);
+
+      const memberships=memberBlobs.filter((b:any)=>b.key.endsWith("/"+participantId));
+      const myResponses=responseBlobs.filter((b:any)=>b.key.endsWith("/"+participantId));
+      const myDrops=dropRows.filter((d:any)=>d.createdBy===participantId);
+      const myChats=chatRows.filter((m:any)=>m.participantId===participantId);
+      const allEvents=[...legacyEvents,...analyticsEvents];
+      const shares=allEvents.filter((e:any)=>["drop_shared","crew_shared","share_attempted"].includes(e.event)).length;
+
+      const dropMap:any={};dropRows.forEach((d:any)=>dropMap[(d.crewId||"")+"/"+d.id]=d);
+      const typeCounts:any={};
+      myResponses.forEach((b:any)=>{const p=b.key.split("/");const d=dropMap[(p[1]||"")+"/"+(p[2]||"")];if(d?.type)typeCounts[d.type]=(typeCounts[d.type]||0)+1});
+      const signature=Object.entries(typeCounts).sort((a:any,b:any)=>Number(b[1])-Number(a[1]))[0]?.[0]||myDrops[0]?.type||"";
+
+      const daySet=new Set<string>();
+      const addDay=(ts:any)=>{const d=String(ts||"").slice(0,10);if(/^\d{4}-\d{2}-\d{2}$/.test(d))daySet.add(d)};
+      allEvents.forEach((e:any)=>addDay(e.createdAt));
+      myDrops.forEach((d:any)=>addDay(d.createdAt));
+      myChats.forEach((m:any)=>addDay(m.createdAt));
+      const responseRows=await Promise.all(myResponses.slice(-500).map(async (b:any)=>getJSON(store,b.key)));
+      responseRows.filter(Boolean).forEach((r:any)=>addDay(r.answeredAt));
+
+      const dates=[...daySet].sort();
+      const utcDay=(d:Date)=>d.toISOString().slice(0,10);
+      let streak=0;
+      if(dates.length){
+        let cursor=new Date();cursor.setUTCHours(0,0,0,0);
+        const latest=dates[dates.length-1],today=utcDay(cursor);
+        const y=new Date(cursor);y.setUTCDate(y.getUTCDate()-1);const yesterday=utcDay(y);
+        if(latest===today||latest===yesterday){
+          if(latest===yesterday)cursor=y;
+          while(daySet.has(utcDay(cursor))){streak++;cursor.setUTCDate(cursor.getUTCDate()-1)}
+        }
+      }
+
+      const answers=myResponses.length,dropsMade=myDrops.length,chatsSent=myChats.length,crews=memberships.length;
+      const score=answers*10+dropsMade*30+chatsSent*4+shares*20+crews*10+Math.min(streak,10)*5;
+      const levels=[
+        {min:0,name:"Fresh",icon:"✨"},
+        {min:60,name:"Spark",icon:"⚡"},
+        {min:150,name:"Buzz",icon:"🔥"},
+        {min:300,name:"Main Character",icon:"😎"},
+        {min:600,name:"Vibe Magnet",icon:"🧲"},
+        {min:1000,name:"Adda Icon",icon:"👑"}
+      ];
+      let level=levels[0],next:any=null;
+      for(let i=0;i<levels.length;i++){if(score>=levels[i].min)level=levels[i];else{next=levels[i];break}}
+      const levelIndex=levels.indexOf(level),levelFloor=level.min,nextTarget=next?.min||level.min;
+      const progress=next?Math.max(0,Math.min(100,Math.round((score-levelFloor)/(nextTarget-levelFloor)*100))):100;
+
+      const defs=[
+        {id:"first",icon:"🎯",name:"First Move",desc:"Answer your first Drop",current:answers,target:1},
+        {id:"responder",icon:"⚡",name:"Responder",desc:"Answer 5 Drops",current:answers,target:5},
+        {id:"deep",icon:"🏊",name:"Deep Diver",desc:"Answer 10 Drops",current:answers,target:10},
+        {id:"maker",icon:"🛠️",name:"Drop Maker",desc:"Create your first Drop",current:dropsMade,target:1},
+        {id:"machine",icon:"🚀",name:"Drop Machine",desc:"Create 5 Drops",current:dropsMade,target:5},
+        {id:"chatty",icon:"💬",name:"Chatty",desc:"Send 5 Crew chats",current:chatsSent,target:5},
+        {id:"social",icon:"📣",name:"Social Spark",desc:"Share Adda 3 times",current:shares,target:3},
+        {id:"multi",icon:"👥",name:"Multi-Crew",desc:"Join 2 Crews",current:crews,target:2},
+        {id:"streak3",icon:"🔥",name:"On Fire",desc:"Build a 3-day streak",current:streak,target:3},
+        {id:"streak7",icon:"🏆",name:"Weekender",desc:"Build a 7-day streak",current:streak,target:7}
+      ];
+      const badges=defs.map((b:any)=>({...b,unlocked:b.current>=b.target,progress:Math.min(100,Math.round(b.current/b.target*100))}));
+      const locked=badges.filter((b:any)=>!b.unlocked).sort((a:any,b:any)=>(b.current/b.target)-(a.current/a.target));
+      const nextUnlock=locked[0]||null;
+
+      let crewRank:any=null;
+      if(crewId){
+        const crewMembers=await listJSON(store,`member/${crewId}/`,100);
+        const cResp=(await store.list({prefix:`response/${crewId}/`})).blobs;
+        const cDrops=dropRows.filter((d:any)=>d.crewId===crewId);
+        const cChats=chatRows.filter((m:any)=>m.crewId===crewId||String((m as any).key||"").includes(`chat/${crewId}/`));
+        const points:any={};crewMembers.forEach((m:any)=>points[m.id]=0);
+        cResp.forEach((b:any)=>{const p=b.key.split("/"),who=p[p.length-1];if(points[who]!==undefined)points[who]+=10});
+        cDrops.forEach((d:any)=>{if(points[d.createdBy]!==undefined)points[d.createdBy]+=30});
+        // Chat rows do not carry crewId in older records, so count exact crew chat prefix separately.
+        const crewChatRows=await listJSON(store,`chat/${crewId}/`,500);
+        crewChatRows.forEach((m:any)=>{if(points[m.participantId]!==undefined)points[m.participantId]+=4});
+        const ranked=crewMembers.map((m:any)=>({id:m.id,nickname:m.nickname,score:points[m.id]||0})).sort((a:any,b:any)=>b.score-a.score||String(a.nickname).localeCompare(String(b.nickname)));
+        const idx=ranked.findIndex((x:any)=>x.id===participantId);
+        if(idx>=0)crewRank={rank:idx+1,total:ranked.length,score:ranked[idx].score,crewName:(await getJSON(store,`crew/${crewId}`))?.name||""};
+      }
+
+      const visitor=await getJSON(store,`analytics/visitor/${participantId}`);
+      return ok({
+        score,level:{...level,index:levelIndex+1},nextLevel:next,progress,pointsToNext:next?Math.max(0,next.min-score):0,
+        streak,activeDays:dates.length,answers,dropsMade,chatsSent,shares,crews,sessions:Number(visitor?.sessionCount)||0,
+        signature,typeCounts,badges,nextUnlock,crewRank
+      });
+    }
+
     if (action === "crewMetrics") {
       const crewId=clean(url.searchParams.get("crewId"),40),participantId=clean(url.searchParams.get("participantId"),40);
       const crew=await getJSON(store,`crew/${crewId}`); if(!crew) return bad("Crew not found.",404);
