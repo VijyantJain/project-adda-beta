@@ -2,6 +2,8 @@ const $=s=>document.querySelector(s);const app=document.getElementById('app');
 const API='/api';
 const qs=new URLSearchParams(location.search);let crewId=qs.get('crew')||'';let dropId=qs.get('drop')||'';
 const pid=localStorage.addaPid||(`p_${crypto.randomUUID().replace(/-/g,'').slice(0,10)}`);localStorage.addaPid=pid;
+const sid=sessionStorage.addaSid||(`s_${crypto.randomUUID().replace(/-/g,'').slice(0,14)}`);sessionStorage.addaSid=sid;
+const firstLocalSeen=localStorage.addaFirstSeen||new Date().toISOString();const returningLocal=!!localStorage.addaFirstSeen;localStorage.addaFirstSeen=firstLocalSeen;
 let meName=localStorage.addaName||'';let crew=null,members=[],drops=[],screen='boot',tab='drops',selected=null,guestAnswer=null,activeDropType='',pollTimer=null,chatTimer=null;
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 function esc(s=''){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
@@ -26,15 +28,40 @@ function getKnownCrews(){try{return JSON.parse(localStorage.addaCrews||'[]')}cat
 function rememberCrew(c){if(!c?.id)return;const list=getKnownCrews().filter(x=>x.id!==c.id);list.unshift({id:c.id,name:c.name,lastSeen:Date.now()});localStorage.addaCrews=JSON.stringify(list.slice(0,20))}
 function forgetCrew(id){localStorage.addaCrews=JSON.stringify(getKnownCrews().filter(x=>x.id!==id))}
 const IS_PREVIEW=location.hostname.includes('deploy-preview-')||location.hostname.includes('--project-adda-field-test');
-function track(event,meta={}){bumpStat(event);api('track',{method:'POST',body:{crewId:crewId||'anon',participantId:pid,event,meta}}).catch(()=>{})}
+function track(event,meta={}){bumpStat(event);api('track',{method:'POST',body:{crewId:crewId||'anon',dropId:dropId||meta?.dropId||'',participantId:pid,sessionId:sid,event,meta}}).catch(()=>{})}
+function clientFacts(){
+  const nav=performance.getEntriesByType?.('navigation')?.[0],conn=navigator.connection||navigator.mozConnection||navigator.webkitConnection||{};
+  return {
+    platform:navigator.userAgentData?.platform||navigator.platform||'',language:navigator.language||'',languages:navigator.languages||[],
+    timezone:Intl.DateTimeFormat().resolvedOptions().timeZone||'',
+    viewport:{width:innerWidth,height:innerHeight},screen:{width:screen.width,height:screen.height,dpr:devicePixelRatio||1},
+    touchPoints:navigator.maxTouchPoints||0,hardwareConcurrency:navigator.hardwareConcurrency||0,deviceMemory:navigator.deviceMemory||0,
+    connection:{effectiveType:conn.effectiveType||'',downlink:conn.downlink||0,rtt:conn.rtt||0,saveData:!!conn.saveData},
+    displayMode:matchMedia('(display-mode: standalone)').matches?'standalone':'browser',
+    colorScheme:matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light',reducedMotion:matchMedia('(prefers-reduced-motion: reduce)').matches,
+    performance:nav?{duration:nav.duration||0,domContentLoaded:(nav.domContentLoadedEventEnd||0),loadEvent:(nav.loadEventEnd||0),ttfb:(nav.responseStart||0)}:{}
+  }
+}
+function analyticsSource(){
+  const u=new URLSearchParams(location.search);
+  return {source:u.get('utm_source')||u.get('source')||'',medium:u.get('utm_medium')||'',campaign:u.get('utm_campaign')||''}
+}
+function sendVisitAnalytics(){
+  if(location.pathname.includes('analytics.html'))return;
+  const src=analyticsSource();
+  api('analyticsVisit',{method:'POST',body:{participantId:pid,sessionId:sid,crewId,dropId,path:location.pathname,referrer:document.referrer||'',source:src.source,medium:src.medium,campaign:src.campaign,firstLocalSeen,returningLocal,knownCrewCount:getKnownCrews().length,client:clientFacts()}}).catch(()=>{})
+}
+window.addEventListener('load',()=>setTimeout(sendVisitAnalytics,250),{once:true});
+window.addEventListener('error',e=>track('client_error',{message:String(e.message||'').slice(0,180),source:String(e.filename||'').slice(0,120),line:e.lineno||0,column:e.colno||0}),true);
+window.addEventListener('unhandledrejection',e=>track('client_error',{message:String(e.reason?.message||e.reason||'Unhandled rejection').slice(0,180),kind:'promise'}));
 function shell(inner,nav=true){return `<section class="app"><div class="view">${inner}</div>${nav?navHtml():''}</section>`}
 function top(title=crew?.name||'Adda',back=''){return `<div class="top">${back?`<button class="linkbtn" onclick="window._go('${back}')">←</button>`:`<button class="brand brandBtn" onclick="window._home()">Adda</button>`}<div class="grow"><h3>${esc(title)}</h3></div>${crew?`<button class="chip chipBtn" onclick="window._go('crewSettings')">${members.length} 👥</button>`:''}</div>`}
 function navHtml(){const a=x=>screen===x?'active':'';return `<nav class="nav nav5"><button class="${a('home')}" onclick="window._home()">⌂<br>Home</button><button class="${screen==='crew'?'active':''}" onclick="window._openCurrentCrew()">⚡<br>Crew</button><button class="create" onclick="window._createAction()">+</button><button class="${a('vibe')}" onclick="window._go('vibe')">✦<br>Vibe</button><button class="${a('profile')}" onclick="window._go('profile')">☺<br>Profile</button></nav>`}
-window._go=s=>{screen=s;stopPolling();render()};window._tab=t=>{screen=t==='chat'?'chat':'crew';stopPolling();render()};
+window._go=s=>{track('screen_view',{screen:s});screen=s;stopPolling();render()};window._tab=t=>{const next=t==='chat'?'chat':'crew';track('screen_view',{screen:next});screen=next;stopPolling();render()};
 window._home=()=>{stopPolling();crewId='';dropId='';crew=null;members=[];drops=[];history.replaceState({},'','/');screen='home';render()};
 window._openCurrentCrew=()=>{if(crewId&&crew){screen='crew';render()}else{const first=getKnownCrews()[0];if(first)window._openKnownCrew(first.id);else{screen='start';render()}}};
 window._createAction=()=>{if(crewId&&crew){screen='create';render()}else{screen='start';render()}};
-window._openKnownCrew=id=>{crewId=id;dropId='';history.replaceState({},'',`/?crew=${id}`);screen='boot';boot()};
+window._openKnownCrew=id=>{track('crew_opened',{targetCrewId:id});crewId=id;dropId='';history.replaceState({},'',`/?crew=${id}`);screen='boot';boot()};
 function stopPolling(){clearTimeout(pollTimer);clearTimeout(chatTimer)}
 function schedulePoll(kind,fn,ms){
   const hiddenDelay=Math.max(ms,30000);
@@ -114,8 +141,8 @@ window._surprise=t=>{
   if(t==='vote'){['#o1','#o2','#o3'].forEach((id,i)=>{if($(id))$(id).value=item[i+1]||''})}
 };
 
-window._shareCrew=()=>share(`${location.origin}/?crew=${crewId}`,`Join ${crew.name} on Adda 👀`);
-window._shareDrop=(id)=>share(`${location.origin}/?crew=${crewId}&drop=${id}`,`Answer this Drop in ${crew.name} 👀`);
+window._shareCrew=()=>{track('crew_shared',{crewId});share(`${location.origin}/?crew=${crewId}&utm_source=adda&utm_medium=share&utm_campaign=crew`,`Join ${crew.name} on Adda 👀`)};
+window._shareDrop=(id)=>{track('drop_shared',{dropId:id});share(`${location.origin}/?crew=${crewId}&drop=${id}&utm_source=adda&utm_medium=share&utm_campaign=drop`,`Answer this Drop in ${crew.name} 👀`)};
 
 async function boot(){try{
  if(!crewId){screen=getKnownCrews().length?'home':'start';render();return}
@@ -196,9 +223,9 @@ async function renderRecap(){
 }
 
 function renderStart(){app.innerHTML=shell(`<div class="hero"><span class="chip darkchip">YOUR PRIVATE CIRCLE</span><div class="sp18"></div><h1>Start with your people.</h1><p style="color:#cbc5d2;margin-top:9px">A Crew is your private friend group on Adda.</p></div><div class="sp18"></div><div class="card"><div class="field"><label>Your name</label><input id="name" maxlength="24" placeholder="e.g. Vijyant"></div><div class="sp12"></div><div class="field"><label>Name your Crew</label><input id="crewName" maxlength="42" placeholder="e.g. Weekend Crew"></div><div class="sp18"></div><button class="btn primary" onclick="window._createCrew()">Start Crew</button></div>`,false)}
-window._createCrew=async()=>{const nickname=$('#name').value.trim(),name=$('#crewName').value.trim();if(!nickname||!name)return toast('Add your name and Crew name');try{const j=await api('createCrew',{method:'POST',body:{nickname,name,participantId:pid}});crewId=j.crew.id;crew=j.crew;meName=nickname;localStorage.addaName=nickname;rememberCrew(crew);history.replaceState({},'',`/?crew=${crewId}`);track('crew_created');await refreshCrew();screen='crew';render()}catch(e){toast(e.message)}};
+window._createCrew=async()=>{const nickname=$('#name').value.trim(),name=$('#crewName').value.trim();if(!nickname||!name)return toast('Add your name and Crew name');try{const j=await api('createCrew',{method:'POST',body:{nickname,name,participantId:pid}});crewId=j.crew.id;crew=j.crew;meName=nickname;localStorage.addaName=nickname;rememberCrew(crew);history.replaceState({},'',`/?crew=${crewId}`);track('crew_created',{crewId:j.crew.id});await refreshCrew();screen='crew';render()}catch(e){toast(e.message)}};
 function renderJoin(){app.innerHTML=shell(`${top(crew?.name||'Join Crew')}<div class="hero"><span class="chip darkchip">INVITE ONLY</span><div class="sp18"></div><h1>${esc(crew.name)}</h1><p style="color:#cbc5d2;margin-top:8px">${members.length} friends are here.</p></div><div class="sp18"></div><div class="card"><div class="field"><label>What should your Crew call you?</label><input id="joinName" maxlength="24" value="${esc(meName)}" placeholder="Your name"></div><div class="sp18"></div><button class="btn primary" onclick="window._joinCrew()">Join Crew</button></div>`,false)}
-window._joinCrew=async()=>{const nickname=$('#joinName').value.trim();if(!nickname)return toast('Add your name');try{await api('joinCrew',{method:'POST',body:{crewId,nickname,participantId:pid}});meName=nickname;localStorage.addaName=nickname;track('crew_joined');await refreshCrew();rememberCrew(crew);screen=dropId?'drop':'crew';render()}catch(e){toast(e.message)}};
+window._joinCrew=async()=>{const nickname=$('#joinName').value.trim();if(!nickname)return toast('Add your name');try{await api('joinCrew',{method:'POST',body:{crewId,nickname,participantId:pid}});meName=nickname;localStorage.addaName=nickname;track('crew_joined',{crewId});await refreshCrew();rememberCrew(crew);screen=dropId?'drop':'crew';render()}catch(e){toast(e.message)}};
 async function renderJoinDrop(){
   let j;try{j=await api('getDrop',{params:{crewId,dropId,participantId:pid}})}catch(e){screen='notfound';return render(e.message)}
   const d=j.drop;activeDropType=d.type;
@@ -208,7 +235,7 @@ async function renderJoinDrop(){
   app.innerHTML=shell(`${top(crew?.name||'Adda')}<div class="tiny">${labelType(d.type).toUpperCase()}</div><h1 style="margin-top:5px">${esc(d.question)}</h1><div class="sp12"></div>${dropLeadMedia(d)}${answerUi}<div class="sp12"></div><div class="field"><label>Your name</label><input id="guestName" maxlength="24" value="${esc(meName)}" placeholder="What should friends call you?"></div><div class="sp18"></div><button id="guestSubmit" class="btn primary" style="font-size:18px" onclick="window._answerAndJoin()" ${d.type!=='short'&&!guestAnswer?'disabled style="opacity:.45;font-size:18px"':''}>Answer →</button><p class="sub center" style="margin-top:9px">Answering adds you to ${esc(crew.name)}.</p>`,false)
 }
 window._selectGuest=id=>{guestAnswer=id;document.querySelectorAll('.choice').forEach(el=>{const on=el.dataset.answer===id;el.classList.toggle('selected',on);el.setAttribute('aria-pressed',on?'true':'false')});const b=$('#guestSubmit');if(b){b.disabled=false;b.style.opacity='1'}};
-window._answerAndJoin=async()=>{const nickname=$('#guestName')?.value.trim();if(!nickname)return toast('Add your name');const answer=activeDropType==='short'?$('#guestShort')?.value.trim():guestAnswer;if(!answer)return toast('Add your answer');const btn=$('#guestSubmit');if(btn){btn.disabled=true;btn.textContent='Joining…'}try{await api('joinCrew',{method:'POST',body:{crewId,nickname,participantId:pid}});meName=nickname;localStorage.addaName=nickname;track('crew_joined_via_drop');rememberCrew(crew);await api('answerDrop',{method:'POST',body:{crewId,dropId,participantId:pid,answer}});track('response_submitted');await refreshCrew();dropId='';history.replaceState({},'',`/?crew=${crewId}`);screen='crew';render();toast(`You’re in ${crew.name} 👋`)}catch(e){toast(e.message);if(btn){btn.disabled=false;btn.textContent='Answer →'}}};
+window._answerAndJoin=async()=>{const nickname=$('#guestName')?.value.trim();if(!nickname)return toast('Add your name');const answer=activeDropType==='short'?$('#guestShort')?.value.trim():guestAnswer;if(!answer)return toast('Add your answer');const btn=$('#guestSubmit');if(btn){btn.disabled=true;btn.textContent='Joining…'}try{await api('joinCrew',{method:'POST',body:{crewId,nickname,participantId:pid}});meName=nickname;localStorage.addaName=nickname;track('crew_joined_via_drop',{crewId,dropId});rememberCrew(crew);await api('answerDrop',{method:'POST',body:{crewId,dropId,participantId:pid,answer}});track('response_submitted',{dropId,type:activeDropType,entry:'shared_drop'});await refreshCrew();dropId='';history.replaceState({},'',`/?crew=${crewId}`);screen='crew';render();toast(`You’re in ${crew.name} 👋`)}catch(e){toast(e.message);if(btn){btn.disabled=false;btn.textContent='Answer →'}}};
 async function refreshCrew(){const c=await api('getCrew',{params:{crewId}});crew=c.crew;members=c.members}
 async function refreshDrops(){const j=await api('listDrops',{params:{crewId,participantId:pid}});drops=j.drops}
 async function renderCrew(){
@@ -291,7 +318,7 @@ async function renderDrop(){
   app.innerHTML=shell(`${top(crew.name,'crew')}<div class="row between"><span class="chip">${labelType(d.type)}</span>${creatorTools(d)}</div><div class="sp12"></div><h1>${esc(d.question)}</h1><p class="sub" style="margin-top:7px">${d.thresholdMode==='manual'?j.responsesCount+' answered · creator reveal':j.responsesCount+'/'+j.threshold+' answered'}</p><div class="sp12"></div>${dropLeadMedia(d)}${d.options.map(o=>choiceMarkup(d,o,selected,false)).join('')}<div class="sp12"></div><button id="submitAnswer" class="btn primary" style="font-size:18px" onclick="window._submitAnswer()" ${!selected?'disabled style="opacity:.45;font-size:18px"':''}>Submit answer</button>`)
 }
 window._select=id=>{selected=id;document.querySelectorAll('.choice').forEach(el=>{const on=el.dataset.answer===id;el.classList.toggle('selected',on);el.setAttribute('aria-pressed',on?'true':'false')});const b=$('#submitAnswer');if(b){b.disabled=false;b.style.opacity='1'}};
-window._submitAnswer=async()=>{const answer=activeDropType==='short'?$('#shortAnswer')?.value.trim():selected;if(!answer)return toast('Add your answer');const btn=$('#submitAnswer');if(btn){btn.disabled=true;btn.textContent='Sending…'}try{await api('answerDrop',{method:'POST',body:{crewId,dropId,participantId:pid,answer}});track('response_submitted');selected=null;app.innerHTML=shell(`${top(crew.name,'crew')}<div class="sentState"><div class="sentTick">✓</div><h1>Answer sent</h1><p class="sub">Updating the Crew…</p></div>`);setTimeout(()=>{if(screen==='drop')renderDrop()},350)}catch(e){toast(e.message);if(btn){btn.disabled=false;btn.textContent=activeDropType==='short'?'Send answer':'Submit answer'}}};
+window._submitAnswer=async()=>{const answer=activeDropType==='short'?$('#shortAnswer')?.value.trim():selected;if(!answer)return toast('Add your answer');const btn=$('#submitAnswer');if(btn){btn.disabled=true;btn.textContent='Sending…'}try{await api('answerDrop',{method:'POST',body:{crewId,dropId,participantId:pid,answer}});track('response_submitted',{dropId,type:activeDropType,entry:'crew'});selected=null;app.innerHTML=shell(`${top(crew.name,'crew')}<div class="sentState"><div class="sentTick">✓</div><h1>Answer sent</h1><p class="sub">Updating the Crew…</p></div>`);setTimeout(()=>{if(screen==='drop')renderDrop()},350)}catch(e){toast(e.message);if(btn){btn.disabled=false;btn.textContent=activeDropType==='short'?'Send answer':'Submit answer'}}};
 function renderWaiting(d,j){
   clearTimeout(pollTimer);
   if(d.thresholdMode==='manual'){
