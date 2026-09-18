@@ -195,7 +195,18 @@ function topbarResult(){return `<div class="top"><button class="linkbtn" onclick
 
 function chatHtml(messages){return messages.length?messages.map(m=>`<div class="msg ${m.participantId===pid?'me':''}"><div class="who">${esc(m.nickname)}</div>${esc(m.text)}</div>`).join(''):`<div class="empty"><div><div style="font-size:40px">💬</div><h3>Start the chat</h3><p class="sub" style="margin-top:5px">Only your Crew can see this.</p></div></div>`}
 async function refreshChatMessages(){try{const j=await api('chatList',{params:{crewId}});const box=$('#chat');if(!box)return;const nearBottom=box.scrollHeight-box.scrollTop-box.clientHeight<80;box.innerHTML=chatHtml(j.messages);if(nearBottom)box.scrollTop=box.scrollHeight}catch{}}
-async function renderChat(){await refreshCrew();const j=await api('chatList',{params:{crewId}});app.innerHTML=shell(`${top()}<div class="row between"><div><div class="tiny">CREW CHAT</div><h1>Chat</h1></div></div><div class="sp12"></div><div id="chat" class="chat">${chatHtml(j.messages)}</div><div class="composer"><input id="chatInput" maxlength="240" placeholder="Message your Crew…" onkeydown="if(event.key==='Enter')window._sendChat()"><button onclick="window._sendChat()">Send</button></div><div class="quick"><button onclick="window._quick('😂')">😂</button><button onclick="window._quick('😭')">😭</button><button onclick="window._quick('🔥')">🔥</button><button onclick="window._quick('👀')">👀</button></div>`);const box=$('#chat');if(box)box.scrollTop=box.scrollHeight;chatTimer=setInterval(()=>{if(screen==='crew'&&tab==='chat')refreshChatMessages()},3000)}
-window._quick=x=>{const i=$('#chatInput');if(!i)return;i.value=(i.value+' '+x).trim();i.focus()};window._sendChat=async()=>{const i=$('#chatInput');const text=i?.value.trim();if(!text)return;try{await api('chatSend',{method:'POST',body:{crewId,participantId:pid,text}});track('chat_message_sent');i.value='';await refreshChatMessages();i.focus()}catch(e){toast(e.message)}};
+async function renderChat(){
+  clearInterval(chatTimer);await refreshCrew();const j=await api('chatList',{params:{crewId}});
+  const emojis=['😂','😭','🔥','👀','❤️','🤣','😍','😎','🤡','💀','🙄','😤','🥳','🤝','👍','👎','🍻','☕','🏏','🎉','🤔','😴','😈','✨'];
+  app.innerHTML=shell(`${top(crew.name,'crew')}<div class="row between"><div><div class="tiny">CREW CHAT</div><h1>Chat</h1></div><span class="chip">${members.length} people</span></div><div class="sp12"></div><div id="chat" class="chat">${chatHtml(j.messages)}</div><div class="composer"><button class="emojiToggle" onclick="window._toggleEmoji()">😀</button><input id="chatInput" maxlength="240" placeholder="Message your Crew…" onkeydown="if(event.key==='Enter')window._sendChat()"><button onclick="window._sendChat()">Send</button></div><div id="emojiPicker" class="emojiPicker">${emojis.map(e=>`<button onclick="window._emoji('${e}')">${e}</button>`).join('')}</div>`);
+  const box=$('#chat');if(box)box.scrollTop=box.scrollHeight;
+  chatTimer=setInterval(()=>{if(screen==='chat')refreshChatMessages()},3000)
+}
+window._toggleEmoji=()=>{$('#emojiPicker')?.classList.toggle('open');$('#chatInput')?.focus()};
+window._emoji=x=>{const i=$('#chatInput');if(!i)return;const start=i.selectionStart??i.value.length,end=i.selectionEnd??i.value.length;i.value=i.value.slice(0,start)+x+i.value.slice(end);i.focus();i.selectionStart=i.selectionEnd=start+x.length};
+window._quick=window._emoji;
+window._sendChat=async()=>{const i=$('#chatInput');const text=i?.value.trim();if(!text)return;try{await api('chatSend',{method:'POST',body:{crewId,participantId:pid,text}});track('chat_message_sent');i.value='';await refreshChatMessages();i.focus()}catch(e){toast(e.message)}};
+
+
 
 boot();
