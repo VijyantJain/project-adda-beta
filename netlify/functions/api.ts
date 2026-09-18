@@ -8,6 +8,9 @@ const bad = (message:string, status=400) => ok({ error: message }, status);
 const clean = (v:any, max=120) => String(v ?? "").trim().slice(0,max);
 const id = (prefix="") => prefix + crypto.randomUUID().replace(/-/g,"").slice(0,10);
 const now = () => new Date().toISOString();
+const safeMediaRef=(v:any,crewId:string)=>{const x=clean(v,180);return x.startsWith(`media/${crewId}/`)?x:""};
+const mediaMime=(key:string)=>key.endsWith(".webp")?"image/webp":key.endsWith(".png")?"image/png":"image/jpeg";
+
 
 async function getJSON(store:any,key:string){ return await store.get(key, { type:"json" }) as any; }
 async function listJSON(store:any,prefix:string, limit=100){
@@ -54,6 +57,28 @@ export default async (req: Request, context: Context) => {
       return ok({ crew, members });
     }
 
+    if (action === "uploadMedia" && req.method === "POST") {
+      const crewId=clean(body.crewId,40), participantId=clean(body.participantId,40);
+      const member=await getJSON(store,`member/${crewId}/${participantId}`); if(!member) return bad("Join the Crew first.",403);
+      const dataUrl=String(body.dataUrl||"");
+      const m=dataUrl.match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/);
+      if(!m) return bad("Please choose a JPG, PNG or WebP image.");
+      const mime=m[1],buf=Buffer.from(m[2],"base64");
+      if(!buf.length) return bad("Image is empty.");
+      if(buf.length>700000) return bad("Image is too large after compression. Try another image.");
+      const ext=mime==="image/png"?"png":mime==="image/webp"?"webp":"jpg";
+      const key=`media/${crewId}/${participantId}/${id("img_")}.${ext}`;
+      await store.set(key,buf.buffer.slice(buf.byteOffset,buf.byteOffset+buf.byteLength));
+      return ok({mediaRef:key,mediaUrl:`/api?action=media&key=${encodeURIComponent(key)}`});
+    }
+
+    if (action === "media") {
+      const key=clean(url.searchParams.get("key"),180);
+      if(!key.startsWith("media/")) return new Response("Not found",{status:404});
+      const data=await store.get(key,{type:"arrayBuffer"}); if(!data) return new Response("Not found",{status:404});
+      return new Response(data,{status:200,headers:{"content-type":mediaMime(key),"cache-control":"public, max-age=86400"}});
+    }
+
     if (action === "createDrop" && req.method === "POST") {
       const crewId=clean(body.crewId,40), participantId=clean(body.participantId,40);
       const crew=await getJSON(store,`crew/${crewId}`);
@@ -90,7 +115,9 @@ export default async (req: Request, context: Context) => {
       const currentMembers = await listJSON(store,`member/${crewId}/`,100);
       const memberCountAtCreate = Math.max(1,currentMembers.length);
       const showNames=body.showNames===true; const allowChange=body.allowChange!==false;
-      const drop={id:dropId,crewId,type,question,options,createdBy:participantId,creatorName:member.nickname,createdAt:now(),thresholdMode,thresholdCount,memberCountAtCreate,showNames,allowChange,status:"open"};
+      const mediaA=safeMediaRef(body.mediaA,crewId), mediaB=safeMediaRef(body.mediaB,crewId);
+      if(mediaB && type!=="either") return bad("Second image is only supported for This / That.");
+      const drop={id:dropId,crewId,type,question,options,mediaA,mediaB,createdBy:participantId,creatorName:member.nickname,createdAt:now(),thresholdMode,thresholdCount,memberCountAtCreate,showNames,allowChange,status:"open"};
       await store.setJSON(`drop/${crewId}/${dropId}`,drop);
       await store.setJSON(`dropIndex/${crewId}/${drop.createdAt}-${dropId}`,{dropId,createdAt:drop.createdAt});
       return ok({drop});
@@ -164,6 +191,7 @@ export default async (req: Request, context: Context) => {
       if(drop.createdBy!==participantId) return bad("Only the creator can delete this Drop.",403);
       const { blobs:responseBlobs } = await store.list({ prefix:`response/${crewId}/${dropId}/` });
       await Promise.all(responseBlobs.map((b:any)=>store.delete(b.key)));
+      if(drop.mediaA) await store.delete(drop.mediaA); if(drop.mediaB) await store.delete(drop.mediaB);
       await store.delete(`drop/${crewId}/${dropId}`);
       await store.delete(`dropIndex/${crewId}/${drop.createdAt}-${dropId}`);
       return ok({deleted:true});
