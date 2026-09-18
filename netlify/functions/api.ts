@@ -1,7 +1,7 @@
 import type { Context, Config } from "@netlify/functions";
-import { getStore } from "@netlify/blobs";
+import { getStore, getDeployStore } from "@netlify/blobs";
 
-function makeStore(){ return getStore({ name: "adda-v03", consistency: "strong" }); }
+function makeStore(context:any){ return context?.deploy?.context==="production" ? getStore({ name:"adda-v03", consistency:"strong" }) : getDeployStore("adda-v05-preview"); }
 const JSON_HEADERS = { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" };
 const ok = (data:any, status=200) => new Response(JSON.stringify(data), { status, headers: JSON_HEADERS });
 const bad = (message:string, status=400) => ok({ error: message }, status);
@@ -19,7 +19,7 @@ async function listJSON(store:any,prefix:string, limit=100){
 
 export default async (req: Request, context: Context) => {
   try {
-    const store = makeStore();
+    const store = makeStore(context);
     const url = new URL(req.url);
     const action = url.searchParams.get("action") || "";
     const body = req.method === "POST" ? await req.json().catch(()=>({})) : {};
