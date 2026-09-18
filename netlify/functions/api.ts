@@ -79,7 +79,10 @@ export default async (req: Request, context: Context) => {
         options=(Array.isArray(body.options)?body.options:[]).map((x:any)=>clean(x,40)).filter(Boolean).slice(0,4).map((x:string,i:number)=>({id:`o${i+1}`,label:x}));
         if(options.length<2) return bad("Add at least 2 choices.");
       } else {
-        options=[1,2,3,4,5].map(n=>({id:String(n),label:String(n)}));
+        const defaults=["😬 Not for me","😕 Meh","🙂 Decent","😍 Love it","🔥 Obsessed"];
+        const custom=Array.isArray(body.ratingLabels)?body.ratingLabels.map((x:any)=>clean(x,28)).slice(0,5):[];
+        const labels=defaults.map((d,i)=>custom[i]||d);
+        options=labels.map((label,i)=>({id:String(i+1),label}));
       }
       const dropId=id("d_");
       const thresholdMode = body.thresholdMode === "everyone" ? "everyone" : body.thresholdMode === "manual" ? "manual" : "count";
