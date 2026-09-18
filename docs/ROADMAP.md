@@ -1,0 +1,134 @@
+# Project Adda — Product Roadmap
+Updated: 2026-09-18
+Roadmap is milestone-based; dates should follow validation rather than force feature shipping.
+
+## M0 — Current Field Test (NOW)
+Goal: validate entry-through-Drop and continued voluntary interaction.
+Ship only:
+- blocking UX fixes
+- stable global app shell
+- clickable identities -> Vibe profile
+- analytics/error instrumentation
+- current Drop/Chat/Vibe feature set
+
+Do not add major new social systems during the live wave.
+
+Exit evidence:
+- usable/stable on mobile
+- measurable funnel
+- several real Crews tested
+- qualitative feedback captured
+- understanding of top Drop formats and abandonment points
+
+## M1 — Identity + Realtime Foundation
+Goal: make Adda a durable account-based product.
+- Supabase migration
+- authentication
+- stable profile IDs
+- avatars
+- cross-device Crew membership
+- RLS/security
+- realtime Crew updates
+- notification inbox foundation
+- media storage/CDN foundation
+- block/report primitives
+- public/private profile controls
+
+## M2 — Personal Retention Beta: Daily Vibe Loop
+Goal: prove return behavior even when friends are inactive.
+- Daily Deck (small personalized set of micro-actions)
+- Vibe XP/score
+- Daily Charge meter
+- streak
+- Mystery Capsule
+- missions
+- badge progress
+- unlockable profile/Vibe cosmetics
+- next-action chain
+- Arena-backed fallback actions
+- retention cohort analytics
+
+Exit evidence:
+- D1/D7 return improvement
+- repeat Daily Deck completion
+- users care about score/streak/unlocks without prompting
+
+## M3 — Private Social Suite
+Goal: deepen direct social use.
+- DMs v1 (text, emoji, Drop/profile sharing)
+- message requests
+- mute/block/report
+- Moment/Story v1 (24h photo/text)
+- audience controls: Crew / accepted followers / custom circle
+- Moment replies -> DM
+- viewers list
+- reactions
+- view-once "Blink" image in DM/Crew
+- expiry/deletion worker
+- notifications
+- templates/remix
+- richer prompt packs
+
+## M4 — Crew Depth
+Goal: make each Crew valuable beyond Drops.
+- Crew Pulse + Mystery Reveal Chain
+- weekly Crew challenges
+- Plans/events/RSVP
+- shared lists
+- pinned memories/inside jokes
+- Moments inside Crew
+- Recap -> Memory archive
+- recurring rituals
+- Crew titles/cosmetics
+- lightweight moderation roles
+
+## M5 — Arena Growth Beta
+Goal: create always-available discovery and public participation.
+- rolling public feed
+- public Drops
+- public Moments where permitted
+- follow graph / accepted-private account model
+- interest model
+- personalized candidate generation/ranking
+- "not interested" / hide controls
+- diversity/freshness/exploration
+- creator/profile discovery
+- deep links back to profiles/Crews/Drops
+- safety moderation and rate limits
+- feed experiment framework
+
+## M6 — Ephemeral + Messaging Expansion
+- short video Moments
+- voice/image messaging
+- view-once video
+- replay policies
+- message search
+- richer group DMs if validated
+- story highlights (optional permanent saves)
+- native-app media capture UX
+- push notification controls
+
+## M7 — GTM Hardening
+- native-quality client (PWA/native decision based on usage)
+- push notifications
+- robust abuse/moderation operations
+- scalable recommendation service
+- media transcoding/CDN
+- observability/SLOs
+- experimentation platform
+- onboarding localization
+- regional/Hinglish packs
+- accessibility
+- privacy/security review
+- app-store readiness if native
+- brand/name finalization
+
+## M8 — Monetisation (only after retention)
+Candidate—not locked:
+- profile/Vibe cosmetics
+- Crew themes/effects
+- premium Crew/admin tools
+- collectible/event badge packs
+- brand/campus/event experiences
+- creator tools
+Avoid damaging the core social loop with premature ads.
