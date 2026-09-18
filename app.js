@@ -22,7 +22,21 @@ window._openCurrentCrew=()=>{if(crewId&&crew){screen='crew';render()}else{const 
 window._createAction=()=>{if(crewId&&crew){screen='create';render()}else{screen='start';render()}};
 window._openKnownCrew=id=>{crewId=id;dropId='';history.replaceState({},'',`/?crew=${id}`);screen='boot';boot()};
 function stopPolling(){clearInterval(pollTimer);clearInterval(chatTimer)}
-function share(url,text='Join my Adda Crew 👀'){if(navigator.share)navigator.share({title:'Adda',text,url}).catch(()=>{});else navigator.clipboard?.writeText(url).then(()=>toast('Link copied'))}
+function closeShare(){document.querySelector('.shareOverlay')?.remove()}
+function fallbackShare(url,text){
+  closeShare();
+  const el=document.createElement('div');el.className='shareOverlay';
+  const wa='https://wa.me/?text='+encodeURIComponent(text+' '+url);
+  const tg='https://t.me/share/url?url='+encodeURIComponent(url)+'&text='+encodeURIComponent(text);
+  const mail='mailto:?subject='+encodeURIComponent('Adda')+'&body='+encodeURIComponent(text+'\n\n'+url);
+  el.innerHTML=`<div class="shareSheet"><div class="sheetHandle"></div><div class="row between"><h2>Share</h2><button class="sheetClose" onclick="closeShare()">×</button></div><div class="shareApps"><a href="${wa}" target="_blank"><span>🟢</span><b>WhatsApp</b></a><a href="${tg}" target="_blank"><span>✈️</span><b>Telegram</b></a><a href="${mail}"><span>✉️</span><b>Email</b></a><button onclick="navigator.clipboard?.writeText('${url.replace(/'/g,"\\'")}').then(()=>{toast('Link copied');closeShare()})"><span>🔗</span><b>Copy link</b></button></div><p class="sub">On supported phones, <b>More apps</b> opens your system share sheet — including apps such as Instagram when available.</p>${navigator.share?`<div class="sp12"></div><button class="btn primary" onclick="navigator.share({title:'Adda',text:'${text.replace(/'/g,"\\'")}',url:'${url.replace(/'/g,"\\'")}'})">More apps</button>`:''}</div>`;
+  el.addEventListener('click',e=>{if(e.target===el)closeShare()});document.body.appendChild(el)
+}
+async function share(url,text='Join my Adda Crew 👀'){
+  if(navigator.share){try{await navigator.share({title:'Adda',text,url});return}catch(e){if(e?.name==='AbortError')return}}
+  fallbackShare(url,text)
+}
+window.closeShare=closeShare;
 window._shareCrew=()=>share(`${location.origin}/?crew=${crewId}`,`Join ${crew.name} on Adda 👀`);
 window._shareDrop=(id)=>share(`${location.origin}/?crew=${crewId}&drop=${id}`,`Answer this Drop in ${crew.name} 👀`);
 
