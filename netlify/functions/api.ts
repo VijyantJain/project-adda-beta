@@ -37,6 +37,90 @@ const now = () => new Date().toISOString();
 const safeMediaRef=(v:any,crewId:string)=>{const x=clean(v,180);return x.startsWith(`media/${crewId}/`)?x:""};
 const mediaMime=(key:string)=>key.endsWith(".webp")?"image/webp":key.endsWith(".png")?"image/png":"image/jpeg";
 
+const ANALYTICS_STARTED_AT="2026-09-18T14:00:00.000Z";
+const analyticsAdminKey=()=>String((globalThis as any).Netlify?.env?.get?.("ADDA_ANALYTICS_ADMIN_KEY")||"");
+const adminOK=(req:Request)=>{const expected=analyticsAdminKey(),supplied=req.headers.get("x-adda-admin-key")||"";return !!expected&&supplied===expected};
+const trimArray=(xs:any[],n=8)=>xs.filter(Boolean).slice(-n);
+const uniqPush=(xs:any[],v:any,n=8)=>{const arr=(xs||[]).filter((x:any)=>JSON.stringify(x)!==JSON.stringify(v));if(v!==undefined&&v!==null&&v!=="")arr.push(v);return trimArray(arr,n)};
+function parseUA(ua:string){
+  const u=ua||""; let browser="Other",os="Other",device="Desktop";
+  if(/Edg\//i.test(u))browser="Edge"; else if(/OPR\//i.test(u))browser="Opera"; else if(/SamsungBrowser\//i.test(u))browser="Samsung Internet"; else if(/CriOS|Chrome\//i.test(u))browser="Chrome"; else if(/FxiOS|Firefox\//i.test(u))browser="Firefox"; else if(/Safari\//i.test(u)&&!/Chrome|CriOS|Android/i.test(u))browser="Safari";
+  if(/Android/i.test(u))os="Android"; else if(/iPhone|iPad|iPod/i.test(u))os="iOS"; else if(/Windows NT/i.test(u))os="Windows"; else if(/Mac OS X|Macintosh/i.test(u))os="macOS"; else if(/Linux/i.test(u))os="Linux";
+  if(/iPad|Tablet|Android(?!.*Mobile)/i.test(u))device="Tablet"; else if(/Mobi|iPhone|iPod|Android/i.test(u))device="Mobile";
+  return {browser,os,deviceType:device};
+}
+function requestFacts(req:Request,context:any){
+  const ua=req.headers.get("user-agent")||"",g=context?.geo||{},p=parseUA(ua);
+  return {
+    ip:clean(context?.ip||"",80),
+    userAgent:clean(ua,500),
+    browser:p.browser,os:p.os,deviceType:p.deviceType,
+    geo:{
+      city:clean(g?.city||"",80),
+      region:clean(g?.subdivision?.name||"",80),
+      regionCode:clean(g?.subdivision?.code||"",20),
+      country:clean(g?.country?.name||"",80),
+      countryCode:clean(g?.country?.code||"",10),
+      timezone:clean(g?.timezone||"",80)
+    }
+  };
+}
+function sanitizeClient(raw:any){
+  const x=raw||{}, conn=x.connection||{}, perf=x.performance||{};
+  return {
+    platform:clean(x.platform,80),language:clean(x.language,40),languages:Array.isArray(x.languages)?x.languages.slice(0,8).map((v:any)=>clean(v,30)):[],
+    timezone:clean(x.timezone,80),viewport:{width:Number(x.viewport?.width)||0,height:Number(x.viewport?.height)||0},
+    screen:{width:Number(x.screen?.width)||0,height:Number(x.screen?.height)||0,dpr:Number(x.screen?.dpr)||0},
+    touchPoints:Number(x.touchPoints)||0,hardwareConcurrency:Number(x.hardwareConcurrency)||0,deviceMemory:Number(x.deviceMemory)||0,
+    connection:{effectiveType:clean(conn.effectiveType,20),downlink:Number(conn.downlink)||0,rtt:Number(conn.rtt)||0,saveData:!!conn.saveData},
+    displayMode:clean(x.displayMode,30),colorScheme:clean(x.colorScheme,20),reducedMotion:!!x.reducedMotion,
+    performance:{duration:Math.round(Number(perf.duration)||0),domContentLoaded:Math.round(Number(perf.domContentLoaded)||0),loadEvent:Math.round(Number(perf.loadEvent)||0),ttfb:Math.round(Number(perf.ttfb)||0)}
+  };
+}
+async function analyticsEvent(store:any,event:string,participantId:string,crewId:string,dropId:string,meta:any,req:Request,context:any,sessionId=""){
+  const createdAt=now(),server=requestFacts(req,context);
+  const rec={id:id("ae_"),event:clean(event,60),participantId:clean(participantId||"anon",40),sessionId:clean(sessionId,60),crewId:clean(crewId||"",40),dropId:clean(dropId||"",40),meta:meta&&typeof meta==="object"?meta:{},createdAt,server};
+  await store.setJSON(`analytics/event/${createdAt}-${rec.id}`,rec);
+  return rec;
+}
+async function touchVisitor(store:any,participantId:string,sessionId:string,client:any,entry:any,req:Request,context:any){
+  const pid=clean(participantId||"anon",40),sid=clean(sessionId,60),ts=now(),server=requestFacts(req,context),safe=sanitizeClient(client);
+  const key=`analytics/visitor/${pid}`,prev=await getJSON(store,key)||{};
+  const sessions=Array.isArray(prev.sessionIds)?prev.sessionIds:[],isNewSession=!!sid&&!sessions.includes(sid);
+  const ipHistory=uniqPush(prev.ipHistory||[],server.ip,6);
+  const geoKey=[server.geo.city,server.geo.region,server.geo.country].filter(Boolean).join(", ");
+  const geoHistory=uniqPush(prev.geoHistory||[],geoKey,6);
+  const rec={
+    participantId:pid,firstSeen:prev.firstSeen||ts,lastSeen:ts,
+    visitCount:(Number(prev.visitCount)||0)+1,sessionCount:(Number(prev.sessionCount)||0)+(isNewSession?1:0),
+    sessionIds:isNewSession?uniqPush(sessions,sid,20):sessions,
+    firstEntry:prev.firstEntry||entry,lastEntry:entry,
+    firstServer:prev.firstServer||server,lastServer:server,firstClient:prev.firstClient||safe,lastClient:safe,
+    firstReferrer:prev.firstReferrer||clean(entry?.referrer,300),lastReferrer:clean(entry?.referrer,300),
+    firstSource:prev.firstSource||clean(entry?.source,80),lastSource:clean(entry?.source,80),
+    ipHistory,geoHistory,actionCount:Number(prev.actionCount)||0,names:prev.names||[]
+  };
+  await store.setJSON(key,rec);
+  if(sid){
+    const sk=`analytics/session/${sid}`,old=await getJSON(store,sk)||{};
+    await store.setJSON(sk,{sessionId:sid,participantId:pid,firstSeen:old.firstSeen||ts,lastSeen:ts,pageLoads:(Number(old.pageLoads)||0)+1,entry:old.entry||entry,lastEntry:entry,server:old.server||server,client:old.client||safe});
+  }
+  return rec;
+}
+async function touchVisitorAction(store:any,participantId:string,req:Request,context:any,crewId="",dropId=""){
+  const pid=clean(participantId||"anon",40),key=`analytics/visitor/${pid}`,prev=await getJSON(store,key);
+  if(!prev)return;
+  prev.lastSeen=now();prev.actionCount=(Number(prev.actionCount)||0)+1;prev.lastServer=requestFacts(req,context);
+  if(crewId||dropId)prev.lastEntry={...(prev.lastEntry||{}),crewId:clean(crewId,40),dropId:clean(dropId,40)};
+  await store.setJSON(key,prev);
+}
+function topCounts(rows:any[],keyFn:(x:any)=>string,limit=12){
+  const m:any={};rows.forEach(x=>{const k=keyFn(x)||"Unknown";m[k]=(m[k]||0)+1});
+  return Object.entries(m).map(([label,count])=>({label,count:Number(count)})).sort((a,b)=>b.count-a.count).slice(0,limit);
+}
+function pct(n:number,d:number){return d?Math.round(n/d*1000)/10:0}
+
+
 
 async function getJSON(store:any,key:string){ return await store.get(key, { type:"json" }) as any; }
 async function listJSON(store:any,prefix:string, limit=100){
@@ -52,6 +136,122 @@ export default async (req: Request, context: Context) => {
     const url = new URL(req.url);
     const action = url.searchParams.get("action") || "";
     const body = req.method === "POST" ? await req.json().catch(()=>({})) : {};
+
+
+    if (action === "analyticsVisit" && req.method === "POST") {
+      const participantId=clean(body.participantId||"anon",40),sessionId=clean(body.sessionId,60);
+      const entry={
+        crewId:clean(body.crewId,40),dropId:clean(body.dropId,40),path:clean(body.path,160),
+        referrer:clean(body.referrer,300),source:clean(body.source,80),medium:clean(body.medium,80),campaign:clean(body.campaign,120),
+        firstLocalSeen:clean(body.firstLocalSeen,60),returningLocal:!!body.returningLocal,knownCrewCount:Number(body.knownCrewCount)||0
+      };
+      const visitor=await touchVisitor(store,participantId,sessionId,body.client||{},entry,req,context);
+      await analyticsEvent(store,"visit_started",participantId,entry.crewId,entry.dropId,{entry,client:sanitizeClient(body.client||{})},req,context,sessionId);
+      if(entry.dropId)await analyticsEvent(store,"drop_link_opened",participantId,entry.crewId,entry.dropId,{source:entry.source,referrer:entry.referrer},req,context,sessionId);
+      else if(entry.crewId)await analyticsEvent(store,"crew_link_opened",participantId,entry.crewId,"",{source:entry.source,referrer:entry.referrer},req,context,sessionId);
+      return ok({saved:true,firstSeen:visitor.firstSeen,visitCount:visitor.visitCount,sessionCount:visitor.sessionCount});
+    }
+
+    if (action === "analyticsDashboard") {
+      if(!adminOK(req))return bad("Not authorized.",401);
+      const days=Math.max(0,Math.min(3650,Number(url.searchParams.get("days"))||30));
+      const since=days?new Date(Date.now()-days*86400000).toISOString():"";
+      const inRange=(ts:any)=>!since||String(ts||"")>=since;
+
+      const visitors=(await listJSON(store,"analytics/visitor/",100000)).filter((v:any)=>inRange(v.lastSeen));
+      const sessions=(await listJSON(store,"analytics/session/",100000)).filter((v:any)=>inRange(v.lastSeen));
+      const analyticsEvents=(await listJSON(store,"analytics/event/",100000)).filter((e:any)=>inRange(e.createdAt));
+      const legacyEvents=(await listJSON(store,"event/",100000)).filter((e:any)=>String(e.createdAt||"")<ANALYTICS_STARTED_AT&&inRange(e.createdAt));
+      const events=[...legacyEvents.map((e:any)=>({...e,legacy:true,server:{userAgent:e.ua||""}})),...analyticsEvents].sort((a:any,b:any)=>String(a.createdAt).localeCompare(String(b.createdAt)));
+
+      const memberRows=await listJSON(store,"member/",100000),nameMap:any={},crewNamesByPerson:any={};
+      memberRows.forEach((m:any)=>{if(!m?.id)return;if(!nameMap[m.id]||String(m.joinedAt)>String(nameMap[m.id].joinedAt||""))nameMap[m.id]={name:m.nickname||"",joinedAt:m.joinedAt||""};});
+      const crewRows=await listJSON(store,"crew/",100000),crewMap:any={};crewRows.forEach((c:any)=>crewMap[c.id]=c);
+      const memberKeys=(await store.list({prefix:"member/"})).blobs.map((b:any)=>b.key);
+      const dropKeys=(await store.list({prefix:"dropIndex/"})).blobs.map((b:any)=>b.key);
+      const responseKeys=(await store.list({prefix:"response/"})).blobs.map((b:any)=>b.key);
+      const chatKeys=(await store.list({prefix:"chat/"})).blobs.map((b:any)=>b.key);
+
+      const crewAgg:any={};
+      const ensureCrew=(id:string)=>crewAgg[id]||(crewAgg[id]={crewId:id,name:crewMap[id]?.name||id,createdAt:crewMap[id]?.createdAt||"",members:0,drops:0,responses:0,chats:0});
+      memberKeys.forEach((k:string)=>{const p=k.split("/");if(p[1])ensureCrew(p[1]).members++});
+      dropKeys.forEach((k:string)=>{const p=k.split("/");if(p[1])ensureCrew(p[1]).drops++});
+      responseKeys.forEach((k:string)=>{const p=k.split("/");if(p[1])ensureCrew(p[1]).responses++});
+      chatKeys.forEach((k:string)=>{const p=k.split("/");if(p[1])ensureCrew(p[1]).chats++});
+
+      const participantActions:any={},eventCounts:any={},uniqueByEvent:any={};
+      events.forEach((e:any)=>{
+        const ev=e.event||"unknown";eventCounts[ev]=(eventCounts[ev]||0)+1;
+        if(!uniqueByEvent[ev])uniqueByEvent[ev]=new Set();if(e.participantId&&e.participantId!=="anon")uniqueByEvent[ev].add(e.participantId);
+        if(e.participantId&&e.participantId!=="anon"){participantActions[e.participantId]=participantActions[e.participantId]||{};participantActions[e.participantId][ev]=(participantActions[e.participantId][ev]||0)+1;}
+      });
+      const ids=(ev:string)=>new Set((events.filter((e:any)=>e.event===ev&&e.participantId&&e.participantId!=="anon")).map((e:any)=>e.participantId));
+      const joined=new Set([...ids("crew_joined"),...ids("crew_joined_via_drop"),...ids("crew_created")]);
+      const answered=ids("response_submitted"),creators=ids("drop_created"),sharers=new Set([...ids("drop_shared"),...ids("crew_shared"),...ids("share_attempted")]),chatters=ids("chat_message_sent");
+      let answered2=0,answered5=0;Object.values(participantActions).forEach((x:any)=>{const n=Number(x.response_submitted)||0;if(n>=2)answered2++;if(n>=5)answered5++});
+
+      const visitorRows=visitors.map((v:any)=>{
+        const a=participantActions[v.participantId]||{},n=nameMap[v.participantId]?.name||"";
+        return {
+          participantId:v.participantId,name:n,firstSeen:v.firstSeen,lastSeen:v.lastSeen,visits:v.visitCount||0,sessions:v.sessionCount||0,actions:v.actionCount||0,
+          ip:v.lastServer?.ip||"",city:v.lastServer?.geo?.city||"",region:v.lastServer?.geo?.region||"",country:v.lastServer?.geo?.country||"",countryCode:v.lastServer?.geo?.countryCode||"",
+          browser:v.lastServer?.browser||"",os:v.lastServer?.os||"",deviceType:v.lastServer?.deviceType||"",
+          platform:v.lastClient?.platform||"",language:v.lastClient?.language||"",timezone:v.lastClient?.timezone||v.lastServer?.geo?.timezone||"",
+          viewport:v.lastClient?.viewport||{},screen:v.lastClient?.screen||{},connection:v.lastClient?.connection||{},hardwareConcurrency:v.lastClient?.hardwareConcurrency||0,deviceMemory:v.lastClient?.deviceMemory||0,
+          source:v.firstSource||"",referrer:v.firstReferrer||"",firstEntry:v.firstEntry||{},lastEntry:v.lastEntry||{},answerCount:a.response_submitted||0,dropCreates:a.drop_created||0,chatMessages:a.chat_message_sent||0,shares:(a.drop_shared||0)+(a.crew_shared||0)+(a.share_attempted||0)
+        }
+      }).sort((a:any,b:any)=>String(b.lastSeen).localeCompare(String(a.lastSeen)));
+
+      const uniqueVisitorIds=new Set(visitors.map((v:any)=>v.participantId));
+      const newVisitors=visitors.filter((v:any)=>inRange(v.firstSeen)).length;
+      const returningVisitors=visitors.filter((v:any)=>(Number(v.sessionCount)||0)>1).length;
+      const engaged=visitorRows.filter((v:any)=>v.answerCount>0||v.dropCreates>0||v.chatMessages>0).length;
+      const dropEntryVisitors=new Set(analyticsEvents.filter((e:any)=>e.event==="drop_link_opened").map((e:any)=>e.participantId)).size;
+      const visitEvents=analyticsEvents.filter((e:any)=>e.event==="visit_started");
+      const ipSet=new Set(visitors.map((v:any)=>v.lastServer?.ip).filter(Boolean));
+      const perf=visitors.map((v:any)=>v.lastClient?.performance).filter((x:any)=>x&&x.duration);
+      const avg=(arr:number[])=>arr.length?Math.round(arr.reduce((a,b)=>a+b,0)/arr.length):0;
+
+      const dayMap:any={};events.forEach((e:any)=>{const d=String(e.createdAt||"").slice(0,10);if(!d)return;dayMap[d]=dayMap[d]||{date:d,events:0,answers:0,joins:0,creates:0,shares:0};dayMap[d].events++;if(e.event==="response_submitted")dayMap[d].answers++;if(["crew_joined","crew_joined_via_drop","crew_created"].includes(e.event))dayMap[d].joins++;if(e.event==="drop_created")dayMap[d].creates++;if(["drop_shared","crew_shared","share_attempted"].includes(e.event))dayMap[d].shares++;});
+      const recentEvents=events.slice(-250).reverse().map((e:any)=>({createdAt:e.createdAt,event:e.event,participantId:e.participantId,name:nameMap[e.participantId]?.name||"",crewId:e.crewId||"",crewName:crewMap[e.crewId]?.name||"",dropId:e.dropId||"",meta:e.meta||{},legacy:!!e.legacy,ip:e.server?.ip||"",city:e.server?.geo?.city||"",country:e.server?.geo?.country||"",deviceType:e.server?.deviceType||"",browser:e.server?.browser||""}));
+
+      return ok({
+        generatedAt:now(),days,analyticsStartedAt:ANALYTICS_STARTED_AT,
+        summary:{
+          uniqueVisitors:uniqueVisitorIds.size,newVisitors,returningVisitors,sessions:sessions.length,pageLoads:visitEvents.length,uniqueIPs:ipSet.size,
+          engagedVisitors:engaged,engagementRate:pct(engaged,uniqueVisitorIds.size),dropEntryVisitors,
+          joined:joined.size,answered:answered.size,answered2,answered5,creators:creators.size,sharers:sharers.size,chatters:chatters.size,
+          totalAnswers:eventCounts.response_submitted||0,totalDropsCreated:eventCounts.drop_created||0,totalChats:eventCounts.chat_message_sent||0,totalShares:(eventCounts.drop_shared||0)+(eventCounts.crew_shared||0)+(eventCounts.share_attempted||0),
+          clientErrors:eventCounts.client_error||0,legacyEvents:legacyEvents.length,
+          funnel:[
+            {label:"Visited",value:uniqueVisitorIds.size},
+            {label:"Opened shared Drop",value:dropEntryVisitors},
+            {label:"Joined/created Crew",value:joined.size},
+            {label:"Answered ≥1 Drop",value:answered.size},
+            {label:"Answered ≥2 Drops",value:answered2},
+            {label:"Answered ≥5 Drops",value:answered5},
+            {label:"Created a Drop",value:creators.size},
+            {label:"Shared",value:sharers.size}
+          ],
+          performance:{avgPageLoadMs:avg(perf.map((x:any)=>Number(x.duration)||0)),avgTTFBMs:avg(perf.map((x:any)=>Number(x.ttfb)||0))}
+        },
+        breakdowns:{
+          countries:topCounts(visitors,(v:any)=>v.lastServer?.geo?.country||"Unknown",20),
+          cities:topCounts(visitors,(v:any)=>[v.lastServer?.geo?.city,v.lastServer?.geo?.region].filter(Boolean).join(", ")||"Unknown",25),
+          devices:topCounts(visitors,(v:any)=>v.lastServer?.deviceType||"Unknown"),
+          browsers:topCounts(visitors,(v:any)=>v.lastServer?.browser||"Unknown"),
+          os:topCounts(visitors,(v:any)=>v.lastServer?.os||"Unknown"),
+          languages:topCounts(visitors,(v:any)=>v.lastClient?.language||"Unknown"),
+          timezones:topCounts(visitors,(v:any)=>v.lastClient?.timezone||v.lastServer?.geo?.timezone||"Unknown"),
+          sources:topCounts(visitors,(v:any)=>v.firstSource||(/^https?:/.test(v.firstReferrer||"")?"Referral":"Direct / unknown"),20),
+          networks:topCounts(visitors,(v:any)=>v.lastClient?.connection?.effectiveType||"Unknown")
+        },
+        daily:Object.values(dayMap).sort((a:any,b:any)=>a.date.localeCompare(b.date)),
+        crews:Object.values(crewAgg).sort((a:any,b:any)=>b.responses-a.responses),
+        visitors:visitorRows.slice(0,1000),
+        recentEvents,eventCounts
+      });
+    }
 
     if (action === "createCrew" && req.method === "POST") {
       const name = clean(body.name, 42);
@@ -318,10 +518,12 @@ export default async (req: Request, context: Context) => {
     }
 
     if (action === "track" && req.method === "POST") {
-      const crewId=clean(body.crewId||"anon",40), participantId=clean(body.participantId||"anon",40);
+      const crewId=clean(body.crewId||"anon",40), participantId=clean(body.participantId||"anon",40),dropId=clean(body.dropId||body.meta?.dropId||"",40),sessionId=clean(body.sessionId,60);
       const event=clean(body.event,60); if(!event) return bad("Missing event.");
       const rec={event,crewId,participantId,meta:body.meta||{},createdAt:now(),ua:req.headers.get("user-agent")||""};
       await store.setJSON(`event/${crewId}/${rec.createdAt}-${id("e_")}`,rec);
+      await analyticsEvent(store,event,participantId,crewId,dropId,body.meta||{},req,context,sessionId);
+      await touchVisitorAction(store,participantId,req,context,crewId,dropId);
       return ok({saved:true});
     }
 
