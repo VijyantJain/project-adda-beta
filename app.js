@@ -1,6 +1,6 @@
 const $=s=>document.querySelector(s);const app=document.getElementById('app');
 const API='/api';
-const qs=new URLSearchParams(location.search);let crewId=qs.get('crew')||'';let dropId=qs.get('drop')||'';
+const qs=new URLSearchParams(location.search);let crewId=qs.get('crew')||'';let dropId=qs.get('drop')||'';let profileId=qs.get('profile')||'';
 const pid=localStorage.addaPid||(`p_${crypto.randomUUID().replace(/-/g,'').slice(0,10)}`);localStorage.addaPid=pid;
 const sid=sessionStorage.addaSid||(`s_${crypto.randomUUID().replace(/-/g,'').slice(0,14)}`);sessionStorage.addaSid=sid;
 const firstLocalSeen=localStorage.addaFirstSeen||new Date().toISOString();const returningLocal=!!localStorage.addaFirstSeen;localStorage.addaFirstSeen=firstLocalSeen;
@@ -54,10 +54,19 @@ function sendVisitAnalytics(){
 window.addEventListener('load',()=>setTimeout(sendVisitAnalytics,250),{once:true});
 window.addEventListener('error',e=>track('client_error',{message:String(e.message||'').slice(0,180),source:String(e.filename||'').slice(0,120),line:e.lineno||0,column:e.colno||0}),true);
 window.addEventListener('unhandledrejection',e=>track('client_error',{message:String(e.reason?.message||e.reason||'Unhandled rejection').slice(0,180),kind:'promise'}));
+function brandLogo(cls='brandLogo'){return `<img class="${cls}" src="/adda-logo.svg" alt="Adda">`}
+function navIcon(name){
+  const icons={
+    home:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5v9a1.5 1.5 0 0 1-1.5 1.5h-5v-6h-5v6h-5A1.5 1.5 0 0 1 3 19.5z"/></svg>',
+    crew:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="8" cy="9" r="3"/><circle cx="16.5" cy="8" r="2.5"/><path d="M2.5 19c.4-4 2.5-6 5.5-6s5.1 2 5.5 6"/><path d="M13.5 18.5c.4-3.1 2-4.8 4.5-4.8 2.1 0 3.4 1.2 3.8 3.8"/></svg>',
+    vibe:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 14.2 8l5.3 2.2-5.3 2.2L12 18l-2.2-5.6-5.3-2.2L9.8 8z"/><path d="m18.3 15.2.9 2.2 2.3.9-2.3 1-.9 2.2-.9-2.2-2.3-1 2.3-.9z"/></svg>',
+    profile:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4.5 21c.6-4.5 3.2-7 7.5-7s6.9 2.5 7.5 7"/></svg>'
+  };return icons[name]||''
+}
 function shell(inner,nav=true){return `<section class="app"><div class="view">${inner}</div>${nav?navHtml():''}</section>`}
 function top(title='',back=''){
   return `<header class="appStickyHeader ${title?'hasContext':'compact'}">
-    <div class="appTopRow"><button class="appBrand" onclick="window._home()">Adda</button></div>
+    <div class="appTopRow"><button class="appBrand" onclick="window._home()">${brandLogo()}</button></div>
     ${title?`<div class="appContextRow">${back?`<button class="contextBack" onclick="window._go('${back}')">←</button>`:''}<h3>${esc(title)}</h3></div>`:''}
   </header><div class="appHeaderSpacer ${title?'context':''}" aria-hidden="true"></div>`
 }
@@ -71,7 +80,7 @@ function matesLabel(n=members.length){return `${n} ${n===1?'mate':'mates'}`}
 function crewStickyHeader(){
   return `<header class="crewStickyHeader">
     <div class="crewTopRow">
-      <button class="crewBrand" onclick="window._home()">Adda</button>
+      <button class="crewBrand" onclick="window._home()">${brandLogo("crewBrandLogo")}</button>
       <button class="peopleCountPill" onclick="window._go('crewSettings')" aria-label="Open Crew mates"><b>${members.length}</b><span aria-hidden="true">👥</span></button>
     </div>
     <div class="crewTitleRow">
@@ -80,7 +89,7 @@ function crewStickyHeader(){
     </div>
   </header><div class="crewHeaderSpacer" aria-hidden="true"></div>`
 }
-function navHtml(){const a=x=>screen===x?'active':'';return `<nav class="nav nav5"><button class="${a('home')}" onclick="window._home()">⌂<br>Home</button><button class="${screen==='crew'?'active':''}" onclick="window._openCurrentCrew()">⚡<br>Crew</button><button class="create" onclick="window._createAction()">+</button><button class="${a('vibe')}" onclick="window._go('vibe')">✦<br>Vibe</button><button class="${a('profile')}" onclick="window._go('profile')">☺<br>Profile</button></nav>`}
+function navHtml(){const a=x=>screen===x?'active':'';return `<nav class="nav nav5"><button aria-label="Home" title="Home" class="${a('home')}" onclick="window._home()">${navIcon('home')}</button><button aria-label="Crew" title="Crew" class="${screen==='crew'?'active':''}" onclick="window._openCurrentCrew()">${navIcon('crew')}</button><button aria-label="Create" title="Create" class="create" onclick="window._createAction()">+</button><button aria-label="Vibe" title="Vibe" class="${a('vibe')}" onclick="window._go('vibe')">${navIcon('vibe')}</button><button aria-label="Profile" title="Profile" class="${a('profile')}" onclick="window._go('profile')">${navIcon('profile')}</button></nav>`}
 window._go=s=>{track('screen_view',{screen:s});screen=s;stopPolling();render()};window._tab=t=>{const next=t==='chat'?'chat':'crew';track('screen_view',{screen:next});screen=next;stopPolling();render()};
 window._home=()=>{stopPolling();crewId='';dropId='';crew=null;members=[];drops=[];history.replaceState({},'','/');screen='home';render()};
 window._openCurrentCrew=()=>{if(crewId&&crew){screen='crew';render()}else{const first=getKnownCrews()[0];if(first)window._openKnownCrew(first.id);else{screen='start';render()}}};
@@ -169,6 +178,7 @@ window._shareCrew=()=>{track('crew_shared',{crewId});share(`${location.origin}/?
 window._shareDrop=(id)=>{track('drop_shared',{dropId:id});share(`${location.origin}/?crew=${crewId}&drop=${id}&utm_source=adda&utm_medium=share&utm_campaign=drop`,`Answer this Drop in ${crew.name} 👀`)};
 
 async function boot(){try{
+ if(profileId){screen='publicVibe';render();return}
  if(!crewId){screen=getKnownCrews().length?'home':'start';render();return}
  const c=await api('getCrew',{params:{crewId}});crew=c.crew;members=c.members;
  const member=members.find(m=>m.id===pid);
@@ -182,6 +192,7 @@ function render(err=''){stopPolling();
  if(screen==='home')return renderHome();
  if(screen==='profile')return renderProfile();
  if(screen==='vibe')return renderVibe();
+ if(screen==='publicVibe')return renderPublicVibe();
  if(screen==='crewSettings')return renderCrewSettings();
  if(screen==='recap')return renderRecap();
  if(screen==='crewInsights')return renderCrewInsights();
@@ -203,7 +214,7 @@ window._newCrew=()=>{crewId='';dropId='';crew=null;members=[];drops=[];history.r
 
 function renderProfile(){
   const crews=getKnownCrews(),stats=localStats();
-  app.innerHTML=shell(`${top('')}<div class="profileCard"><div class="profileBig">☺</div><h1>${esc(meName||'You')}</h1><p class="sub">${crews.length} Crew${crews.length===1?'':'s'} · ${stats.response_submitted||0} answers · ${stats.drop_created||0} Drops made</p></div><div class="sp18"></div><button class="btn primary" onclick="window._newCrew()">Start another Crew</button><div class="sp12"></div><div class="card"><h3>Your Crews</h3><div class="sp12"></div>${crews.length?crews.map(c=>`<button class="settingsRow" onclick="window._openKnownCrew('${c.id}')"><span>👥 ${esc(c.name)}</span><b>›</b></button>`).join(''):'<p class="sub">No Crews yet.</p>'}</div>`)
+  app.innerHTML=shell(`${top('')}<div class="profileCard"><div class="profileBig">☺</div><h1>${esc(meName||'You')}</h1><p class="sub">${crews.length} Crew${crews.length===1?'':'s'} · ${stats.response_submitted||0} answers · ${stats.drop_created||0} Drops made</p></div><div class="sp18"></div><button class="btn primary" onclick="window._sharePublicProfile()">Share my Vibe profile</button><div class="sp12"></div><button class="btn ghost" onclick="window._newCrew()">Start another Crew</button><div class="sp12"></div><div class="card"><h3>Your Crews</h3><div class="sp12"></div>${crews.length?crews.map(c=>`<button class="settingsRow" onclick="window._openKnownCrew('${c.id}')"><span>👥 ${esc(c.name)}</span><b>›</b></button>`).join(''):'<p class="sub">No Crews yet.</p>'}</div>`)
 }
 
 async function renderVibe(){
@@ -255,8 +266,31 @@ window._shareVibe=()=>{
   const rank=v.crewRank?` · #${v.crewRank.rank} in ${v.crewRank.crewName}`:'';
   const text=`${meName||'My'} Adda Vibe: ${v.level?.icon||'✨'} ${v.level?.name||'Fresh'} · ${v.score||0} Vibe · 🔥 ${v.streak||0}-day streak${rank}`;
   track('vibe_shared',{score:v.score,level:v.level?.name,streak:v.streak});
-  share(`${location.origin}/`,text)
+  share(`${location.origin}/?profile=${pid}&utm_source=adda&utm_medium=share&utm_campaign=vibe_profile`,text)
 };
+window._sharePublicProfile=()=>window._shareVibe();
+async function renderPublicVibe(){
+  let v;try{v=await api('getVibe',{params:{participantId:profileId}})}catch(e){return app.innerHTML=shell(`${top('')}<div class="empty"><div><h1>Vibe not found</h1><p class="sub">This profile may no longer be available.</p></div></div>`,false)}
+  const unlocked=(v.badges||[]).filter(b=>b.unlocked),signature=v.signature?labelType(v.signature):'Still forming';
+  app.innerHTML=shell(`${top('')}
+    <section class="publicVibeIntro"><span>PUBLIC VIBE</span><h1>${esc(v.displayName||'Adda mate')}</h1><p>See the energy they have built on Adda.</p></section>
+    <section class="vibeIdentity public">
+      <div class="vibeLevelRow">
+        <div class="vibeLevelOrb"><span>${v.level?.icon||'✨'}</span><b>${v.level?.index||1}</b></div>
+        <div class="vibeLevelCopy"><small>LEVEL ${v.level?.index||1}</small><h2>${esc(v.level?.name||'Fresh')}</h2><p><b>${v.score||0}</b> Vibe</p></div>
+        <div class="vibeStreak"><span>🔥</span><b>${v.streak||0}</b><small>day streak</small></div>
+      </div>
+    </section>
+    <div class="vibeFlexGrid">
+      <div class="vibeFlex"><span>🧬</span><small>Signature</small><b>${esc(signature)}</b><em>most-played format</em></div>
+      <div class="vibeFlex"><span>👥</span><small>Crews</small><b>${v.crews||0}</b><em>social circles</em></div>
+    </div>
+    <div class="vibeStatStrip"><div><b>${v.answers||0}</b><span>Answers</span></div><div><b>${v.dropsMade||0}</b><span>Drops made</span></div><div><b>${v.chatsSent||0}</b><span>Chats sent</span></div></div>
+    <section class="vibeBadgesCard"><div class="row between"><div><span class="vibeEyebrow trophyLabel">TROPHY CASE</span><h2>Top badges</h2></div><b class="badgeCount">${unlocked.length}</b></div><div class="vibeBadgeGrid">${unlocked.slice(0,6).map(b=>`<div class="vibeAchievement unlocked"><span>${b.icon}</span><b>${esc(b.name)}</b><small>Unlocked</small></div>`).join('')||'<p class="sub">Still building their Vibe.</p>'}</div></section>
+    <div class="sp12"></div><button class="btn primary" onclick="location.href='/'">Open Adda</button>
+  `,false)
+}
+
 async function renderCrewSettings(){
   if(!crewId||!crew){return window._home()}
   await refreshCrew();const admin=crew.createdBy===pid;
