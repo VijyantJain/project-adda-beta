@@ -8,6 +8,18 @@ function pct(v){return `${Number(v||0).toFixed(1)}%`}
 function fmt(ts){if(!ts)return '—';try{return new Intl.DateTimeFormat(undefined,{dateStyle:'medium',timeStyle:'short'}).format(new Date(ts))}catch{return ts}}
 function ago(ts){if(!ts)return '—';const m=Math.max(0,Math.round((Date.now()-new Date(ts).getTime())/60000));if(m<1)return 'now';if(m<60)return `${m}m`;const h=Math.floor(m/60);if(h<24)return `${h}h`;return `${Math.floor(h/24)}d`}
 function keyLabel(k){return String(k||'').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}
+function screenLabel(screen){
+  const map={
+    home:'Home',crew:'Crew',create:'Create Drop',vibe:'Vibe',profile:'Profile',
+    chat:'Crew Chat',recap:'Recap',crewSettings:'Crew Settings',crewInsights:'Field-test Insights',
+    drop:'Drop',join:'Join Crew',start:'Start'
+  };
+  return map[screen]||keyLabel(screen||'Unknown Screen')
+}
+function eventLabel(e){
+  if(e?.event==='screen_view') return screenLabel(e?.meta?.screen)+' Viewed';
+  return keyLabel(e?.event)
+}
 
 async function adminApi(action,params={}){
   const q=new URLSearchParams({action,...params});
@@ -79,14 +91,14 @@ window.showVisitor=id=>{
   ${detail('Device',`${v.deviceType||'—'} · ${v.browser||''} · ${v.os||''}`)}${detail('Platform',v.platform||'—')}${detail('Screen',v.screen?.width?`${v.screen.width}×${v.screen.height} @${v.screen.dpr||1}x`:'—')}${detail('Viewport',v.viewport?.width?`${v.viewport.width}×${v.viewport.height}`:'—')}
   ${detail('Network',v.connection?.effectiveType?`${v.connection.effectiveType} · ${v.connection.downlink||0} Mbps · ${v.connection.rtt||0} ms`:'—')}${detail('Device memory',v.deviceMemory?`${v.deviceMemory} GB`:'—')}${detail('CPU threads',v.hardwareConcurrency||'—')}${detail('Source',v.source||'Direct / unknown')}
   ${detail('First referrer',v.referrer||'—')}${detail('Answers',n(v.answerCount))}${detail('Drops created',n(v.dropCreates))}${detail('Chat messages',n(v.chatMessages))}
-  </div><div class="sp18"></div><h3>Recent tracked activity</h3><div class="eventMini">${events.length?events.map(e=>`<div><span>${fmt(e.createdAt)}</span><b>${esc(keyLabel(e.event))}</b><small>${esc(e.crewName||e.crewId||'')}</small></div>`).join(''):'<p class="emptyText">No recent events in the current window.</p>'}</div></div>`;
+  </div><div class="sp18"></div><h3>Recent tracked activity</h3><div class="eventMini">${events.length?events.map(e=>`<div><span>${fmt(e.createdAt)}</span><b>${esc(eventLabel(e))}</b><small>${esc(e.crewName||e.crewId||'')}</small></div>`).join(''):'<p class="emptyText">No recent events in the current window.</p>'}</div></div>`;
   modal.onclick=e=>{if(e.target===modal)modal.remove()};document.body.appendChild(modal)
 };
 function detail(k,v){return `<div><span>${esc(k)}</span><b>${esc(v)}</b></div>`}
 
 function eventsPanel(){
   const rows=D?.recentEvents||[];
-  return `<div class="analyticsPanel wide"><div class="panelHead"><div><div class="tiny">ACTIVITY</div><h3>Recent events</h3></div><button onclick="exportEvents()">Export CSV</button></div><div class="tableWrap"><table><thead><tr><th>Time</th><th>Event</th><th>Visitor</th><th>Crew</th><th>Location</th><th>Device</th></tr></thead><tbody>${rows.map(e=>`<tr><td>${fmt(e.createdAt)}</td><td><b>${esc(keyLabel(e.event))}</b>${e.legacy?'<small>legacy</small>':''}</td><td>${esc(e.name||e.participantId||'—')}</td><td>${esc(e.crewName||e.crewId||'—')}</td><td>${esc([e.city,e.country].filter(Boolean).join(', ')||'—')}</td><td>${esc([e.deviceType,e.browser].filter(Boolean).join(' · ')||'—')}</td></tr>`).join('')}</tbody></table></div></div>`
+  return `<div class="analyticsPanel wide"><div class="panelHead"><div><div class="tiny">ACTIVITY</div><h3>Recent events</h3></div><button onclick="exportEvents()">Export CSV</button></div><div class="tableWrap"><table><thead><tr><th>Time</th><th>Event</th><th>Visitor</th><th>Crew</th><th>Location</th><th>Device</th></tr></thead><tbody>${rows.map(e=>`<tr><td>${fmt(e.createdAt)}</td><td><b>${esc(eventLabel(e))}</b>${e.legacy?'<small>legacy</small>':''}</td><td>${esc(e.name||e.participantId||'—')}</td><td>${esc(e.crewName||e.crewId||'—')}</td><td>${esc([e.city,e.country].filter(Boolean).join(', ')||'—')}</td><td>${esc([e.deviceType,e.browser].filter(Boolean).join(' · ')||'—')}</td></tr>`).join('')}</tbody></table></div></div>`
 }
 function errorsPanel(){
   const rows=(D?.recentEvents||[]).filter(e=>e.event==='client_error');
