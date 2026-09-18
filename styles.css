@@ -733,3 +733,37 @@ html,body{background:
   .brandLogo,.crewBrandLogo{width:108px;max-height:40px}
   .nav button:not(.create) svg{width:29px;height:29px}
 }
+
+
+/* clickable social identity */
+.identityLink,.identityStatic{
+  display:inline-flex;
+  align-items:center;
+  gap:9px;
+  min-width:0;
+}
+.identityLink{
+  border:0;
+  background:transparent;
+  padding:2px 0;
+  color:inherit;
+  font:inherit;
+  text-align:left;
+  cursor:pointer;
+}
+.identityLink>span:last-child,.identityStatic>span:last-child{
+  min-width:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.identityLink:hover>span:last-child,
+.identityLink:focus-visible>span:last-child{
+  color:#6b43f2;
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
+.answerCard .identityLink{font-weight:900;color:#2e2046}
+.settingsRow .identityLink{font-weight:800;color:#2b2039}
+.msg .who .identityLink{font-size:inherit;font-weight:900;color:inherit}
+.resultRow .identityLink{font-weight:900;color:#24173e}
