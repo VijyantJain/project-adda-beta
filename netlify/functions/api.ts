@@ -393,7 +393,7 @@ export default async (req: Request, context: Context) => {
       let result:any=null;
       if(revealed){
         if(drop.type==="short"){
-          result={entries:responses.map((r:any)=>({nickname:r.nickname,answer:r.answer,answeredAt:r.answeredAt})),total:responses.length};
+          result={entries:responses.map((r:any)=>({participantId:r.participantId,nickname:r.nickname,answer:r.answer,answeredAt:r.answeredAt})),total:responses.length};
         } else {
           const counts:any={}; responses.forEach((r:any)=>counts[r.answer]=(counts[r.answer]||0)+1);
           const ranked=Object.entries(counts).map(([answer,count])=>({answer,count:Number(count)})).sort((a,b)=>b.count-a.count);
