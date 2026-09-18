@@ -102,7 +102,7 @@ export default async (req: Request, context: Context) => {
         const mine=responses.find((r:any)=>r.participantId===participantId)||null;
         const members=await listJSON(store,`member/${crewId}/`,100);
         const threshold=d.thresholdMode==="everyone"?Math.max(2,d.memberCountAtCreate||members.length):d.thresholdCount;
-        return {...d,responseCount:responses.length,threshold,revealed:responses.length>=threshold,myResponse:mine};
+        return {...d,responseCount:responses.length,threshold,revealed:d.type==="short"?responses.length>0:responses.length>=threshold,myResponse:mine};
       }));
       return ok({drops:drops.filter(Boolean)});
     }
@@ -113,7 +113,7 @@ export default async (req: Request, context: Context) => {
       const responses=await listJSON(store,`response/${crewId}/${dropId}/`,100);
       const members=await listJSON(store,`member/${crewId}/`,100);
       const threshold=drop.thresholdMode==="everyone"?Math.max(2,drop.memberCountAtCreate||members.length):drop.thresholdCount;
-      const revealed=responses.length>=threshold;
+      const revealed=drop.type==="short"?responses.length>0:responses.length>=threshold;
       const mine=responses.find((r:any)=>r.participantId===participantId)||null;
       let result:any=null;
       if(revealed){
