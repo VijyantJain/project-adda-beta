@@ -6,13 +6,27 @@ let meName=localStorage.addaName||'';let crew=null,members=[],drops=[],screen='b
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 function esc(s=''){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1400)}
-async function api(action,opts={}){const method=opts.method||'GET';const params=new URLSearchParams({action,...(opts.params||{})});const r=await fetch(`${API}?${params}`,{method,headers:{'content-type':'application/json'},body:method==='POST'?JSON.stringify(opts.body||{}):undefined});const j=await r.json();if(!r.ok)throw new Error(j.error||'Something went wrong');return j}
+async function api(action,opts={}){
+  const method=opts.method||'GET',params=new URLSearchParams({action,...(opts.params||{})});
+  const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),9000);
+  try{
+    const r=await fetch(`${API}?${params}`,{method,headers:{'content-type':'application/json'},body:method==='POST'?JSON.stringify(opts.body||{}):undefined,signal:ctl.signal});
+    const j=await r.json().catch(()=>({}));
+    if(!r.ok)throw new Error(j.error||'Something went wrong');
+    return j
+  }catch(e){
+    if(e?.name==='AbortError')throw new Error('Connection is taking too long. Please retry.');
+    if(!navigator.onLine)throw new Error('You appear to be offline. Check your connection and retry.');
+    throw e
+  }finally{clearTimeout(timer)}
+}
 function localStats(){try{return JSON.parse(localStorage.addaStats||'{}')}catch{return {}}}
 function bumpStat(k){const x=localStats();x[k]=(x[k]||0)+1;localStorage.addaStats=JSON.stringify(x)}
 function getKnownCrews(){try{return JSON.parse(localStorage.addaCrews||'[]')}catch{return []}}
 function rememberCrew(c){if(!c?.id)return;const list=getKnownCrews().filter(x=>x.id!==c.id);list.unshift({id:c.id,name:c.name,lastSeen:Date.now()});localStorage.addaCrews=JSON.stringify(list.slice(0,20))}
 function forgetCrew(id){localStorage.addaCrews=JSON.stringify(getKnownCrews().filter(x=>x.id!==id))}
-function track(event,meta={}){bumpStat(event);api('track',{method:'POST',body:{crewId:crewId||'anon',participantId:pid,event,meta}}).catch(()=>{})}
+const IS_PREVIEW=location.hostname.includes('deploy-preview-')||location.hostname.includes('--project-adda-field-test');
+function track(event,meta={}){bumpStat(event);if(IS_PREVIEW)return;api('track',{method:'POST',body:{crewId:crewId||'anon',participantId:pid,event,meta}}).catch(()=>{})}
 function shell(inner,nav=true){return `<section class="app"><div class="view">${inner}</div>${nav?navHtml():''}</section>`}
 function top(title=crew?.name||'Adda',back=''){return `<div class="top">${back?`<button class="linkbtn" onclick="window._go('${back}')">←</button>`:`<button class="brand brandBtn" onclick="window._home()">Adda</button>`}<div class="grow"><h3>${esc(title)}</h3></div>${crew?`<button class="chip chipBtn" onclick="window._go('crewSettings')">${members.length} 👥</button>`:''}</div>`}
 function navHtml(){const a=x=>screen===x?'active':'';return `<nav class="nav nav5"><button class="${a('home')}" onclick="window._home()">⌂<br>Home</button><button class="${screen==='crew'?'active':''}" onclick="window._openCurrentCrew()">⚡<br>Crew</button><button class="create" onclick="window._createAction()">+</button><button class="${a('vibe')}" onclick="window._go('vibe')">✦<br>Vibe</button><button class="${a('profile')}" onclick="window._go('profile')">☺<br>Profile</button></nav>`}
@@ -21,7 +35,16 @@ window._home=()=>{stopPolling();crewId='';dropId='';crew=null;members=[];drops=[
 window._openCurrentCrew=()=>{if(crewId&&crew){screen='crew';render()}else{const first=getKnownCrews()[0];if(first)window._openKnownCrew(first.id);else{screen='start';render()}}};
 window._createAction=()=>{if(crewId&&crew){screen='create';render()}else{screen='start';render()}};
 window._openKnownCrew=id=>{crewId=id;dropId='';history.replaceState({},'',`/?crew=${id}`);screen='boot';boot()};
-function stopPolling(){clearInterval(pollTimer);clearInterval(chatTimer)}
+function stopPolling(){clearTimeout(pollTimer);clearTimeout(chatTimer)}
+function schedulePoll(kind,fn,ms){
+  const hiddenDelay=Math.max(ms,30000);
+  const runner=async()=>{if(document.hidden){schedulePoll(kind,fn,hiddenDelay);return}try{await fn()}catch(e){console.warn('sync',e?.message||e)}};
+  if(kind==='chat'){clearTimeout(chatTimer);chatTimer=setTimeout(runner,ms)}else{clearTimeout(pollTimer);pollTimer=setTimeout(runner,ms)}
+}
+function chatSeenKey(){return 'addaChatSeen_'+crewId}
+function hasUnreadChat(){const seen=localStorage.getItem(chatSeenKey())||'';return !!(crew?.latestChatAt&&crew.latestChatAt>seen)}
+function markChatSeen(){if(crew?.latestChatAt)localStorage.setItem(chatSeenKey(),crew.latestChatAt)}
+function avatarHtml(name='?'){const initial=esc(String(name).trim().charAt(0).toUpperCase()||'?');return `<span class="avatar">${initial}</span>`}
 function closeShare(){document.querySelector('.shareOverlay')?.remove()}
 function fallbackShare(url,text){
   closeShare();
@@ -60,7 +83,7 @@ function render(err=''){stopPolling();
  if(screen==='start')return renderStart();
  if(screen==='join')return renderJoin();
  if(screen==='joinDrop')return renderJoinDrop();
- if(screen==='notfound')return app.innerHTML=shell(`<div class="empty"><div><h1>Link not working</h1><p class="sub" style="margin-top:8px">${esc(err||'Ask your friend for a fresh link.')}</p><div class="sp18"></div><button class="btn dark" onclick="location.href='/'">Start Adda</button></div></div>`,false);
+ if(screen==='notfound')return app.innerHTML=shell(`<div class="empty"><div><div style="font-size:42px">↻</div><h1>Couldn’t load Adda</h1><p class="sub" style="margin-top:8px">${esc(err||'The connection may be slow. Try again.')}</p><div class="sp18"></div><button class="btn primary" onclick="boot()">Retry</button><div class="sp12"></div><button class="btn ghost" onclick="location.href='/'">Go Home</button></div></div>`,false);
  if(screen==='crew')return renderCrew();
  if(screen==='create')return renderCreate();
  if(screen==='drop')return renderDrop();
@@ -89,7 +112,7 @@ async function renderVibe(){
 async function renderCrewSettings(){
   if(!crewId||!crew){return window._home()}
   await refreshCrew();const admin=crew.createdBy===pid;
-  app.innerHTML=shell(`${top('Crew settings','crew')}<div class="card"><div class="row between"><div><div class="tiny">CREW</div><h2>${esc(crew.name)}</h2></div><span class="chip">${admin?'Admin':'Member'}</span></div>${admin?`<div class="sp12"></div><div class="field"><label>Rename Crew</label><div class="row"><input id="renameCrew" value="${esc(crew.name)}"><button class="miniPrimary" onclick="window._renameCrew()">Save</button></div></div>`:''}</div><div class="sp12"></div><div class="card"><div class="row between"><h3>Members</h3><span class="chip">${members.length}</span></div><div class="sp12"></div>${members.map(m=>`<div class="settingsRow"><span>${esc(m.nickname)}${m.id===crew.createdBy?' · Admin':''}</span>${admin&&m.id!==pid?`<button class="dangerMini" onclick="window._removeMember('${m.id}')">Remove</button>`:''}</div>`).join('')}</div><div class="sp12"></div><button class="btn ghost" onclick="window._shareCrew()">Share Crew invite</button><div class="sp12"></div>${admin?`<button class="btn dangerBtn" onclick="window._deleteCrew()">Delete Crew</button>`:`<button class="btn dangerBtn" onclick="window._leaveCrew()">Leave Crew</button>`}`)
+  app.innerHTML=shell(`${top('Crew settings','crew')}<div class="card"><div class="row between"><div><div class="tiny">CREW</div><h2>${esc(crew.name)}</h2></div><span class="chip">${admin?'Admin':'Member'}</span></div>${admin?`<div class="sp12"></div><div class="field"><label>Rename Crew</label><div class="row"><input id="renameCrew" value="${esc(crew.name)}"><button class="miniPrimary" onclick="window._renameCrew()">Save</button></div></div>`:''}</div><div class="sp12"></div><div class="card"><div class="row between"><h3>Members</h3><span class="chip">${members.length}</span></div><div class="sp12"></div>${members.map(m=>`<div class="settingsRow memberRow"><span class="memberName">${avatarHtml(m.nickname)}<span>${esc(m.nickname)}${m.id===crew.createdBy?' · Admin':''}</span></span>${admin&&m.id!==pid?`<button class="dangerMini" onclick="window._removeMember('${m.id}')">Remove</button>`:''}</div>`).join('')}</div><div class="sp12"></div><button class="btn ghost" onclick="window._shareCrew()">Share Crew invite</button><div class="sp12"></div>${admin?`<button class="btn dangerBtn" onclick="window._deleteCrew()">Delete Crew</button>`:`<button class="btn dangerBtn" onclick="window._leaveCrew()">Leave Crew</button>`}`)
 }
 window._renameCrew=async()=>{const name=$('#renameCrew')?.value.trim();if(!name)return;try{const j=await api('renameCrew',{method:'POST',body:{crewId,participantId:pid,name}});crew=j.crew;rememberCrew(crew);toast('Crew renamed');renderCrewSettings()}catch(e){toast(e.message)}};
 window._removeMember=async targetId=>{if(!confirm('Remove this member from the Crew?'))return;try{await api('removeMember',{method:'POST',body:{crewId,participantId:pid,targetId}});await refreshCrew();renderCrewSettings()}catch(e){toast(e.message)}};
@@ -127,8 +150,8 @@ async function refreshDrops(){const j=await api('listDrops',{params:{crewId,part
 async function renderCrew(){
   clearInterval(pollTimer);await refreshCrew();rememberCrew(crew);await refreshDrops();
   const totalResponses=drops.reduce((n,d)=>n+(d.responseCount||0),0);
-  app.innerHTML=shell(`${top()}<div class="row between"><div><div class="tiny">YOUR CREW</div><h1>${esc(crew.name)}</h1></div><button class="chip shareChip" onclick="window._shareCrew()">↗ Invite</button></div><div class="sp12"></div><div class="crewModules"><button onclick="window._go('chat')"><span>💬</span><b>Chat</b><small>Talk here</small></button><button onclick="window._go('vibe')"><span>✦</span><b>Vibe</b><small>${members.length} people</small></button><button onclick="window._go('recap')"><span>✨</span><b>Recap</b><small>${totalResponses} answers</small></button><button onclick="window._go('crewSettings')"><span>⚙</span><b>Members</b><small>Manage Crew</small></button></div><div class="sp18"></div><div class="row between"><h2>Drops</h2><button class="chip chipBtn" onclick="window._go('create')">+ Create</button></div><div class="sp12"></div>${drops.length?drops.map(d=>`<button class="drop drop-${d.type}" style="width:100%;text-align:left" onclick="window._openDrop('${d.id}')"><div class="row between"><span class="chip">${labelType(d.type)}</span><span class="meta">${d.type==='short'?d.responseCount+' replies':d.responseCount+'/'+d.threshold}</span></div><div class="q">${esc(d.question)}</div><div class="meta">${d.type==='short'?(d.responseCount?`${d.responseCount} repl${d.responseCount===1?'y':'ies'} · live`:'Be first to reply'):d.revealed?'Result ready ✨':d.myResponse?'Waiting for friends…':'Tap to answer'}</div></button>`).join(''):`<div class="empty"><div><div style="font-size:44px">⚡</div><h2 style="margin-top:8px">No Drops yet</h2><p class="sub" style="margin-top:6px">Create one, then share it. Friends join when they answer.</p><div class="sp18"></div><button class="btn primary" onclick="window._go('create')">Create first Drop</button></div></div>`}`);
-  pollTimer=setInterval(()=>{if(screen==='crew')renderCrew()},5000)
+  app.innerHTML=shell(`${top()}<div class="row between"><div><div class="tiny">YOUR CREW</div><h1>${esc(crew.name)}</h1></div><button class="chip shareChip" onclick="window._shareCrew()">↗ Invite</button></div><div class="sp12"></div><div class="crewModules"><button onclick="window._go('chat')" class="chatModule"><span class="moduleIcon">💬${hasUnreadChat()?'<i class="unreadDot"></i>':''}</span><b>Chat</b><small>${hasUnreadChat()?'New messages':'Talk here'}</small></button><button onclick="window._go('vibe')"><span>✦</span><b>Vibe</b><small>${members.length} people</small></button><button onclick="window._go('recap')"><span>✨</span><b>Recap</b><small>${totalResponses} answers</small></button><button onclick="window._go('crewSettings')"><span>⚙</span><b>Members</b><small>Manage Crew</small></button></div><div class="sp18"></div><div class="row between"><h2>Drops</h2><button class="chip chipBtn" onclick="window._go('create')">+ Create</button></div><div class="sp12"></div>${drops.length?drops.map(d=>`<button class="drop drop-${d.type}" style="width:100%;text-align:left" onclick="window._openDrop('${d.id}')"><div class="row between"><span class="chip">${labelType(d.type)}</span><span class="meta">${d.type==='short'?d.responseCount+' replies':d.responseCount+'/'+d.threshold}</span></div><div class="q">${esc(d.question)}</div><div class="meta">${d.type==='short'?(d.responseCount?`${d.responseCount} repl${d.responseCount===1?'y':'ies'} · live`:'Be first to reply'):d.revealed?'Result ready ✨':d.myResponse?'Waiting for friends…':'Tap to answer'}</div></button>`).join(''):`<div class="empty"><div><div style="font-size:44px">⚡</div><h2 style="margin-top:8px">No Drops yet</h2><p class="sub" style="margin-top:6px">Create one, then share it. Friends join when they answer.</p><div class="sp18"></div><button class="btn primary" onclick="window._go('create')">Create first Drop</button></div></div>`}`);
+  schedulePoll('poll',()=>{if(screen==='crew')return renderCrew()},20000)
 }
 window._openDrop=id=>{dropId=id;history.replaceState({},'',`/?crew=${crewId}&drop=${id}`);screen='drop';render()};
 function labelType(t){return ({short:'💬 Quick Answer',likely:'👀 Who’s most likely',either:'⚖️ This or That',vote:'🗳️ Vote',rate:'⭐ Rate',predict:'🔮 Predict'})[t]||'Drop'}
@@ -221,8 +244,8 @@ async function renderChat(){
   clearInterval(chatTimer);await refreshCrew();const j=await api('chatList',{params:{crewId}});
   const emojis=['😂','😭','🔥','👀','❤️','🤣','😍','😎','🤡','💀','🙄','😤','🥳','🤝','👍','👎','🍻','☕','🏏','🎉','🤔','😴','😈','✨'];
   app.innerHTML=shell(`${top(crew.name,'crew')}<div class="row between"><div><div class="tiny">CREW CHAT</div><h1>Chat</h1></div><span class="chip">${members.length} people</span></div><div class="sp12"></div><div id="chat" class="chat">${chatHtml(j.messages)}</div><div class="composer"><button class="emojiToggle" onclick="window._toggleEmoji()">😀</button><input id="chatInput" maxlength="240" placeholder="Message your Crew…" onkeydown="if(event.key==='Enter')window._sendChat()"><button onclick="window._sendChat()">Send</button></div><div id="emojiPicker" class="emojiPicker">${emojis.map(e=>`<button onclick="window._emoji('${e}')">${e}</button>`).join('')}</div>`);
-  const box=$('#chat');if(box)box.scrollTop=box.scrollHeight;
-  chatTimer=setInterval(()=>{if(screen==='chat')refreshChatMessages()},3000)
+  const box=$('#chat');if(box)box.scrollTop=box.scrollHeight;markChatSeen();
+  schedulePoll('chat',async()=>{if(screen==='chat'){await refreshCrew();await refreshChatMessages();markChatSeen();schedulePoll('chat',arguments.callee,6000)}},6000)
 }
 window._toggleEmoji=()=>{$('#emojiPicker')?.classList.toggle('open');$('#chatInput')?.focus()};
 window._emoji=x=>{const i=$('#chatInput');if(!i)return;const start=i.selectionStart??i.value.length,end=i.selectionEnd??i.value.length;i.value=i.value.slice(0,start)+x+i.value.slice(end);i.focus();i.selectionStart=i.selectionEnd=start+x.length};
