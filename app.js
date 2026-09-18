@@ -55,6 +55,7 @@ function render(err=''){stopPolling();
  if(screen==='profile')return renderProfile();
  if(screen==='vibe')return renderVibe();
  if(screen==='crewSettings')return renderCrewSettings();
+ if(screen==='recap')return renderRecap();
  if(screen==='chat')return renderChat();
  if(screen==='start')return renderStart();
  if(screen==='join')return renderJoin();
@@ -94,6 +95,18 @@ window._renameCrew=async()=>{const name=$('#renameCrew')?.value.trim();if(!name)
 window._removeMember=async targetId=>{if(!confirm('Remove this member from the Crew?'))return;try{await api('removeMember',{method:'POST',body:{crewId,participantId:pid,targetId}});await refreshCrew();renderCrewSettings()}catch(e){toast(e.message)}};
 window._leaveCrew=async()=>{if(!confirm('Leave this Crew?'))return;try{await api('leaveCrew',{method:'POST',body:{crewId,participantId:pid}});forgetCrew(crewId);window._home()}catch(e){toast(e.message)}};
 window._deleteCrew=async()=>{if(!confirm('Delete this Crew and all its activity?'))return;try{await api('deleteCrew',{method:'POST',body:{crewId,participantId:pid}});forgetCrew(crewId);window._home()}catch(e){toast(e.message)}};
+
+
+async function renderRecap(){
+  if(!crewId||!crew)return window._home();
+  await refreshCrew();await refreshDrops();
+  const responses=drops.reduce((n,d)=>n+(d.responseCount||0),0);
+  const ready=drops.filter(d=>d.revealed||d.type==='short').length;
+  const counts=drops.reduce((a,d)=>(a[d.type]=(a[d.type]||0)+1,a),{});
+  const topType=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0]?.[0];
+  const topDrop=[...drops].sort((a,b)=>(b.responseCount||0)-(a.responseCount||0))[0];
+  app.innerHTML=shell(`${top('Weekly Recap','crew')}<div class="recapHero"><span>THIS CREW</span><h1>${esc(crew.name)}</h1><p>A lightweight recap built from real activity.</p></div><div class="sp12"></div><div class="statGrid"><div><b>${drops.length}</b><span>Drops</span></div><div><b>${responses}</b><span>Answers</span></div><div><b>${members.length}</b><span>People</span></div></div><div class="sp12"></div><div class="card"><h3>Highlights</h3><div class="sp12"></div><div class="recapLine"><span>✨</span><div><b>${ready} active result${ready===1?'':'s'}</b><small>revealed or live</small></div></div>${topType?`<div class="recapLine"><span>⚡</span><div><b>${labelType(topType)}</b><small>most-used format</small></div></div>`:''}${topDrop?`<div class="recapLine"><span>🔥</span><div><b>${esc(topDrop.question)}</b><small>${topDrop.responseCount||0} responses</small></div></div>`:''}</div><div class="sp12"></div><button class="btn primary" onclick="window._shareCrew()">Bring someone into the Crew</button>`)
+}
 
 function renderStart(){app.innerHTML=shell(`<div class="hero"><span class="chip darkchip">YOUR PRIVATE CIRCLE</span><div class="sp18"></div><h1>Start with your people.</h1><p style="color:#cbc5d2;margin-top:9px">A Crew is your private friend group on Adda.</p></div><div class="sp18"></div><div class="card"><div class="field"><label>Your name</label><input id="name" maxlength="24" placeholder="e.g. Vijyant"></div><div class="sp12"></div><div class="field"><label>Name your Crew</label><input id="crewName" maxlength="42" placeholder="e.g. Weekend Crew"></div><div class="sp18"></div><button class="btn primary" onclick="window._createCrew()">Start Crew</button></div>`,false)}
 window._createCrew=async()=>{const nickname=$('#name').value.trim(),name=$('#crewName').value.trim();if(!nickname||!name)return toast('Add your name and Crew name');try{const j=await api('createCrew',{method:'POST',body:{nickname,name,participantId:pid}});crewId=j.crew.id;crew=j.crew;meName=nickname;localStorage.addaName=nickname;rememberCrew(crew);history.replaceState({},'',`/?crew=${crewId}`);track('crew_created');await refreshCrew();screen='crew';render()}catch(e){toast(e.message)}};
