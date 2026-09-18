@@ -60,6 +60,52 @@ async function share(url,text='Join my Adda Crew 👀'){
   fallbackShare(url,text)
 }
 window.closeShare=closeShare;
+
+function mediaUrl(ref){return ref?API+'?'+new URLSearchParams({action:'media',key:ref}).toString():''}
+function mediaState(slot){const k='_media'+slot;window[k]=window[k]||{ref:'',preview:'',uploading:false};return window[k]}
+function resetMedia(){['A','B'].forEach(slot=>{const st=mediaState(slot);if(st.preview?.startsWith('blob:'))URL.revokeObjectURL(st.preview);window['_media'+slot]={ref:'',preview:'',uploading:false}})}
+async function imageToDataUrl(file){
+  if(!file?.type?.startsWith('image/'))throw new Error('Choose an image file.');
+  const src=URL.createObjectURL(file),img=new Image();
+  await new Promise((resolve,reject)=>{img.onload=resolve;img.onerror=()=>reject(new Error('Could not read that image.'));img.src=src});
+  const max=1100,scale=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight));
+  const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));
+  canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);URL.revokeObjectURL(src);
+  let out=canvas.toDataURL('image/webp',.76);if(!out.startsWith('data:image/webp'))out=canvas.toDataURL('image/jpeg',.78);
+  if(out.length>900000)out=canvas.toDataURL('image/jpeg',.62);
+  return out
+}
+function updateMediaUi(slot){
+  const st=mediaState(slot),wrap=$('#mediaWrap'+slot),status=$('#mediaStatus'+slot),img=$('#mediaPreview'+slot);
+  if(img){img.src=st.preview||'';img.style.display=st.preview?'block':'none'}
+  if(status)status.textContent=st.uploading?'Uploading…':st.ref?'Ready ✓':''
+  wrap?.classList.toggle('hasMedia',!!st.preview)
+}
+window._pickMedia=async(slot,input)=>{
+  const file=input?.files?.[0];if(!file)return;const st=mediaState(slot);
+  if(st.preview?.startsWith('blob:'))URL.revokeObjectURL(st.preview);st.preview=URL.createObjectURL(file);st.uploading=true;st.ref='';updateMediaUi(slot);
+  try{const dataUrl=await imageToDataUrl(file);const j=await api('uploadMedia',{method:'POST',body:{crewId,participantId:pid,dataUrl}});st.ref=j.mediaRef;st.uploading=false;updateMediaUi(slot)}
+  catch(e){st.uploading=false;st.ref='';toast(e.message);updateMediaUi(slot)}
+};
+window._removeMedia=slot=>{const st=mediaState(slot);if(st.preview?.startsWith('blob:'))URL.revokeObjectURL(st.preview);window['_media'+slot]={ref:'',preview:'',uploading:false};const input=$('#mediaInput'+slot);if(input)input.value='';updateMediaUi(slot)};
+function mediaPickerHtml(slot,label){
+  const st=mediaState(slot);return `<div id="mediaWrap${slot}" class="mediaPickerBox ${st.preview?'hasMedia':''}"><img id="mediaPreview${slot}" class="mediaCreatePreview" src="${st.preview||''}" style="${st.preview?'':'display:none'}"><div class="mediaPickerActions"><label class="mediaAdd">📷 ${st.preview?'Change image':label}<input id="mediaInput${slot}" type="file" accept="image/*" hidden onchange="window._pickMedia('${slot}',this)"></label><button type="button" class="mediaRemove" onclick="window._removeMedia('${slot}')" style="${st.preview?'':'display:none'}">Remove</button><span id="mediaStatus${slot}" class="mediaStatus">${st.uploading?'Uploading…':st.ref?'Ready ✓':''}</span></div></div>`
+}
+window._editRatingLabel=(i,btn)=>{const input=$('#ratingLabel'+i);if(!input)return;const editing=!input.readOnly;document.querySelectorAll('.ratingInlineInput').forEach(x=>x.readOnly=true);document.querySelectorAll('.ratingEditBtn').forEach(x=>x.textContent='✎');if(editing){input.blur();return}input.readOnly=false;input.focus();input.select();if(btn)btn.textContent='✓'};
+window._surprise=t=>{
+  const bank={
+    short:[['What should we actually do this weekend?'],['What is everyone craving right now?'],['One plan we should finally make?']],
+    likely:[['Who’s most likely to disappear from the group chat for 3 days?'],['Who’s most likely to make everyone late?'],['Who would survive a zombie apocalypse longest?']],
+    either:[['Pick one','Mountains','Beach'],['Pick one','Late-night chai','Early breakfast'],['Pick one','House party','Go out']],
+    vote:[['What should we do this weekend?','Movie','Food','Road trip'],['What do we need right now?','Chai','Coffee','Sleep']],
+    rate:[['Rate the vibe of this plan'],['Rate this look'],['How good is this idea?']],
+    predict:[['Will this Crew actually meet this weekend?'],['Will the plan survive till Saturday?'],['Will everyone arrive on time?']]
+  };
+  const arr=bank[t]||bank.short,item=arr[Math.floor(Math.random()*arr.length)];const q=$('#q');if(q)q.value=item[0]||'';
+  if(t==='either'){if($('#a'))$('#a').value=item[1]||'';if($('#b'))$('#b').value=item[2]||''}
+  if(t==='vote'){['#o1','#o2','#o3'].forEach((id,i)=>{if($(id))$(id).value=item[i+1]||''})}
+};
+
 window._shareCrew=()=>share(`${location.origin}/?crew=${crewId}`,`Join ${crew.name} on Adda 👀`);
 window._shareDrop=(id)=>share(`${location.origin}/?crew=${crewId}&drop=${id}`,`Answer this Drop in ${crew.name} 👀`);
 
@@ -144,7 +190,7 @@ async function renderJoinDrop(){
   app.innerHTML=shell(`${top(crew?.name||'Adda')}<div class="tiny">${labelType(d.type).toUpperCase()}</div><h1 style="margin-top:5px">${esc(d.question)}</h1><div class="sp12"></div>${answerUi}<div class="sp12"></div><div class="field"><label>Your name</label><input id="guestName" maxlength="24" value="${esc(meName)}" placeholder="What should friends call you?"></div><div class="sp18"></div><button id="guestSubmit" class="btn primary" style="font-size:18px" onclick="window._answerAndJoin()" ${d.type!=='short'&&!guestAnswer?'disabled style="opacity:.45;font-size:18px"':''}>Answer →</button><p class="sub center" style="margin-top:9px">Answering adds you to ${esc(crew.name)}.</p>`,false)
 }
 window._selectGuest=id=>{guestAnswer=id;document.querySelectorAll('.choice').forEach(el=>{const on=el.dataset.answer===id;el.classList.toggle('selected',on);el.setAttribute('aria-pressed',on?'true':'false')});const b=$('#guestSubmit');if(b){b.disabled=false;b.style.opacity='1'}};
-window._answerAndJoin=async()=>{const nickname=$('#guestName')?.value.trim();if(!nickname)return toast('Add your name');const answer=activeDropType==='short'?$('#guestShort')?.value.trim():guestAnswer;if(!answer)return toast('Add your answer');try{await api('joinCrew',{method:'POST',body:{crewId,nickname,participantId:pid}});meName=nickname;localStorage.addaName=nickname;track('crew_joined_via_drop');rememberCrew(crew);await api('answerDrop',{method:'POST',body:{crewId,dropId,participantId:pid,answer}});track('response_submitted');await refreshCrew();screen='drop';render()}catch(e){toast(e.message)}};
+window._answerAndJoin=async()=>{const nickname=$('#guestName')?.value.trim();if(!nickname)return toast('Add your name');const answer=activeDropType==='short'?$('#guestShort')?.value.trim():guestAnswer;if(!answer)return toast('Add your answer');const btn=$('#guestSubmit');if(btn){btn.disabled=true;btn.textContent='Joining…'}try{await api('joinCrew',{method:'POST',body:{crewId,nickname,participantId:pid}});meName=nickname;localStorage.addaName=nickname;track('crew_joined_via_drop');rememberCrew(crew);await api('answerDrop',{method:'POST',body:{crewId,dropId,participantId:pid,answer}});track('response_submitted');await refreshCrew();dropId='';history.replaceState({},'',`/?crew=${crewId}`);screen='crew';render();toast(`You’re in ${crew.name} 👋`)}catch(e){toast(e.message);if(btn){btn.disabled=false;btn.textContent='Answer →'}}};
 async function refreshCrew(){const c=await api('getCrew',{params:{crewId}});crew=c.crew;members=c.members}
 async function refreshDrops(){const j=await api('listDrops',{params:{crewId,participantId:pid}});drops=j.drops}
 async function renderCrew(){
