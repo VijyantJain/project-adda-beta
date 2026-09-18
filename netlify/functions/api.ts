@@ -225,9 +225,35 @@ export default async (req: Request, context: Context) => {
       const crewId=clean(body.crewId,40), participantId=clean(body.participantId,40);
       const crew=await getJSON(store,`crew/${crewId}`); if(!crew) return bad("Crew not found.",404);
       if(crew.createdBy!==participantId) return bad("Only the Crew admin can delete it.",403);
-      const prefixes=[`member/${crewId}/`,`drop/${crewId}/`,`dropIndex/${crewId}/`,`response/${crewId}/`,`chat/${crewId}/`,`event/${crewId}/`];
+      const prefixes=[`member/${crewId}/`,`drop/${crewId}/`,`dropIndex/${crewId}/`,`response/${crewId}/`,`chat/${crewId}/`,`event/${crewId}/`,`feedback/${crewId}/`];
       for(const prefix of prefixes){ const {blobs}=await store.list({prefix}); await Promise.all(blobs.map((b:any)=>store.delete(b.key))); }
       await store.delete(`crew/${crewId}`); return ok({deleted:true});
+    }
+
+
+    if (action === "submitFeedback" && req.method === "POST") {
+      const crewId=clean(body.crewId,40),participantId=clean(body.participantId,40);
+      const member=await getJSON(store,`member/${crewId}/${participantId}`); if(!member) return bad("Join the Crew first.",403);
+      const clarity=Math.max(1,Math.min(5,Number(body.clarity)||0)),fun=Math.max(1,Math.min(5,Number(body.fun)||0));
+      if(!clarity||!fun) return bad("Please rate clarity and fun.");
+      const wouldShare=["yes","maybe","no"].includes(body.wouldShare)?body.wouldShare:"maybe";
+      const rec={id:id("f_"),crewId,participantId,nickname:member.nickname,clarity,fun,wouldShare,confusing:clean(body.confusing,240),returnReason:clean(body.returnReason,240),createdAt:now()};
+      await store.setJSON(`feedback/${crewId}/${rec.createdAt}-${rec.id}`,rec);
+      return ok({saved:true});
+    }
+
+    if (action === "crewMetrics") {
+      const crewId=clean(url.searchParams.get("crewId"),40),participantId=clean(url.searchParams.get("participantId"),40);
+      const crew=await getJSON(store,`crew/${crewId}`); if(!crew) return bad("Crew not found.",404);
+      if(crew.createdBy!==participantId) return bad("Only the Crew admin can view test insights.",403);
+      const members=await listJSON(store,`member/${crewId}/`,100);
+      const indexes=await listJSON(store,`dropIndex/${crewId}/`,100);
+      let responseCount=0; const respondentIds=new Set<string>(); const byType:any={};
+      for(const i of indexes){const d=await getJSON(store,`drop/${crewId}/${i.dropId}`);if(!d)continue;byType[d.type]=(byType[d.type]||0)+1;const rs=await listJSON(store,`response/${crewId}/${d.id}/`,100);responseCount+=rs.length;rs.forEach((r:any)=>respondentIds.add(r.participantId))}
+      const chats=await listJSON(store,`chat/${crewId}/`,500);
+      const feedback=await listJSON(store,`feedback/${crewId}/`,100);
+      const avg=(key:string)=>feedback.length?Math.round(feedback.reduce((n:number,x:any)=>n+(Number(x[key])||0),0)/feedback.length*10)/10:null;
+      return ok({memberCount:members.length,dropCount:indexes.length,responseCount,uniqueRespondents:respondentIds.size,chatCount:chats.length,byType,feedbackCount:feedback.length,avgClarity:avg("clarity"),avgFun:avg("fun"),wouldShare:{yes:feedback.filter((x:any)=>x.wouldShare==="yes").length,maybe:feedback.filter((x:any)=>x.wouldShare==="maybe").length,no:feedback.filter((x:any)=>x.wouldShare==="no").length},feedback:feedback.slice(-20)});
     }
 
     if (action === "chatList") {
