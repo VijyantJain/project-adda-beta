@@ -189,17 +189,23 @@ function extraFields(t){
   if(t==='either')return `<div class="sp12"></div><div class="row"><div class="field grow"><label>Choice 1</label><input id="a" maxlength="40" placeholder="Chai"></div><div class="field grow"><label>Choice 2</label><input id="b" maxlength="40" placeholder="Coffee"></div></div>`;
   if(t==='predict')return `<div class="sp12"></div><div class="predictNote"><b>Yes / No prediction</b><span>Use Predict for something that will actually happen later.</span></div>`;
   if(t==='vote')return `<div class="sp12"></div><div class="field"><label>Choices</label><input id="o1" maxlength="40" placeholder="Option 1"><input id="o2" maxlength="40" placeholder="Option 2"><input id="o3" maxlength="40" placeholder="Option 3 (optional)"></div>`;
+  if(t==='rate'){
+    const defs=window._ratingLabels||['😬 Not for me','😕 Meh','🙂 Decent','😍 Love it','🔥 Obsessed'];window._ratingLabels=defs;
+    return `<div class="sp12"></div><div class="ratingPreview">${defs.map((x,i)=>`<div><b>${i+1}★</b><span>${esc(x)}</span></div>`).join('')}</div><button class="moreSettingsBtn" onclick="window._toggleRatingLabels()">✎ Edit rating labels</button><div class="dropSettings ${window._showRatingLabels?'open':''}">${defs.map((x,i)=>`<div class="field ratingEdit"><label>${i+1}★ label</label><input maxlength="28" value="${esc(x)}" oninput="window._ratingLabels[${i}]=this.value"></div>`).join('')}</div>`
+  }
   return ''
 }
 window._type=t=>{if(t==='likely'&&members.length<2)return toast('Most Likely unlocks after one friend joins');selected={type:t,question:$('#q')?.value||''};renderCreate()};
 window._setReveal=(mode,count)=>{window._thresholdMode=mode;window._thresholdCount=count;renderCreate()};
 window._toggleDropSettings=()=>{window._showDropSettings=!window._showDropSettings;renderCreate()};
+window._toggleRatingLabels=()=>{window._showRatingLabels=!window._showRatingLabels;renderCreate()};
 window._publish=async()=>{
   const type=selected?.type||(members.length<2?'short':'likely'),question=$('#q').value.trim();
   const firstReveal=dynamicRevealOptions()[0];const body={crewId,participantId:pid,type,question,thresholdMode:window._thresholdMode||firstReveal.mode,thresholdCount:window._thresholdCount??firstReveal.count??2,showNames:window._showNames===true,allowChange:window._allowChange!==false};
   if(type==='either'){body.optionA=$('#a')?.value;body.optionB=$('#b')?.value}
   if(type==='vote'){body.options=[$('#o1')?.value,$('#o2')?.value,$('#o3')?.value]}
-  try{const j=await api('createDrop',{method:'POST',body});track('drop_created',{type});dropId=j.drop.id;history.replaceState({},'',`/?crew=${crewId}&drop=${dropId}`);screen='drop';selected=null;window._thresholdMode=null;window._thresholdCount=null;window._showNames=false;window._allowChange=true;window._showDropSettings=false;render();setTimeout(()=>window._shareDrop(dropId),500)}catch(e){toast(e.message)}
+  if(type==='rate'){body.ratingLabels=window._ratingLabels||undefined}
+  try{const j=await api('createDrop',{method:'POST',body});track('drop_created',{type});dropId=j.drop.id;history.replaceState({},'',`/?crew=${crewId}&drop=${dropId}`);screen='drop';selected=null;window._thresholdMode=null;window._thresholdCount=null;window._showNames=false;window._allowChange=true;window._showDropSettings=false;window._showRatingLabels=false;window._ratingLabels=null;render();setTimeout(()=>window._shareDrop(dropId),500)}catch(e){toast(e.message)}
 };
 
 function creatorTools(d){return d.createdBy===pid?`<button class="deleteLink" onclick="window._deleteDrop('${d.id}')">Delete Drop</button>`:''}
@@ -219,7 +225,7 @@ async function renderDrop(){
   if(j.revealed&&!sessionStorage.getItem(`seen_${dropId}`)){sessionStorage.setItem(`seen_${dropId}`,'1');return revealCountdown(d,j)}
   if(j.revealed)return renderResult(d,j);
   if(j.myResponse)return renderWaiting(d,j);
-  app.innerHTML=shell(`${top(crew.name,'crew')}<div class="row between"><span class="chip">${labelType(d.type)}</span>${creatorTools(d)}</div><div class="sp12"></div><h1>${esc(d.question)}</h1><p class="sub" style="margin-top:7px">${d.thresholdMode==='manual'?j.responsesCount+' answered · creator reveal':j.responsesCount+'/'+j.threshold+' answered'}</p><div class="sp12"></div>${d.options.map(o=>`<button data-answer="${o.id}" class="choice ${selected===o.id?'selected':''}" aria-pressed="${selected===o.id}" onclick="window._select('${o.id}')">${d.type==='rate'?'<span style="font-size:22px">⭐</span>':''}<span>${esc(o.label)}</span></button>`).join('')}<div class="sp12"></div><button id="submitAnswer" class="btn primary" style="font-size:18px" onclick="window._submitAnswer()" ${!selected?'disabled style="opacity:.45;font-size:18px"':''}>Submit answer</button>`)
+  app.innerHTML=shell(`${top(crew.name,'crew')}<div class="row between"><span class="chip">${labelType(d.type)}</span>${creatorTools(d)}</div><div class="sp12"></div><h1>${esc(d.question)}</h1><p class="sub" style="margin-top:7px">${d.thresholdMode==='manual'?j.responsesCount+' answered · creator reveal':j.responsesCount+'/'+j.threshold+' answered'}</p><div class="sp12"></div>${d.options.map(o=>`<button data-answer="${o.id}" class="choice ${selected===o.id?'selected':''}" aria-pressed="${selected===o.id}" onclick="window._select('${o.id}')">${d.type==='rate'?`<span class="ratingNum">${o.id}★</span>`:''}<span>${esc(o.label)}</span></button>`).join('')}<div class="sp12"></div><button id="submitAnswer" class="btn primary" style="font-size:18px" onclick="window._submitAnswer()" ${!selected?'disabled style="opacity:.45;font-size:18px"':''}>Submit answer</button>`)
 }
 window._select=id=>{selected=id;document.querySelectorAll('.choice').forEach(el=>{const on=el.dataset.answer===id;el.classList.toggle('selected',on);el.setAttribute('aria-pressed',on?'true':'false')});const b=$('#submitAnswer');if(b){b.disabled=false;b.style.opacity='1'}};
 window._submitAnswer=async()=>{const answer=activeDropType==='short'?$('#shortAnswer')?.value.trim():selected;if(!answer)return toast('Add your answer');const btn=$('#submitAnswer');if(btn){btn.disabled=true;btn.textContent='Sending…'}try{await api('answerDrop',{method:'POST',body:{crewId,dropId,participantId:pid,answer}});track('response_submitted');selected=null;app.innerHTML=shell(`${top(crew.name,'crew')}<div class="sentState"><div class="sentTick">✓</div><h1>Answer sent</h1><p class="sub">Updating the Crew…</p></div>`);setTimeout(()=>{if(screen==='drop')renderDrop()},350)}catch(e){toast(e.message);if(btn){btn.disabled=false;btn.textContent=activeDropType==='short'?'Send answer':'Submit answer'}}};
