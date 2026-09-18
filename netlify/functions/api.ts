@@ -1,7 +1,7 @@
 import type { Context, Config } from "@netlify/functions";
 import { getStore, getDeployStore } from "@netlify/blobs";
 
-function makeStore(context:any){ return context?.deploy?.context==="production" ? getStore({ name:"adda-v03", consistency:"strong" }) : getDeployStore("adda-v05-preview"); }
+function makeStore(context:any){ return context?.deploy?.context==="production" ? getStore({ name:"adda-v03", consistency:"strong" }) : getDeployStore({ name:"adda-v05-preview", consistency:"strong" } as any); }
 const JSON_HEADERS = { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" };
 const ok = (data:any, status=200) => new Response(JSON.stringify(data), { status, headers: JSON_HEADERS });
 const bad = (message:string, status=400) => ok({ error: message }, status);
@@ -82,10 +82,10 @@ export default async (req: Request, context: Context) => {
         options=[1,2,3,4,5].map(n=>({id:String(n),label:String(n)}));
       }
       const dropId=id("d_");
-      const thresholdMode = body.thresholdMode === "everyone" ? "everyone" : "count";
+      const thresholdMode = body.thresholdMode === "everyone" ? "everyone" : body.thresholdMode === "manual" ? "manual" : "count";
       const thresholdCount = Math.max(2, Math.min(20, Number(body.thresholdCount)||3));
       const currentMembers = await listJSON(store,`member/${crewId}/`,100);
-      const memberCountAtCreate = Math.max(2,currentMembers.length);
+      const memberCountAtCreate = Math.max(1,currentMembers.length);
       const showNames=body.showNames===true; const allowChange=body.allowChange!==false;
       const drop={id:dropId,crewId,type,question,options,createdBy:participantId,creatorName:member.nickname,createdAt:now(),thresholdMode,thresholdCount,memberCountAtCreate,showNames,allowChange,status:"open"};
       await store.setJSON(`drop/${crewId}/${dropId}`,drop);
@@ -97,15 +97,16 @@ export default async (req: Request, context: Context) => {
       const crewId=clean(url.searchParams.get("crewId"),40), participantId=clean(url.searchParams.get("participantId"),40);
       const indexes=await listJSON(store,`dropIndex/${crewId}/`,50);
       indexes.sort((a:any,b:any)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+      const members=await listJSON(store,`member/${crewId}/`,100);
       const drops=await Promise.all(indexes.map(async (i:any)=>{
         const d=await getJSON(store,`drop/${crewId}/${i.dropId}`); if(!d) return null;
         const responses=await listJSON(store,`response/${crewId}/${d.id}/`,100);
         const mine=responses.find((r:any)=>r.participantId===participantId)||null;
-        const members=await listJSON(store,`member/${crewId}/`,100);
-        const threshold=d.thresholdMode==="everyone"?Math.max(2,d.memberCountAtCreate||members.length):d.thresholdCount;
-        return {...d,responseCount:responses.length,threshold,revealed:d.type==="short"?responses.length>0:responses.length>=threshold,myResponse:mine};
+        const threshold=d.thresholdMode==="everyone"?Math.max(1,d.memberCountAtCreate||members.length):d.thresholdMode==="manual"?null:d.thresholdCount;
+        const revealed=d.type==="short"?responses.length>0:d.thresholdMode==="manual"?d.manualRevealed===true:responses.length>=Number(threshold||9999);
+        return {...d,responseCount:responses.length,threshold,revealed,myResponse:mine};
       }));
-      return ok({drops:drops.filter(Boolean)});
+      return ok({drops:drops.filter(Boolean),memberCount:members.length});
     }
 
     if (action === "getDrop") {
@@ -113,8 +114,8 @@ export default async (req: Request, context: Context) => {
       const drop=await getJSON(store,`drop/${crewId}/${dropId}`); if(!drop) return bad("Drop not found.",404);
       const responses=await listJSON(store,`response/${crewId}/${dropId}/`,100);
       const members=await listJSON(store,`member/${crewId}/`,100);
-      const threshold=drop.thresholdMode==="everyone"?Math.max(2,drop.memberCountAtCreate||members.length):drop.thresholdCount;
-      const revealed=drop.type==="short"?responses.length>0:responses.length>=threshold;
+      const threshold=drop.thresholdMode==="everyone"?Math.max(1,drop.memberCountAtCreate||members.length):drop.thresholdMode==="manual"?null:drop.thresholdCount;
+      const revealed=drop.type==="short"?responses.length>0:drop.thresholdMode==="manual"?drop.manualRevealed===true:responses.length>=Number(threshold||9999);
       const mine=responses.find((r:any)=>r.participantId===participantId)||null;
       let result:any=null;
       if(revealed){
@@ -137,8 +138,20 @@ export default async (req: Request, context: Context) => {
       const valid=drop.type==="short" ? answer.length>0 : drop.options.some((o:any)=>String(o.id)===answer); if(!valid) return bad("Invalid answer.");
       const existing=await getJSON(store,`response/${crewId}/${dropId}/${participantId}`);
       if(existing && drop.allowChange===false) return bad("Your answer is already locked.");
-      await store.setJSON(`response/${crewId}/${dropId}/${participantId}`,{participantId,nickname:member.nickname,answer,answeredAt:now()});
-      return ok({saved:true});
+      const saved={participantId,nickname:member.nickname,answer,answeredAt:now()};
+      await store.setJSON(`response/${crewId}/${dropId}/${participantId}`,saved);
+      const responses=await listJSON(store,`response/${crewId}/${dropId}/`,100);
+      const threshold=drop.thresholdMode==="everyone"?Math.max(1,drop.memberCountAtCreate||1):drop.thresholdMode==="manual"?null:drop.thresholdCount;
+      const revealed=drop.type==="short"?true:drop.thresholdMode==="manual"?drop.manualRevealed===true:responses.length>=Number(threshold||9999);
+      return ok({saved:true,myResponse:saved,responsesCount:responses.length,threshold,revealed});
+    }
+
+    if (action === "revealDrop" && req.method === "POST") {
+      const crewId=clean(body.crewId,40), dropId=clean(body.dropId,40), participantId=clean(body.participantId,40);
+      const drop=await getJSON(store,`drop/${crewId}/${dropId}`); if(!drop) return bad("Drop not found.",404);
+      if(drop.createdBy!==participantId) return bad("Only the creator can reveal this Drop.",403);
+      drop.manualRevealed=true; drop.revealedAt=now(); await store.setJSON(`drop/${crewId}/${dropId}`,drop);
+      return ok({drop});
     }
 
     if (action === "deleteDrop" && req.method === "POST") {
@@ -199,7 +212,9 @@ export default async (req: Request, context: Context) => {
       if(!text) return bad("Message is empty.");
       const message={id:id("m_"),participantId,nickname:member.nickname,text,createdAt:now()};
       await store.setJSON(`chat/${crewId}/${message.createdAt}-${message.id}`,message);
-      return ok({message});
+      const crew=await getJSON(store,`crew/${crewId}`);
+      if(crew){crew.latestChatAt=message.createdAt;crew.chatCount=(Number(crew.chatCount)||0)+1;await store.setJSON(`crew/${crewId}`,crew)}
+      return ok({message,latestChatAt:message.createdAt});
     }
 
     if (action === "stats") {
