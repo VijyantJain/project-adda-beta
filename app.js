@@ -2,7 +2,7 @@ const $=s=>document.querySelector(s);const app=document.getElementById('app');
 const API='/api';
 const qs=new URLSearchParams(location.search);let crewId=qs.get('crew')||'';let dropId=qs.get('drop')||'';
 const pid=localStorage.addaPid||(`p_${crypto.randomUUID().replace(/-/g,'').slice(0,10)}`);localStorage.addaPid=pid;
-let meName=localStorage.addaName||'';let crew=null,members=[],drops=[],screen='boot',tab='drops',selected=null,guestAnswer=null,pollTimer=null,chatTimer=null;
+let meName=localStorage.addaName||'';let crew=null,members=[],drops=[],screen='boot',tab='drops',selected=null,guestAnswer=null,activeDropType='',pollTimer=null,chatTimer=null;
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 function esc(s=''){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1400)}
