@@ -207,7 +207,7 @@ window._deleteDrop=async id=>{if(!confirm('Delete this Drop for everyone?'))retu
 
 async function renderDrop(){
   clearTimeout(pollTimer);
-  await refreshCrew();
+  if(!crew)await refreshCrew();
   let j;try{j=await api('getDrop',{params:{crewId,dropId,participantId:pid}})}catch(e){toast(e.message);return}
   const d=j.drop;activeDropType=d.type;
   if(d.type==='short'){
@@ -219,11 +219,22 @@ async function renderDrop(){
   if(j.revealed&&!sessionStorage.getItem(`seen_${dropId}`)){sessionStorage.setItem(`seen_${dropId}`,'1');return revealCountdown(d,j)}
   if(j.revealed)return renderResult(d,j);
   if(j.myResponse)return renderWaiting(d,j);
-  app.innerHTML=shell(`${top(crew.name,'crew')}<div class="row between"><span class="chip">${labelType(d.type)}</span>${creatorTools(d)}</div><div class="sp12"></div><h1>${esc(d.question)}</h1><p class="sub" style="margin-top:7px">${j.responsesCount}/${j.threshold} answered</p><div class="sp12"></div>${d.options.map(o=>`<button data-answer="${o.id}" class="choice ${selected===o.id?'selected':''}" aria-pressed="${selected===o.id}" onclick="window._select('${o.id}')">${d.type==='rate'?'<span style="font-size:22px">⭐</span>':''}<span>${esc(o.label)}</span></button>`).join('')}<div class="sp12"></div><button id="submitAnswer" class="btn primary" style="font-size:18px" onclick="window._submitAnswer()" ${!selected?'disabled style="opacity:.45;font-size:18px"':''}>Submit answer</button>`)
+  app.innerHTML=shell(`${top(crew.name,'crew')}<div class="row between"><span class="chip">${labelType(d.type)}</span>${creatorTools(d)}</div><div class="sp12"></div><h1>${esc(d.question)}</h1><p class="sub" style="margin-top:7px">${d.thresholdMode==='manual'?j.responsesCount+' answered · creator reveal':j.responsesCount+'/'+j.threshold+' answered'}</p><div class="sp12"></div>${d.options.map(o=>`<button data-answer="${o.id}" class="choice ${selected===o.id?'selected':''}" aria-pressed="${selected===o.id}" onclick="window._select('${o.id}')">${d.type==='rate'?'<span style="font-size:22px">⭐</span>':''}<span>${esc(o.label)}</span></button>`).join('')}<div class="sp12"></div><button id="submitAnswer" class="btn primary" style="font-size:18px" onclick="window._submitAnswer()" ${!selected?'disabled style="opacity:.45;font-size:18px"':''}>Submit answer</button>`)
 }
 window._select=id=>{selected=id;document.querySelectorAll('.choice').forEach(el=>{const on=el.dataset.answer===id;el.classList.toggle('selected',on);el.setAttribute('aria-pressed',on?'true':'false')});const b=$('#submitAnswer');if(b){b.disabled=false;b.style.opacity='1'}};
 window._submitAnswer=async()=>{const answer=activeDropType==='short'?$('#shortAnswer')?.value.trim():selected;if(!answer)return toast('Add your answer');const btn=$('#submitAnswer');if(btn){btn.disabled=true;btn.textContent='Sending…'}try{await api('answerDrop',{method:'POST',body:{crewId,dropId,participantId:pid,answer}});track('response_submitted');selected=null;app.innerHTML=shell(`${top(crew.name,'crew')}<div class="sentState"><div class="sentTick">✓</div><h1>Answer sent</h1><p class="sub">Updating the Crew…</p></div>`);setTimeout(()=>{if(screen==='drop')renderDrop()},350)}catch(e){toast(e.message);if(btn){btn.disabled=false;btn.textContent=activeDropType==='short'?'Send answer':'Submit answer'}}};
-function renderWaiting(d,j){clearTimeout(pollTimer);const left=Math.max(0,j.threshold-j.responsesCount);app.innerHTML=shell(`${top(crew.name,'crew')}<div class="row between"><span class="chip">${labelType(d.type)}</span>${creatorTools(d)}</div><div class="sp12"></div><div class="hero center"><div style="font-size:44px">⏳</div><div class="sp12"></div><h1>Waiting for ${left} friend${left===1?'':'s'}</h1><p style="color:#cbc5d2;margin-top:8px">Your answer is locked.</p><div class="sp18"></div><div class="progress"><span style="width:${Math.min(100,j.responsesCount/j.threshold*100)}%"></span></div></div><div class="sp18"></div><button class="btn primary" onclick="window._shareDrop('${d.id}')">Share with friends</button><div class="sp12"></div><button class="btn ghost" onclick="window._tab('chat')">Open Crew chat</button>`);schedulePoll('poll',()=>{if(screen==='drop')return renderDrop()},5000)}
+function renderWaiting(d,j){
+  clearTimeout(pollTimer);
+  if(d.thresholdMode==='manual'){
+    const canReveal=d.createdBy===pid;
+    app.innerHTML=shell(`${top(crew.name,'crew')}<div class="row between"><span class="chip">${labelType(d.type)}</span>${creatorTools(d)}</div><div class="sp12"></div><div class="hero center"><div style="font-size:44px">⏳</div><div class="sp12"></div><h1>${j.responsesCount} answer${j.responsesCount===1?'':'s'} in</h1><p style="color:#cbc5d2;margin-top:8px">${canReveal?'Reveal whenever the moment feels right.':'The creator will reveal the result.'}</p></div><div class="sp18"></div>${canReveal?'<button class="btn primary" onclick="window._revealNow()">Reveal result now</button><div class="sp12"></div>':''}<button class="btn ghost" onclick="window._shareDrop(\'${d.id}\')">Share with friends</button>`);
+    schedulePoll('poll',()=>{if(screen==='drop')return renderDrop()},8000);return
+  }
+  const left=Math.max(0,j.threshold-j.responsesCount);
+  app.innerHTML=shell(`${top(crew.name,'crew')}<div class="row between"><span class="chip">${labelType(d.type)}</span>${creatorTools(d)}</div><div class="sp12"></div><div class="hero center"><div style="font-size:44px">⏳</div><div class="sp12"></div><h1>Waiting for ${left} friend${left===1?'':'s'}</h1><p style="color:#cbc5d2;margin-top:8px">Your answer is in.</p><div class="sp18"></div><div class="progress"><span style="width:${Math.min(100,j.responsesCount/j.threshold*100)}%"></span></div></div><div class="sp18"></div><button class="btn primary" onclick="window._shareDrop('${d.id}')">Share with friends</button><div class="sp12"></div><button class="btn ghost" onclick="window._go('chat')">Open Crew chat</button>`);
+  schedulePoll('poll',()=>{if(screen==='drop')return renderDrop()},5000)
+}
+window._revealNow=async()=>{try{await api('revealDrop',{method:'POST',body:{crewId,dropId,participantId:pid}});sessionStorage.removeItem(`seen_${dropId}`);renderDrop()}catch(e){toast(e.message)}};
 async function revealCountdown(d,j){if(reduced)return renderResult(d,j);for(let n=3;n>=1;n--){app.innerHTML=shell(`<div class="hero center" style="min-height:520px;display:grid;place-items:center"><div><div class="countdown">${n}</div><h2 style="margin-top:10px">Result ready</h2></div></div>`,false);await new Promise(r=>setTimeout(r,650))}renderResult(d,j)}
 function renderShortResult(d,j){clearTimeout(pollTimer);const entries=j.result?.entries||[];app.innerHTML=shell(`${top(crew.name,'crew')}<div class="row between"><span class="chip">${labelType(d.type)}</span>${creatorTools(d)}</div><div class="sp12"></div><div class="questionHero"><span>💬 LIVE ANSWERS</span><h1>${esc(d.question)}</h1><p>${entries.length} repl${entries.length===1?'y':'ies'} so far</p></div><div class="sp12"></div><div class="answerStack">${entries.map(r=>`<div class="answerCard"><b>${esc(r.nickname)}</b><p>${esc(r.answer)}</p></div>`).join('')}</div><div class="sp12"></div><button class="btn primary" onclick="window._shareDrop('${d.id}')">Share with friends</button>`);schedulePoll('poll',()=>{if(screen==='drop')return renderDrop()},8000)}
 function resultInsights(d,j,byId){
@@ -252,8 +263,8 @@ function renderResult(d,j){
 function topbarResult(){return `<div class="top"><button class="linkbtn" onclick="window._go('crew')">←</button><div class="grow"><h3>${esc(crew.name)}</h3></div><span class="chip">Result</span></div>`}
 
 function chatHtml(messages){return messages.length?messages.map(m=>`<div class="msg ${m.participantId===pid?'me':''}"><div class="who">${esc(m.nickname)}</div>${esc(m.text)}</div>`).join(''):`<div class="empty"><div><div style="font-size:40px">💬</div><h3>Start the chat</h3><p class="sub" style="margin-top:5px">Only your Crew can see this.</p></div></div>`}
-async function refreshChatMessages(){try{const j=await api('chatList',{params:{crewId}});const box=$('#chat');if(!box)return;const nearBottom=box.scrollHeight-box.scrollTop-box.clientHeight<80;box.innerHTML=chatHtml(j.messages);if(nearBottom)box.scrollTop=box.scrollHeight}catch{}}
-async function pollChat(){if(screen!=='chat')return;await refreshCrew();await refreshChatMessages();markChatSeen();schedulePoll('chat',pollChat,6000)}
+async function refreshChatMessages(){try{const j=await api('chatList',{params:{crewId}});const box=$('#chat');if(!box)return;const nearBottom=box.scrollHeight-box.scrollTop-box.clientHeight<80;box.innerHTML=chatHtml(j.messages);const last=j.messages?.[j.messages.length-1];if(last?.createdAt)localStorage.setItem(chatSeenKey(),last.createdAt);if(nearBottom)box.scrollTop=box.scrollHeight}catch{}}
+async function pollChat(){if(screen!=='chat')return;await refreshChatMessages();schedulePoll('chat',pollChat,6000)}
 async function renderChat(){
   clearTimeout(chatTimer);await refreshCrew();const j=await api('chatList',{params:{crewId}});
   const emojis=['😂','😭','🔥','👀','❤️','🤣','😍','😎','🤡','💀','🙄','😤','🥳','🤝','👍','👎','🍻','☕','🏏','🎉','🤔','😴','😈','✨'];
@@ -264,7 +275,7 @@ async function renderChat(){
 window._toggleEmoji=()=>{$('#emojiPicker')?.classList.toggle('open');$('#chatInput')?.focus()};
 window._emoji=x=>{const i=$('#chatInput');if(!i)return;const start=i.selectionStart??i.value.length,end=i.selectionEnd??i.value.length;i.value=i.value.slice(0,start)+x+i.value.slice(end);i.focus();i.selectionStart=i.selectionEnd=start+x.length};
 window._quick=window._emoji;
-window._sendChat=async()=>{const i=$('#chatInput');const text=i?.value.trim();if(!text)return;try{await api('chatSend',{method:'POST',body:{crewId,participantId:pid,text}});track('chat_message_sent');i.value='';await refreshChatMessages();i.focus()}catch(e){toast(e.message)}};
+window._sendChat=async()=>{const i=$('#chatInput');const text=i?.value.trim();if(!text)return;try{const j=await api('chatSend',{method:'POST',body:{crewId,participantId:pid,text}});track('chat_message_sent');if(j.latestChatAt){crew.latestChatAt=j.latestChatAt;localStorage.setItem(chatSeenKey(),j.latestChatAt)}i.value='';await refreshChatMessages();i.focus()}catch(e){toast(e.message)}};
 
 
 
