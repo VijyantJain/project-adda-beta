@@ -55,7 +55,18 @@ window.addEventListener('load',()=>setTimeout(sendVisitAnalytics,250),{once:true
 window.addEventListener('error',e=>track('client_error',{message:String(e.message||'').slice(0,180),source:String(e.filename||'').slice(0,120),line:e.lineno||0,column:e.colno||0}),true);
 window.addEventListener('unhandledrejection',e=>track('client_error',{message:String(e.reason?.message||e.reason||'Unhandled rejection').slice(0,180),kind:'promise'}));
 function shell(inner,nav=true){return `<section class="app"><div class="view">${inner}</div>${nav?navHtml():''}</section>`}
-function top(title=crew?.name||'Adda',back=''){return `<div class="top">${back?`<button class="linkbtn" onclick="window._go('${back}')">←</button>`:`<button class="brand brandBtn" onclick="window._home()">Adda</button>`}<div class="grow"><h3>${esc(title)}</h3></div>${crew?`<button class="chip chipBtn" onclick="window._go('crewSettings')">👥 ${matesLabel()}</button>`:''}</div>`}
+function top(title='',back=''){
+  return `<header class="appStickyHeader ${title?'hasContext':'compact'}">
+    <div class="appTopRow"><button class="appBrand" onclick="window._home()">Adda</button></div>
+    ${title?`<div class="appContextRow">${back?`<button class="contextBack" onclick="window._go('${back}')">←</button>`:''}<h3>${esc(title)}</h3></div>`:''}
+  </header><div class="appHeaderSpacer ${title?'context':''}" aria-hidden="true"></div>`
+}
+function homeStickyHeader(){
+  return `<header class="homeStickyHeader">
+    <div class="appTopRow"><button class="appBrand" onclick="window._home()">Adda</button></div>
+    <div class="homeGreeting"><h1>${meName?`Hey ${esc(meName)} 👋`:'Hey 👋'}</h1><span>Your people, one place.</span></div>
+  </header><div class="homeHeaderSpacer" aria-hidden="true"></div>`
+}
 function matesLabel(n=members.length){return `${n} ${n===1?'mate':'mates'}`}
 function crewStickyHeader(){
   return `<header class="crewStickyHeader">
@@ -186,24 +197,66 @@ function render(err=''){stopPolling();
 function renderHome(){
   const crews=getKnownCrews();
   const stats=localStats();
-  app.innerHTML=shell(`<div class="homeHero"><div><div class="tiny">YOUR ADDA</div><h1>${meName?`Hey ${esc(meName)} 👋`:'Your people, one place.'}</h1><p class="sub" style="margin-top:6px">Jump back into a Crew or start a new one.</p></div><button class="profileOrb" onclick="window._go('profile')">☺</button></div><div class="sp18"></div><div class="row between"><h2>Your Crews</h2><button class="chip chipBtn" onclick="window._newCrew()">+ New Crew</button></div><div class="sp12"></div>${crews.length?`<div class="crewGrid">${crews.map(c=>`<button class="crewTile" onclick="window._openKnownCrew('${c.id}')"><div class="crewEmoji">👥</div><b>${esc(c.name)}</b><span>Open Crew →</span></button>`).join('')}</div>`:`<div class="card center"><h2>No Crews yet</h2><p class="sub" style="margin-top:6px">Start with one group you already talk to.</p></div>`}<div class="sp18"></div><div class="homeModules"><button onclick="window._go('vibe')"><span>✦</span><b>Your Vibe</b><small>${stats.response_submitted||0} answers so far</small></button><button onclick="window._go('profile')"><span>☺</span><b>Profile</b><small>Crews & settings</small></button></div>`)
+  app.innerHTML=shell(`${homeStickyHeader()}<div class="row between"><h2>Your Crews</h2><button class="chip chipBtn" onclick="window._newCrew()">+ New Crew</button></div><div class="sp12"></div>${crews.length?`<div class="crewGrid">${crews.map(c=>`<button class="crewTile" onclick="window._openKnownCrew('${c.id}')"><div class="crewEmoji">👥</div><b>${esc(c.name)}</b><span>Open Crew →</span></button>`).join('')}</div>`:`<div class="card center"><h2>No Crews yet</h2><p class="sub" style="margin-top:6px">Start with one group you already talk to.</p></div>`}<div class="sp18"></div><div class="homeModules"><button onclick="window._go('vibe')"><span>✦</span><b>Your Vibe</b><small>${stats.response_submitted||0} answers so far</small></button><button onclick="window._go('profile')"><span>☺</span><b>Profile</b><small>Crews & settings</small></button></div>`)
 }
 window._newCrew=()=>{crewId='';dropId='';crew=null;members=[];drops=[];history.replaceState({},'','/');screen='start';render()};
 
 function renderProfile(){
   const crews=getKnownCrews(),stats=localStats();
-  app.innerHTML=shell(`${top('Profile','home')}<div class="profileCard"><div class="profileBig">☺</div><h1>${esc(meName||'You')}</h1><p class="sub">${crews.length} Crew${crews.length===1?'':'s'} · ${stats.response_submitted||0} answers · ${stats.drop_created||0} Drops made</p></div><div class="sp18"></div><button class="btn primary" onclick="window._newCrew()">Start another Crew</button><div class="sp12"></div><div class="card"><h3>Your Crews</h3><div class="sp12"></div>${crews.length?crews.map(c=>`<button class="settingsRow" onclick="window._openKnownCrew('${c.id}')"><span>👥 ${esc(c.name)}</span><b>›</b></button>`).join(''):'<p class="sub">No Crews yet.</p>'}</div>`)
+  app.innerHTML=shell(`${top('')}<div class="profileCard"><div class="profileBig">☺</div><h1>${esc(meName||'You')}</h1><p class="sub">${crews.length} Crew${crews.length===1?'':'s'} · ${stats.response_submitted||0} answers · ${stats.drop_created||0} Drops made</p></div><div class="sp18"></div><button class="btn primary" onclick="window._newCrew()">Start another Crew</button><div class="sp12"></div><div class="card"><h3>Your Crews</h3><div class="sp12"></div>${crews.length?crews.map(c=>`<button class="settingsRow" onclick="window._openKnownCrew('${c.id}')"><span>👥 ${esc(c.name)}</span><b>›</b></button>`).join(''):'<p class="sub">No Crews yet.</p>'}</div>`)
 }
 
 async function renderVibe(){
-  const stats=localStats();
-  if(crewId&&crew){await refreshCrew();await refreshDrops()}
-  const made=stats.drop_created||0,answered=stats.response_submitted||0,chatted=stats.chat_message_sent||0;
-  const badges=[];if(made)badges.push('⚡ Drop Maker');if(answered>=2)badges.push('🎯 Responder');if(chatted>=2)badges.push('💬 Chatty');if(getKnownCrews().length>=2)badges.push('👥 Multi-Crew');
-  const topType=drops.length?Object.entries(drops.reduce((a,d)=>(a[d.type]=(a[d.type]||0)+1,a),{})).sort((a,b)=>b[1]-a[1])[0]?.[0]:null;
-  app.innerHTML=shell(`${top(crew?`${crew.name} Vibe`:'Your Vibe','home')}<div class="vibeHero"><span>✦ VIBE</span><h1>${crew?esc(crew.name):'Your Adda energy'}</h1><p>${crew?`${matesLabel()} · ${drops.length} Drops`:`Built from what you actually do — not a personality test.`}</p></div><div class="sp12"></div><div class="statGrid"><div><b>${answered}</b><span>Answers</span></div><div><b>${made}</b><span>Drops made</span></div><div><b>${chatted}</b><span>Chats sent</span></div></div><div class="sp12"></div><div class="card"><h3>Badges</h3><div class="badgeWrap">${badges.length?badges.map(b=>`<span class="vibeBadge">${b}</span>`).join(''):'<span class="sub">Use Adda a little more and your Vibe will build.</span>'}</div>${topType?`<p class="sub" style="margin-top:12px">Crew favorite so far: <b>${labelType(topType)}</b></p>`:''}</div>`)
-}
+  let v;
+  try{v=await api('getVibe',{params:{participantId:pid,crewId:crewId||''}})}
+  catch(e){
+    const st=localStats();v={score:(st.response_submitted||0)*10+(st.drop_created||0)*30+(st.chat_message_sent||0)*4,level:{name:'Spark',icon:'⚡',index:1},progress:0,pointsToNext:0,streak:0,answers:st.response_submitted||0,dropsMade:st.drop_created||0,chatsSent:st.chat_message_sent||0,shares:0,crews:getKnownCrews().length,badges:[],signature:'',nextUnlock:null,crewRank:null}
+  }
+  const unlocked=(v.badges||[]).filter(b=>b.unlocked);
+  const signature=v.signature?labelType(v.signature):'Still forming';
+  const rank=v.crewRank?`#${v.crewRank.rank} of ${v.crewRank.total}`:'—';
+  const rankSub=v.crewRank?.crewName?`in ${esc(v.crewRank.crewName)}`:'Open a Crew to rank';
+  app.innerHTML=shell(`${top('')}
+    <section class="vibeIdentity">
+      <div class="vibeIdentityTop"><div><span class="vibeEyebrow">YOUR VIBE</span><h1>${esc(meName||'You')}</h1></div><button class="vibeShare" onclick="window._shareVibe()">↗ Flex</button></div>
+      <div class="vibeLevelRow">
+        <div class="vibeLevelOrb"><span>${v.level?.icon||'✨'}</span><b>${v.level?.index||1}</b></div>
+        <div class="vibeLevelCopy"><small>LEVEL ${v.level?.index||1}</small><h2>${esc(v.level?.name||'Fresh')}</h2><p><b>${v.score||0}</b> Vibe</p></div>
+        <div class="vibeStreak"><span>🔥</span><b>${v.streak||0}</b><small>day streak</small></div>
+      </div>
+      <div class="vibeProgress"><i style="width:${v.progress||0}%"></i></div>
+      <div class="vibeProgressCopy">${v.nextLevel?`<span>${v.pointsToNext} Vibe to ${esc(v.nextLevel.name)}</span><b>${v.progress}%</b>`:'<span>Top level unlocked</span><b>100%</b>'}</div>
+    </section>
 
+    <div class="vibeFlexGrid">
+      <div class="vibeFlex"><span>🏆</span><small>Crew rank</small><b>${rank}</b><em>${rankSub}</em></div>
+      <div class="vibeFlex"><span>🧬</span><small>Signature</small><b>${esc(signature)}</b><em>your most-played format</em></div>
+      <div class="vibeFlex"><span>👥</span><small>Crews</small><b>${v.crews||0}</b><em>social circles</em></div>
+      <div class="vibeFlex"><span>📣</span><small>Shares</small><b>${v.shares||0}</b><em>sent out</em></div>
+    </div>
+
+    <div class="vibeStatStrip">
+      <div><b>${v.answers||0}</b><span>Answers</span></div>
+      <div><b>${v.dropsMade||0}</b><span>Drops made</span></div>
+      <div><b>${v.chatsSent||0}</b><span>Chats sent</span></div>
+    </div>
+
+    ${v.nextUnlock?`<section class="vibeNext"><div><span>🎯 NEXT UNLOCK</span><h3>${esc(v.nextUnlock.icon)} ${esc(v.nextUnlock.name)}</h3><p>${esc(v.nextUnlock.desc)}</p></div><div class="unlockMeter"><i style="width:${v.nextUnlock.progress}%"></i></div><small>${v.nextUnlock.current}/${v.nextUnlock.target}</small></section>`:''}
+
+    <section class="vibeBadgesCard">
+      <div class="row between"><div><span class="vibeEyebrow">TROPHY CASE</span><h2>Badges</h2></div><b class="badgeCount">${unlocked.length}/${(v.badges||[]).length}</b></div>
+      <div class="vibeBadgeGrid">${(v.badges||[]).map(b=>`<div class="vibeAchievement ${b.unlocked?'unlocked':'locked'}"><span>${b.unlocked?b.icon:'🔒'}</span><b>${esc(b.name)}</b><small>${b.unlocked?'Unlocked':esc(b.desc)}</small></div>`).join('')}</div>
+    </section>
+  `)
+  window._currentVibe=v;
+}
+window._shareVibe=()=>{
+  const v=window._currentVibe;if(!v)return;
+  const rank=v.crewRank?` · #${v.crewRank.rank} in ${v.crewRank.crewName}`:'';
+  const text=`${meName||'My'} Adda Vibe: ${v.level?.icon||'✨'} ${v.level?.name||'Fresh'} · ${v.score||0} Vibe · 🔥 ${v.streak||0}-day streak${rank}`;
+  track('vibe_shared',{score:v.score,level:v.level?.name,streak:v.streak});
+  share(`${location.origin}/`,text)
+};
 async function renderCrewSettings(){
   if(!crewId||!crew){return window._home()}
   await refreshCrew();const admin=crew.createdBy===pid;
@@ -232,7 +285,7 @@ async function renderRecap(){
   const counts=drops.reduce((a,d)=>(a[d.type]=(a[d.type]||0)+1,a),{});
   const topType=Object.entries(counts).sort((a,b)=>b[1]-a[1])[0]?.[0];
   const topDrop=[...drops].sort((a,b)=>(b.responseCount||0)-(a.responseCount||0))[0];
-  app.innerHTML=shell(`${top('Weekly Recap','crew')}<div class="recapHero"><span>THIS CREW</span><h1>${esc(crew.name)}</h1><p>A lightweight recap built from real activity.</p></div><div class="sp12"></div><div class="statGrid"><div><b>${drops.length}</b><span>Drops</span></div><div><b>${responses}</b><span>Answers</span></div><div><b>${members.length}</b><span>Mates</span></div></div><div class="sp12"></div><div class="card"><h3>Highlights</h3><div class="sp12"></div><div class="recapLine"><span>✨</span><div><b>${ready} active result${ready===1?'':'s'}</b><small>revealed or live</small></div></div>${topType?`<div class="recapLine"><span>⚡</span><div><b>${labelType(topType)}</b><small>most-used format</small></div></div>`:''}${topDrop?`<div class="recapLine"><span>🔥</span><div><b>${esc(topDrop.question)}</b><small>${topDrop.responseCount||0} responses</small></div></div>`:''}</div><div class="sp12"></div><button class="btn primary" onclick="window._shareCrew()">Bring someone into the Crew</button>`)
+  app.innerHTML=shell(`${top('Recap','crew')}<div class="recapHero"><span>THIS CREW</span><h1>${esc(crew.name)}</h1><p>A lightweight recap built from real activity.</p></div><div class="sp12"></div><div class="statGrid"><div><b>${drops.length}</b><span>Drops</span></div><div><b>${responses}</b><span>Answers</span></div><div><b>${members.length}</b><span>Mates</span></div></div><div class="sp12"></div><div class="card"><h3>Highlights</h3><div class="sp12"></div><div class="recapLine"><span>✨</span><div><b>${ready} active result${ready===1?'':'s'}</b><small>revealed or live</small></div></div>${topType?`<div class="recapLine"><span>⚡</span><div><b>${labelType(topType)}</b><small>most-used format</small></div></div>`:''}${topDrop?`<div class="recapLine"><span>🔥</span><div><b>${esc(topDrop.question)}</b><small>${topDrop.responseCount||0} responses</small></div></div>`:''}</div><div class="sp12"></div><button class="btn primary" onclick="window._shareCrew()">Bring someone into the Crew</button>`)
 }
 
 function renderStart(){app.innerHTML=shell(`<div class="hero"><span class="chip darkchip">YOUR PRIVATE CIRCLE</span><div class="sp18"></div><h1>Start with your people.</h1><p style="color:#cbc5d2;margin-top:9px">A Crew is your private friend group on Adda.</p></div><div class="sp18"></div><div class="card"><div class="field"><label>Your name</label><input id="name" maxlength="24" placeholder="e.g. Vijyant"></div><div class="sp12"></div><div class="field"><label>Name your Crew</label><input id="crewName" maxlength="42" placeholder="e.g. Weekend Crew"></div><div class="sp18"></div><button class="btn primary" onclick="window._createCrew()">Start Crew</button></div>`,false)}
@@ -377,7 +430,7 @@ async function pollChat(){if(screen!=='chat')return;await refreshChatMessages();
 async function renderChat(){
   clearTimeout(chatTimer);await refreshCrew();const j=await api('chatList',{params:{crewId}});
   const emojis=['😂','😭','🔥','👀','❤️','🤣','😍','😎','🤡','💀','🙄','😤','🥳','🤝','👍','👎','🍻','☕','🏏','🎉','🤔','😴','😈','✨'];
-  app.innerHTML=shell(`${top(crew.name,'crew')}<div class="row between"><div><div class="tiny">CREW CHAT</div><h1>Chat</h1></div><span class="chip">${matesLabel()}</span></div><div class="sp12"></div><div id="chat" class="chat">${chatHtml(j.messages)}</div><div class="composer"><button class="emojiToggle" onclick="window._toggleEmoji()">😀</button><input id="chatInput" maxlength="240" placeholder="Message your Crew…" onkeydown="if(event.key==='Enter')window._sendChat()"><button onclick="window._sendChat()">Send</button></div><div id="emojiPicker" class="emojiPicker">${emojis.map(e=>`<button onclick="window._emoji('${e}')">${e}</button>`).join('')}</div>`);
+  app.innerHTML=shell(`${top('Crew Chat','crew')}<div id="chat" class="chat">${chatHtml(j.messages)}</div><div class="composer"><button class="emojiToggle" onclick="window._toggleEmoji()">😀</button><input id="chatInput" maxlength="240" placeholder="Message your Crew…" onkeydown="if(event.key==='Enter')window._sendChat()"><button onclick="window._sendChat()">Send</button></div><div id="emojiPicker" class="emojiPicker">${emojis.map(e=>`<button onclick="window._emoji('${e}')">${e}</button>`).join('')}</div>`);
   const box=$('#chat');if(box)box.scrollTop=box.scrollHeight;markChatSeen();
   schedulePoll('chat',pollChat,6000)
 }
