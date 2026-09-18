@@ -58,7 +58,16 @@ function shell(inner,nav=true){return `<section class="app"><div class="view">${
 function top(title=crew?.name||'Adda',back=''){return `<div class="top">${back?`<button class="linkbtn" onclick="window._go('${back}')">←</button>`:`<button class="brand brandBtn" onclick="window._home()">Adda</button>`}<div class="grow"><h3>${esc(title)}</h3></div>${crew?`<button class="chip chipBtn" onclick="window._go('crewSettings')">👥 ${matesLabel()}</button>`:''}</div>`}
 function matesLabel(n=members.length){return `${n} ${n===1?'mate':'mates'}`}
 function crewStickyHeader(){
-  return `<header class="crewStickyHeader"><button class="crewBrand" onclick="window._home()">Adda</button><button class="crewStickyName" onclick="window._openCurrentCrew()" title="${esc(crew?.name||'Crew')}">${esc(crew?.name||'Crew')}</button><div class="crewHeaderActions"><button class="matesPill" onclick="window._go('crewSettings')">👥 <b>${matesLabel()}</b></button><button class="invitePill" onclick="window._shareCrew()">↗ Invite</button></div></header><div class="crewHeaderSpacer" aria-hidden="true"></div>`
+  return `<header class="crewStickyHeader">
+    <div class="crewTopRow">
+      <button class="crewBrand" onclick="window._home()">Adda</button>
+      <button class="peopleCountPill" onclick="window._go('crewSettings')" aria-label="Open Crew mates"><b>${members.length}</b><span aria-hidden="true">👥</span></button>
+    </div>
+    <div class="crewTitleRow">
+      <button class="crewStickyName" onclick="window._openCurrentCrew()" title="${esc(crew?.name||'Crew')}">${esc(crew?.name||'Crew')}</button>
+      <button class="invitePill" onclick="window._shareCrew()">↗ Invite</button>
+    </div>
+  </header><div class="crewHeaderSpacer" aria-hidden="true"></div>`
 }
 function navHtml(){const a=x=>screen===x?'active':'';return `<nav class="nav nav5"><button class="${a('home')}" onclick="window._home()">⌂<br>Home</button><button class="${screen==='crew'?'active':''}" onclick="window._openCurrentCrew()">⚡<br>Crew</button><button class="create" onclick="window._createAction()">+</button><button class="${a('vibe')}" onclick="window._go('vibe')">✦<br>Vibe</button><button class="${a('profile')}" onclick="window._go('profile')">☺<br>Profile</button></nav>`}
 window._go=s=>{track('screen_view',{screen:s});screen=s;stopPolling();render()};window._tab=t=>{const next=t==='chat'?'chat':'crew';track('screen_view',{screen:next});screen=next;stopPolling();render()};
