@@ -35,16 +35,16 @@ Persistent Netlify Blob field-test store. Seeded Crew/member/Drop/answer/chat/im
 - private analytics dashboard
 - visitor/device/coarse geo/acquisition/product funnel/error analytics
 
-## Immediate live-build changes in progress
-1. Temporary logo must appear in every persistent header including Home.
-2. Fixed top shell must exist on every in-app state including Drop results and reveal countdown.
-3. Every visible user identity should be tappable to the user's Vibe profile where an ID is available:
+## Immediate live-build changes completed
+1. Temporary logo is wired into Home and reusable fixed headers.
+2. Fixed top shell is used on Drop results, live answers, reveal countdown, join/start/error/contextual screens as well as Home/Crew/Vibe/Profile.
+3. In-app identity links now open Vibe profiles without typing URLs:
    - Crew mates
    - named voters
    - Short Answer respondents
    - Chat senders
    - Most Likely result identities
-4. Keep all field-test data unchanged.
+4. Existing field-test data remains unchanged.
 
 ## Product work next
 Do not add the entire future roadmap to the live test at once.
@@ -84,4 +84,4 @@ After current field-test learning is captured:
 - current prediction format needs outcome resolution/reputation later
 
 ## Active Task
-Stabilize the fixed global shell and profile navigation in the live field-test build; then collect field-test evidence while future features are developed in docs/feature branches rather than destabilizing the live wave.
+Verify the global shell/profile-link hotfix on real mobile browsers, then freeze the current field-test experience except for blocking defects. Collect field-test evidence while designing vNext around the Daily Vibe Loop, Crew Pulse, DMs, Moments/Blink, Plans/Memories and Arena in documented/separate implementation work.
