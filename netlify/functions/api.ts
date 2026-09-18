@@ -1,5 +1,6 @@
 import type { Context, Config } from "@netlify/functions";
 import { getStore, getDeployStore } from "@netlify/blobs";
+import { createHash, timingSafeEqual } from "node:crypto";
 
 const FIELD_TEST_STORE="adda-v05-fieldtest";
 const LEGACY_PREVIEW_DEPLOY_ID="6aad2b6751428f000883e731";
@@ -38,8 +39,14 @@ const safeMediaRef=(v:any,crewId:string)=>{const x=clean(v,180);return x.startsW
 const mediaMime=(key:string)=>key.endsWith(".webp")?"image/webp":key.endsWith(".png")?"image/png":"image/jpeg";
 
 const ANALYTICS_STARTED_AT="2026-09-18T14:00:00.000Z";
-const analyticsAdminKey=()=>String((globalThis as any).Netlify?.env?.get?.("ADDA_ANALYTICS_ADMIN_KEY")||"");
-const adminOK=(req:Request)=>{const expected=analyticsAdminKey(),supplied=req.headers.get("x-adda-admin-key")||"";return !!expected&&supplied===expected};
+const ANALYTICS_ADMIN_KEY_SHA256="8bd875312eca9b0767e93edec8eef779acc066e4dc22d20b633df6da53938878";
+const adminOK=(req:Request)=>{
+  const supplied=req.headers.get("x-adda-admin-key")||"";
+  if(!supplied)return false;
+  const actual=createHash("sha256").update(supplied).digest();
+  const expected=Buffer.from(ANALYTICS_ADMIN_KEY_SHA256,"hex");
+  return actual.length===expected.length&&timingSafeEqual(actual,expected)
+};
 const trimArray=(xs:any[],n=8)=>xs.filter(Boolean).slice(-n);
 const uniqPush=(xs:any[],v:any,n=8)=>{const arr=(xs||[]).filter((x:any)=>JSON.stringify(x)!==JSON.stringify(v));if(v!==undefined&&v!==null&&v!=="")arr.push(v);return trimArray(arr,n)};
 function parseUA(ua:string){
