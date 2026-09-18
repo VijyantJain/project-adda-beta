@@ -1,7 +1,33 @@
 import type { Context, Config } from "@netlify/functions";
 import { getStore, getDeployStore } from "@netlify/blobs";
 
-function makeStore(context:any){ return context?.deploy?.context==="production" ? getStore({ name:"adda-v03", consistency:"strong" }) : getDeployStore({ name:"adda-v05-preview", consistency:"strong" } as any); }
+const FIELD_TEST_STORE="adda-v05-fieldtest";
+const LEGACY_PREVIEW_DEPLOY_ID="6aad2b6751428f000883e731";
+const MIGRATION_MARKER="__migration/from-"+LEGACY_PREVIEW_DEPLOY_ID;
+let previewMigration:any=null;
+
+async function migratePreviewData(target:any){
+  const already=await target.get(MIGRATION_MARKER);
+  if(already) return;
+  const source=getDeployStore({ name:"adda-v05-preview", deployID:LEGACY_PREVIEW_DEPLOY_ID, consistency:"strong" } as any);
+  const { blobs }=await source.list();
+  for(const b of blobs){
+    const raw=await source.get(b.key,{type:"arrayBuffer"});
+    if(raw) await target.set(b.key,raw);
+  }
+  await target.set(MIGRATION_MARKER,"migrated:"+new Date().toISOString());
+}
+
+async function makeStore(context:any){
+  if(context?.deploy?.context==="production") return getStore({ name:"adda-v03", consistency:"strong" });
+  const target=getStore({ name:FIELD_TEST_STORE, consistency:"strong" });
+  const marker=await target.get(MIGRATION_MARKER);
+  if(!marker){
+    if(!previewMigration) previewMigration=migratePreviewData(target).finally(()=>{previewMigration=null});
+    await previewMigration;
+  }
+  return target;
+}
 const JSON_HEADERS = { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" };
 const ok = (data:any, status=200) => new Response(JSON.stringify(data), { status, headers: JSON_HEADERS });
 const bad = (message:string, status=400) => ok({ error: message }, status);
@@ -22,7 +48,7 @@ async function listJSON(store:any,prefix:string, limit=100){
 
 export default async (req: Request, context: Context) => {
   try {
-    const store = makeStore(context);
+    const store = await makeStore(context);
     const url = new URL(req.url);
     const action = url.searchParams.get("action") || "";
     const body = req.method === "POST" ? await req.json().catch(()=>({})) : {};
