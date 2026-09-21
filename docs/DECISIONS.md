@@ -1,5 +1,5 @@
 # Project Adda — Decision Log
-Updated: 2026-09-18
+Updated: 2026-09-22
 
 ## D001 — Working name is temporary
 "Adda" is a working name, not a locked GTM brand. Brand assets should separate symbol from wordmark where possible.
@@ -38,3 +38,15 @@ Postgres + Realtime + Storage + RLS is the intended next backend direction. Do n
 
 ## D012 — Source of truth is not chat history
 Exact state lives in GitHub docs/current code + Drive Product Ledger. Chat memory is supplementary only.
+
+## D013 — Play-before-create onboarding
+For a direct new arrival without a Crew, run First Five before asking to create or invite. Shared Drop and Crew deep links keep their direct flows. Creator gets five automatically seeded Crew Drops after opting in.
+
+## D014 — Intro rewards are earned and idempotent
+Starter answers earn 10 Vibe each with one-time +30 and +50 milestone bonuses; milestones are real, not fake countdowns or simulated votes. Separate Starter records from private Crew records; prevent repeated reward farming. First Five v1 details live in docs/FIRST_FIVE_VIBE_RUN.md.
+
+## D015 — Reward economy and future gifting are separate concepts
+Future free/premium gifts are concept proposals only. Preserve Vibe as earned activity status; purchased cosmetics must not directly buy competitive experience. Assess caps, abuse prevention, recipient controls, refunds, pricing and legal matters before implementation. See docs/REWARD_ECONOMY.md.
+
+## D016 — Document on each meaningful product change
+Update the feature-specific canonical spec, CURRENT_STATE, DECISIONS and ROADMAP as appropriate, then append the Drive Product Ledger handoff. Do not duplicate full master specs across every file or leave unique decisions only in chat.
