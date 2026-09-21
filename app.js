@@ -5,7 +5,9 @@ const qs=new URLSearchParams(location.search);let crewId=qs.get('crew')||'';let 
 const pid=localStorage.addaPid||(`p_${crypto.randomUUID().replace(/-/g,'').slice(0,10)}`);localStorage.addaPid=pid;
 const sid=sessionStorage.addaSid||(`s_${crypto.randomUUID().replace(/-/g,'').slice(0,14)}`);sessionStorage.addaSid=sid;
 const firstLocalSeen=localStorage.addaFirstSeen||new Date().toISOString();const returningLocal=!!localStorage.addaFirstSeen;localStorage.addaFirstSeen=firstLocalSeen;
-let meName=localStorage.addaName||'';let crew=null,members=[],drops=[],screen='boot',tab='drops',selected=null,guestAnswer=null,activeDropType='',pollTimer=null,chatTimer=null;
+let meName=localStorage.addaName||'';let crew=null,members=[],drops=[],screen='boot',tab='drops',selected=null,guestAnswer=null,activeDropType='',pollTimer=null,chatTimer=null,pendingInvite=null;
+function needsFirstJourney(){return localStorage.addaStarterFinished!=='1'&&!getKnownCrews().length&&!meName}
+
 const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
 function esc(s=''){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1400)}
@@ -92,9 +94,9 @@ function crewStickyHeader(){
 }
 function navHtml(){const a=x=>screen===x?'active':'';return `<nav class="nav nav5"><button aria-label="Home" title="Home" class="${a('home')}" onclick="window._home()">${navIcon('home')}</button><button aria-label="Crew" title="Crew" class="${screen==='crew'?'active':''}" onclick="window._openCurrentCrew()">${navIcon('crew')}</button><button aria-label="Create" title="Create" class="create" onclick="window._createAction()">+</button><button aria-label="Vibe" title="Vibe" class="${a('vibe')}" onclick="window._go('vibe')">${navIcon('vibe')}</button><button aria-label="Profile" title="Profile" class="${a('profile')}" onclick="window._go('profile')">${navIcon('profile')}</button></nav>`}
 window._go=s=>{track('screen_view',{screen:s});screen=s;stopPolling();render()};window._tab=t=>{const next=t==='chat'?'chat':'crew';track('screen_view',{screen:next});screen=next;stopPolling();render()};
-window._home=()=>{stopPolling();crewId='';dropId='';crew=null;members=[];drops=[];history.replaceState({},'','/');screen='home';render()};
+window._home=()=>{stopPolling();if(!getKnownCrews().length){screen='starter';renderStarter();starterController?.begin();return}crewId='';dropId='';crew=null;members=[];drops=[];pendingInvite=null;history.replaceState({},'','/');screen='home';render()};
 window._openCurrentCrew=()=>{if(crewId&&crew){screen='crew';render()}else{const first=getKnownCrews()[0];if(first)window._openKnownCrew(first.id);else{screen='start';render()}}};
-window._createAction=()=>{if(crewId&&crew){screen='create';render()}else{screen='start';render()}};
+window._createAction=()=>{if(crewId&&crew){screen='create';render()}else if(!getKnownCrews().length){window._home()}else{screen='start';render()}};
 window._openKnownCrew=id=>{track('crew_opened',{targetCrewId:id});crewId=id;dropId='';history.replaceState({},'',`/?crew=${id}`);screen='boot';boot()};
 function stopPolling(){clearTimeout(pollTimer);clearTimeout(chatTimer)}
 function schedulePoll(kind,fn,ms){
@@ -198,14 +200,27 @@ window._surprise=t=>{
   if(t==='vote'){['#o1','#o2','#o3'].forEach((id,i)=>{if($(id))$(id).value=item[i+1]||''})}
 };
 
-window._shareCrew=()=>{track('crew_shared',{crewId});share(`${location.origin}/?crew=${crewId}&utm_source=adda&utm_medium=share&utm_campaign=crew`,`Join ${crew.name} on Adda 👀`)};
+window._shareCrew=()=>{if(!crewId||!crew)return;track('crew_shared',{crewId});share(`${location.origin}/?crew=${crewId}&utm_source=adda&utm_medium=share&utm_campaign=crew`,`Oye! ${crew.name} ka Adda ready hai 😂👀\n5 fun questions already waiting. Come pick your answers, see what the gang thinks, and expose your friends! 🔥\nJoin the crew: `)};
 window._shareDrop=(id)=>{track('drop_shared',{dropId:id});share(`${location.origin}/?crew=${crewId}&drop=${id}&utm_source=adda&utm_medium=share&utm_campaign=drop`,`Answer this Drop in ${crew.name} 👀`)};
 
 async function boot(){try{
  if(profileId){screen='publicVibe';render();return}
- if(!crewId){screen=playFirstFive||!getKnownCrews().length?'starter':'home';render();return}
+ if(!crewId){screen=playFirstFive||needsFirstJourney()?'starter':'home';render();return}
  const c=await api('getCrew',{params:{crewId}});crew=c.crew;members=c.members;
- const member=members.find(m=>m.id===pid);
+ let member=members.find(m=>m.id===pid);
+ const firstVisit=needsFirstJourney();
+ if(!member&&firstVisit){
+   // A Crew invite constitutes a request to join; use a clearly temporary nickname
+   // until the guest chooses the name their mates will see after First Five.
+   const guestName='New mate '+pid.slice(-4);
+   const joined=await api('joinCrew',{method:'POST',body:{crewId,participantId:pid,nickname:guestName,provisional:true}});
+   member=joined.member;members.push(member);
+   track('crew_joined',{crewId,entry:'new_invite_provisional'});
+ }
+ if(member?.provisional){
+   pendingInvite={crewId,crewName:crew.name,dropId};
+   screen='starter';renderStarter();starterController.begin();return;
+ }
  if(!member){screen=dropId?'joinDrop':'join';render();return}
  meName=member.nickname;localStorage.addaName=meName;rememberCrew(crew);
  if(dropId){screen='drop';render();return}
@@ -235,7 +250,7 @@ function renderHome(){
   const stats=localStats();
   app.innerHTML=shell(`${homeStickyHeader()}<div class="row between"><h2>Your Crews</h2><button class="chip chipBtn" onclick="window._newCrew()">+ New Crew</button></div><div class="sp12"></div>${crews.length?`<div class="crewGrid">${crews.map(c=>`<button class="crewTile" onclick="window._openKnownCrew('${c.id}')"><div class="crewEmoji">👥</div><b>${esc(c.name)}</b><span>Open Crew →</span></button>`).join('')}</div>`:`<div class="card center"><h2>No Crews yet</h2><p class="sub" style="margin-top:6px">Start with one group you already talk to.</p></div>`}<div class="sp18"></div><div class="homeModules"><button onclick="window._startFirstFive()"><span>⚡</span><b>Vibe Run</b><small>5 quick choices & rewards</small></button><button onclick="window._go('vibe')"><span>✦</span><b>Your Vibe</b><small>${stats.response_submitted||0} answers so far</small></button><button onclick="window._go('profile')"><span>☺</span><b>Profile</b><small>Crews & settings</small></button></div>`)
 }
-window._newCrew=()=>{crewId='';dropId='';crew=null;members=[];drops=[];history.replaceState({},'','/');screen='start';render()};
+window._newCrew=()=>{if(!getKnownCrews().length){return window._home()}crewId='';dropId='';crew=null;members=[];drops=[];history.replaceState({},'','/');screen='start';render()};
 
 function renderProfile(){
   const crews=getKnownCrews(),stats=localStats();
@@ -354,22 +369,69 @@ function renderStarter(){
  if(!starterController){
   starterController=createStarterController({
    app,shell,top,api,pid,esc,getKnownCrews,getName:()=>meName,toast,
-   onViewVibe:()=>{history.replaceState({},'','/');screen='vibe';render()},
-   onCrewCreated:async (j,nickname)=>{
+   getInvite:()=>pendingInvite,
+   onCompleted:()=>{localStorage.addaStarterFinished='1'},
+   onEnterInvite:()=>renderInvitedName(),
+   onEnterExistingCrew:async id=>window._openKnownCrew(id),
+   onCrewCreated:async(j,nickname)=>{
     crewId=j.crew.id;crew=j.crew;meName=nickname;localStorage.addaName=nickname;
-    rememberCrew(crew);track('crew_created',{crewId:j.crew.id,entry:'first_five'});profileId='';dropId='';
+    localStorage.addaStarterFinished='1';rememberCrew(crew);
+    profileId='';dropId='';pendingInvite=null;
     history.replaceState({},'',`/?crew=${crewId}`);
-    await refreshCrew();screen='crew';render();toast('🎉 Your Crew has 5 Drops ready!');
+    await refreshCrew();await refreshDrops();
+    if(drops.filter(x=>x.starterPack).length!==5)throw Error('Crew was created, but its five Drops are still preparing. Please retry.');
+    track('crew_created',{crewId:j.crew.id,entry:'first_five'});
+    screen='crew';await render();showStarterInvitePrompt();
    }
   });
  }
  return starterController.render()
 }
 window._startFirstFive=()=>{
- profileId='';crewId='';dropId='';crew=null;members=[];drops=[];
+ profileId='';crewId='';dropId='';crew=null;members=[];drops=[];pendingInvite=null;
  history.pushState({},'','/?play=1');screen='starter';stopPolling();renderStarter();
  return starterController.begin()
 };
+function renderInvitedName(){
+ if(!pendingInvite)return window._home();
+ app.innerHTML=shell(`${top('')}<main class="starterInvitedName">
+   <span class="starterKicker">ONE LAST THING 👀</span>
+   <h1>What should your mates call you?</h1>
+   <p>Your place in <b>${esc(pendingInvite.crewName)}</b> is ready. Give the gang a name to recognize.</p>
+   <div class="field"><label>Your name</label><input maxlength="24" id="invitedName" value="${esc(meName)}" placeholder="e.g. Vijyant"></div>
+   <button class="btn starterCTA" id="invitedGoBtn" onclick="window._finishInvitedJourney()">Enter ${esc(pendingInvite.crewName)} →</button>
+ </main>`,false)
+}
+window._finishInvitedJourney=async()=>{
+ if(!pendingInvite)return;
+ const nickname=$('#invitedName')?.value.trim();if(!nickname)return toast('Add your name');
+ const btn=$('#invitedGoBtn');if(btn){btn.disabled=true;btn.textContent='Taking you to your Crew…'}
+ try{
+   const v=pendingInvite;
+   await api('joinCrew',{method:'POST',body:{crewId:v.crewId,participantId:pid,nickname,provisional:false}});
+   crewId=v.crewId;dropId=v.dropId||'';meName=nickname;localStorage.addaName=nickname;localStorage.addaStarterFinished='1';
+   rememberCrew(crew);pendingInvite=null;await refreshCrew();
+   history.replaceState({},'',dropId?`/?crew=${crewId}&drop=${dropId}`:`/?crew=${crewId}`);
+   screen=dropId?'drop':'crew';render();
+ }catch(e){toast(e.message);if(btn){btn.disabled=false;btn.textContent='Enter Crew →'}}
+};
+function showStarterInvitePrompt(){
+ document.querySelector('.starterInviteOverlay')?.remove();
+ const overlay=document.createElement('div');overlay.className='shareOverlay starterInviteOverlay';
+ overlay.innerHTML=`<section class="starterInviteSheet" role="dialog" aria-label="Invite your friends">
+  <div class="starterInviteGraphic">🎉👥</div>
+  <span class="starterKicker">YOUR CREW IS READY!</span>
+  <h2>Time to bring in the gang 👀</h2>
+  <p><b>${esc(crew?.name||'Your Crew')}</b> has 5 Drops waiting. Your friends join from this invite and get their own first-time welcome.</p>
+  <div class="starterInvitePreview">Oye! ${esc(crew?.name||'Our Crew')} ka Adda ready hai 😂<br>5 fun questions waiting. Come expose the gang! 🔥</div>
+  <button id="starterInviteNow" class="btn starterCTA">↗ Invite my friends</button>
+  <button id="starterInviteLater" class="starterTextLink">I'll invite them later</button>
+ </section>`;
+ document.body.appendChild(overlay);
+ overlay.querySelector('#starterInviteNow').addEventListener('click',()=>{overlay.remove();window._shareCrew()});
+ overlay.querySelector('#starterInviteLater').addEventListener('click',()=>overlay.remove());
+ overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove()});
+}
 
 function renderStart(){app.innerHTML=shell(`${top('')}<div class="hero"><span class="chip darkchip">YOUR PRIVATE CIRCLE</span><div class="sp18"></div><h1>Start with your people.</h1><p style="color:#cbc5d2;margin-top:9px">A Crew is your private friend group on Adda.</p></div><div class="sp18"></div><div class="card"><div class="field"><label>Your name</label><input id="name" maxlength="24" placeholder="e.g. Vijyant"></div><div class="sp12"></div><div class="field"><label>Name your Crew</label><input id="crewName" maxlength="42" placeholder="e.g. Weekend Crew"></div><div class="sp18"></div><button class="btn primary" onclick="window._createCrew()">Start Crew</button></div>`,false)}
 window._createCrew=async()=>{const nickname=$('#name').value.trim(),name=$('#crewName').value.trim();if(!nickname||!name)return toast('Add your name and Crew name');try{const j=await api('createCrew',{method:'POST',body:{nickname,name,participantId:pid}});crewId=j.crew.id;crew=j.crew;meName=nickname;localStorage.addaName=nickname;rememberCrew(crew);history.replaceState({},'',`/?crew=${crewId}`);track('crew_created',{crewId:j.crew.id});await refreshCrew();screen='crew';render()}catch(e){toast(e.message)}};
