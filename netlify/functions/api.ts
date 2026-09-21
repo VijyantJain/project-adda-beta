@@ -253,6 +253,18 @@ export default async (req: Request, context: Context) => {
       const engaged=visitorRows.filter((v:any)=>v.answerCount>0||v.dropCreates>0||v.chatMessages>0).length;
       const dropEntryVisitors=new Set(analyticsEvents.filter((e:any)=>e.event==="drop_link_opened").map((e:any)=>e.participantId)).size;
       const visitEvents=analyticsEvents.filter((e:any)=>e.event==="visit_started");
+      const starterEventIds=(event:string)=>new Set(analyticsEvents.filter((e:any)=>e.event===event).map((e:any)=>e.participantId).filter(Boolean));
+      const starterStarted=starterEventIds("starter_started"),starterFirst=starterEventIds("starter_answered");
+      const starterFive=starterEventIds("starter_first_five_completed"),starterTen=starterEventIds("starter_bonus_completed"),starterCrews=starterEventIds("starter_crew_created");
+      const starterStepCounts:any={};
+      analyticsEvents.filter((e:any)=>e.event==="starter_answered").forEach((e:any)=>{
+        const step=Number(e.meta?.step)||0;
+        if(step>0&&step<=10){starterStepCounts[step]=starterStepCounts[step]||new Set();starterStepCounts[step].add(e.participantId)}
+      });
+      const starterFunnel=[{label:"Opened First Five",value:starterStarted.size},
+        ...[1,2,3,4,5,6,7,8,9,10].map(n=>({label:n===5?"🏆 First Five":n===10?"👑 Tenacious":"Answered "+n,value:starterStepCounts[n]?.size||0})),
+        {label:"Created Starter Crew",value:starterCrews.size}];
+
       const ipSet=new Set(visitors.map((v:any)=>v.lastServer?.ip).filter(Boolean));
       const perf=visitors.map((v:any)=>v.lastClient?.performance).filter((x:any)=>x&&x.duration);
       const avg=(arr:number[])=>arr.length?Math.round(arr.reduce((a,b)=>a+b,0)/arr.length):0;
@@ -270,6 +282,7 @@ export default async (req: Request, context: Context) => {
           joined:joined.size,answered:answered.size,answered2,answered5,creators:creators.size,sharers:sharers.size,chatters:chatters.size,
           totalAnswers:eventCounts.response_submitted||0,totalDropsCreated:eventCounts.drop_created||0,totalChats:eventCounts.chat_message_sent||0,totalShares:(eventCounts.drop_shared||0)+(eventCounts.crew_shared||0)+(eventCounts.share_attempted||0),
           clientErrors:eventCounts.client_error||0,legacyEvents:legacyEvents.length,
+          starter:{started:starterStarted.size,firstAnswer:starterFirst.size,completedFive:starterFive.size,completedTen:starterTen.size,crews:starterCrews.size,totalAnswers:eventCounts.starter_answered||0,funnel:starterFunnel},
           funnel:[
             {label:"Visited",value:uniqueVisitorIds.size},
             {label:"Opened shared Drop",value:dropEntryVisitors},
