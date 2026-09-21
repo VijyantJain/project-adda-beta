@@ -137,3 +137,14 @@ Candidate—not locked:
 - brand/campus/event experiences
 - creator tools
 Avoid damaging the core social loop with premature ads.
+
+
+## v0.6.1 corrective activation milestone (preview)
+- Full-width visual Starter cards and screenshot-exact neon trophy reward stage.
+- Solo user at Tenacious has one Create Crew CTA, a seeded pack and in-app invite dialog.
+- Invited newcomer joins provisionally, completes Starter once per beta browser and lands in original Crew/Drop.
+- Home becomes a useful real Crew/Vibe dashboard; the Arena/public feed is not yet shipped.
+- Exit check: first-five completion, refresh/idempotent points, ten completion, five seeded Drops, native share, invited return, existing Avengers data, fixed header/bottom bar after onboarding and real mobile usability.
+
+## M1 account/profile/contact dependencies
+Real email + phone OTP (configured Supabase/email/SMS provider), verified profile IDs, merged browser guests and Vibe, unique handle availability, DP/avatar, optional bio, per-profile privacy, optional permission-on-intent Find Friends. See ONBOARDING_IDENTITY_CONTACTS.md.
