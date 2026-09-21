@@ -609,6 +609,7 @@ export default async (req: Request, context: Context) => {
       const membershipRows=(await Promise.all(memberships.slice(-20).map(async (b:any)=>getJSON(store,b.key)))).filter(Boolean);
       const displayName=membershipRows.slice().sort((a:any,b:any)=>String(b.joinedAt||"").localeCompare(String(a.joinedAt||"")))[0]?.nickname||"";
       const myResponses=responseBlobs.filter((b:any)=>b.key.endsWith("/"+participantId));
+      const starter=starterPayload(await getJSON(store,`starter/v1/${participantId}`));
       const myDrops=dropRows.filter((d:any)=>d.createdBy===participantId);
       const myChats=chatRows.filter((m:any)=>m.participantId===participantId);
       const allEvents=[...legacyEvents,...analyticsEvents];
@@ -617,6 +618,7 @@ export default async (req: Request, context: Context) => {
       const dropMap:any={};dropRows.forEach((d:any)=>dropMap[(d.crewId||"")+"/"+d.id]=d);
       const typeCounts:any={};
       myResponses.forEach((b:any)=>{const p=b.key.split("/");const d=dropMap[(p[1]||"")+"/"+(p[2]||"")];if(d?.type)typeCounts[d.type]=(typeCounts[d.type]||0)+1});
+      STARTER_DECK.filter((q:any)=>starter.answers[q.id]!==undefined).forEach((q:any)=>{typeCounts[q.type]=(typeCounts[q.type]||0)+1});
       const signature=Object.entries(typeCounts).sort((a:any,b:any)=>Number(b[1])-Number(a[1]))[0]?.[0]||myDrops[0]?.type||"";
 
       const daySet=new Set<string>();
@@ -641,7 +643,7 @@ export default async (req: Request, context: Context) => {
       }
 
       const answers=myResponses.length,dropsMade=myDrops.length,chatsSent=myChats.length,crews=memberships.length;
-      const starter=starterPayload(await getJSON(store,`starter/v1/${participantId}`));
+      const totalAnswers=answers+starter.progress;
       const score=answers*10+dropsMade*30+chatsSent*4+shares*20+crews*10+Math.min(streak,10)*5+starter.points;
       const levels=[
         {min:0,name:"Fresh",icon:"✨"},
@@ -657,11 +659,13 @@ export default async (req: Request, context: Context) => {
       const progress=next?Math.max(0,Math.min(100,Math.round((score-levelFloor)/(nextTarget-levelFloor)*100))):100;
 
       const defs=[
-        {id:"first",icon:"🎯",name:"First Move",desc:"Answer your first Drop",current:answers,target:1},
-        {id:"responder",icon:"⚡",name:"Responder",desc:"Answer 5 Drops",current:answers,target:5},
-        {id:"deep",icon:"🏊",name:"Deep Diver",desc:"Answer 10 Drops",current:answers,target:10},
+        {id:"first",icon:"🎯",name:"First Move",desc:"Answer your first Drop",current:totalAnswers,target:1},
+        {id:"responder",icon:"⚡",name:"Responder",desc:"Answer 5 Drops",current:totalAnswers,target:5},
+        {id:"deep",icon:"🏊",name:"Deep Diver",desc:"Answer 10 Drops",current:totalAnswers,target:10},
         {id:"maker",icon:"🛠️",name:"Drop Maker",desc:"Create your first Drop",current:dropsMade,target:1},
         {id:"machine",icon:"🚀",name:"Drop Machine",desc:"Create 5 Drops",current:dropsMade,target:5},
+        {id:"firstfive",icon:"🏆",name:"First Five",desc:"Finish your First Five",current:starter.progress,target:5},
+        {id:"tenacious",icon:"👑",name:"Tenacious",desc:"Finish all 10 Starter Drops",current:starter.progress,target:10},
         {id:"chatty",icon:"💬",name:"Chatty",desc:"Send 5 Crew chats",current:chatsSent,target:5},
         {id:"social",icon:"📣",name:"Social Spark",desc:"Share Adda 3 times",current:shares,target:3},
         {id:"multi",icon:"👥",name:"Multi-Crew",desc:"Join 2 Crews",current:crews,target:2},
@@ -692,7 +696,7 @@ export default async (req: Request, context: Context) => {
       const visitor=await getJSON(store,`analytics/visitor/${participantId}`);
       return ok({
         score,level:{...level,index:levelIndex+1},nextLevel:next,progress,pointsToNext:next?Math.max(0,next.min-score):0,
-        streak,activeDays:dates.length,answers,dropsMade,chatsSent,shares,crews,sessions:Number(visitor?.sessionCount)||0,
+        streak,activeDays:dates.length,answers:totalAnswers,starterAnswers:starter.progress,dropsMade,chatsSent,shares,crews,sessions:Number(visitor?.sessionCount)||0,
         displayName:displayName||starter.nickname,signature,typeCounts,badges,nextUnlock,crewRank,starter:{progress:starter.progress,points:starter.points,firstFiveCompleted:starter.firstFiveCompleted,bonusCompleted:starter.bonusCompleted,earned:starter.earned}
       });
     }
