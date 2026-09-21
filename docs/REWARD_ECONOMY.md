@@ -10,7 +10,7 @@ Status: V1 Starter points/achievements implemented; gifting and commercial mecha
 5. Cosmetic inventory: optional frames, themes, animations, stickers, collectible visual effects.
 6. Gift/Aura: optional future positive interaction history; distinguish from Score and from purchases.
 
-## Starter contract
+## Current level curve\n0 Fresh; 10 First Spark; 25 Warming Up; 45 On a Roll; 60 Spark; 100 Glow Up; 150 Buzz; 300 Main Character; 600 Vibe Magnet; 1000 Adda Icon; 2000 Legend. Numbers are earned Vibe points, not levels users can buy. Initial steps are deliberately close; later steps broaden. Existing numeric level indexes change but stored scores do not.\n\n## Starter contract
 One-time up to 180 Vibe: 10 per answer, bonus 30 on first five, bonus 50 on ten. This is introductory progression, not an infinitely repeatable points exploit.
 
 ## Future individual loop
