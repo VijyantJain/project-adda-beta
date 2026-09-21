@@ -205,7 +205,7 @@ window._shareDrop=(id)=>{track('drop_shared',{dropId:id});share(`${location.orig
 
 async function boot(){try{
  if(profileId){screen='publicVibe';render();return}
- if(!crewId){screen=playFirstFive||needsFirstJourney()?'starter':'home';render();return}
+ if(!crewId){const noCrews=!getKnownCrews().length;screen=playFirstFive||noCrews?'starter':'home';render();if(noCrews&&localStorage.addaStarterFinished==='1')starterController?.begin();return}
  const c=await api('getCrew',{params:{crewId}});crew=c.crew;members=c.members;
  let member=members.find(m=>m.id===pid);
  const firstVisit=needsFirstJourney();
@@ -246,9 +246,25 @@ function render(err=''){stopPolling();
  if(screen==='drop')return renderDrop();
 }
 function renderHome(){
-  const crews=getKnownCrews();
-  const stats=localStats();
-  app.innerHTML=shell(`${homeStickyHeader()}<div class="row between"><h2>Your Crews</h2><button class="chip chipBtn" onclick="window._newCrew()">+ New Crew</button></div><div class="sp12"></div>${crews.length?`<div class="crewGrid">${crews.map(c=>`<button class="crewTile" onclick="window._openKnownCrew('${c.id}')"><div class="crewEmoji">👥</div><b>${esc(c.name)}</b><span>Open Crew →</span></button>`).join('')}</div>`:`<div class="card center"><h2>No Crews yet</h2><p class="sub" style="margin-top:6px">Start with one group you already talk to.</p></div>`}<div class="sp18"></div><div class="homeModules"><button onclick="window._startFirstFive()"><span>⚡</span><b>Vibe Run</b><small>5 quick choices & rewards</small></button><button onclick="window._go('vibe')"><span>✦</span><b>Your Vibe</b><small>${stats.response_submitted||0} answers so far</small></button><button onclick="window._go('profile')"><span>☺</span><b>Profile</b><small>Crews & settings</small></button></div>`)
+ const crews=getKnownCrews(),stats=localStats(),finished=localStorage.addaStarterFinished==='1';
+ app.innerHTML=shell(`${homeStickyHeader()}
+ <section class="homeWelcomeV2">
+  <span class="homeRailTitle" style="color:#dfff80">⚡ ${finished?'YOUR VIBE IS GROWING':'YOUR FIRST VIBE RUN'}</span>
+  <h2>${finished?'Your people. Your next story.':'Fun starts with one tap. 👀'}</h2>
+  <p>${finished?'Open a Crew, answer something unexpected, and give your Vibe another reason to grow.':'Five fast questions, tiny victories, your first trophy. No Crew required.'}</p>
+  <button onclick="${finished?"window._go('vibe')":"window._startFirstFive()"}">${finished?'🏆 See my Vibe & trophies →':'⚡ Play First Five →'}</button>
+ </section>
+ <div class="row between"><div><div class="homeRailTitle">👥 YOUR SOCIAL SPACES</div><h2>Your Crews</h2></div><button class="chip chipBtn" onclick="window._newCrew()">+ New Crew</button></div>
+ <p class="sub" style="margin:8px 0 13px">Open a Crew to see what your mates are up to.</p>
+ ${crews.length?`<div class="crewGrid">${crews.map(c=>`<button class="crewTile" onclick="window._openKnownCrew('${c.id}')"><div class="crewEmoji">👥</div><b>${esc(c.name)}</b><span>Play with your mates →</span></button>`).join('')}</div>`:`<div class="card center"><h2>No Crews yet</h2><p class="sub" style="margin-top:6px">Finish your first Vibe Run and start with five ready-made Drops.</p><button class="btn primary" onclick="window._startFirstFive()">Start playing →</button></div>`}
+ <div class="sp18"></div>
+ <div class="homeRailTitle">✨ YOUR CORNER</div>
+ <div class="homeModules">
+  <button onclick="window._go('vibe')"><span>✦</span><b>Your Vibe</b><small>Trophies, score & badges</small></button>
+  <button onclick="window._go('profile')"><span>☺</span><b>Profile</b><small>Your identity & Crews</small></button>
+ </div>
+ <div class="card" style="margin-top:16px"><h3>🌍 What’s next for Adda?</h3><p class="sub" style="margin-top:7px">A personal Home feed will later bring together Crew activity, Moments and recommendations from Arena. For now, this is your private doorway into real Crews.</p></div>
+ `)
 }
 window._newCrew=()=>{if(!getKnownCrews().length){return window._home()}crewId='';dropId='';crew=null;members=[];drops=[];history.replaceState({},'','/');screen='start';render()};
 
