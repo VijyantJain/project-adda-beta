@@ -453,3 +453,11 @@ Never expose raw IP/device analytics in public product surfaces.
 6. QA with synthetic/new Crews.
 7. Cut beta testers to new backend only after reconciliation.
 8. Keep field-test snapshot as immutable rollback/archive.
+
+
+## v0.6.1 bridge from beta guest to durable identity
+Current link-open creates provisional member under browser participantId; it must not replace an existing named member on retry. The first-time session retains original invited Crew/Drop and finalizes a user-provided display name after Starter. Current lifetime claim is PER BROWSER ONLY. Future verified auth merges guest participantId(s), earned event ledger, Crew roles, Drops and Vibe idempotently to one stable profile, preserving all identifiers.
+
+The Starter Crew route saves new crew ID before performing restartable five-Drop seed writes, uses deterministic seed IDs and recognizes old seeded Crews. The current Netlify field-test store remains unchanged.
+
+For Auth OTP provider, handle uniqueness, avatars, bio, signed Crew invites, explicit optional contact permission/matching and Home/Arena split: docs/ONBOARDING_IDENTITY_CONTACTS.md.
