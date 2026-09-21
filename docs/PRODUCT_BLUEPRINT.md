@@ -1,5 +1,5 @@
 # Project Adda — Master Product Blueprint
-Updated: 2026-09-18
+Updated: 2026-09-22
 
 ## 1. Vision
 Build a social playground for real people who already know each other, with a later public discovery layer. The product should make ordinary friend-group downtime interactive: questions, choices, predictions, reactions, photos, plans, inside jokes, status and conversation.
@@ -56,6 +56,8 @@ Crew coordination object: date/time/options/RSVP.
 Pinned or archived Crew artifact: reveal, Moment, inside joke, event, recap.
 
 ## 4. Personal retention engine — Daily Vibe Loop
+
+First-session testbed: docs/FIRST_FIVE_VIBE_RUN.md. New visitors play five finite curated cards before being asked to create/invite; one-time Starter Vibe points and trophies build early momentum; a Bonus Five is optional. The real daily repeating supply below is a FUTURE design, not shipped by First Five v1.
 The personal loop must not depend on Crew participation.
 
 Loop:
@@ -289,6 +291,8 @@ Eventually Home should prioritize "things waiting for you":
 - events/campus/community packs
 
 ## 18. Business model candidates
+
+Future gifting (not implemented): free supportive social gifts and paid cosmetic gifts are concepts. Purchased items should not directly substitute for earned experience; preserve fairness and protect against reciprocal point farming. Canonical detail: docs/REWARD_ECONOMY.md.
 Only after retention:
 - cosmetic Vibe/profile themes/effects
 - Crew themes and premium admin/insight tools
