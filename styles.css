@@ -857,3 +857,92 @@ html,body{background:
 .starterArtImage{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;display:block}
 .starterArt:has(.starterArtImage):before,.starterArt:has(.starterArtImage):after{display:none}
 .starterArt:has(.starterArtImage) i{color:#fff;font-size:29px;filter:drop-shadow(0 2px 5px rgba(40,20,80,.28))}
+
+
+/* v0.6.1 first-time-journey layout repair — one app-width layer on mobile */
+.app .view{align-items:stretch;min-width:0}
+.starterFlow,.starterQuestion,.starterRewardV2,.starterCompleteV2,.starterCreateV2,.starterInvitedName,
+.starterIntro,.starterCompletionDetails,.starterTrophyShowcase{width:100%;max-width:100%;min-width:0;box-sizing:border-box}
+.starterFlow{display:flex;flex-direction:column;gap:0;flex:1 0 auto}
+.starterFlow>.starterQuestion{align-self:stretch;margin-inline:0!important;flex:1 0 auto;padding:clamp(13px,4vw,20px)}
+.starterFlow .starterArt{width:100%;height:clamp(170px,28dvh,265px);max-width:none}
+.starterFlow .starterBalance{flex-wrap:wrap;gap:6px;line-height:1.3}
+.starterFlow .starterChoices{width:100%;min-width:0}
+.starterFlow .starterChoice{box-sizing:border-box;width:100%;min-width:0;max-width:100%;display:grid;grid-template-columns:34px minmax(0,1fr) 16px;align-items:center;gap:10px;padding:13px}
+.starterFlow .starterChoice b{overflow-wrap:anywhere;min-width:0}
+.starterFlow .starterChoice>span:last-child{font-size:16px}
+.starterFlow .starterFootnote{margin-block:13px}
+.starterRewardV2,.starterCompleteV2{isolation:isolate;position:relative;overflow:hidden;background:linear-gradient(155deg,#090a20,#2b1747 72%,#23113f);color:#fff;border-radius:25px;padding:18px 14px 23px;box-shadow:0 20px 45px rgba(31,16,65,.25)}
+.starterRewardV2{min-height:calc(100dvh - 102px);display:flex;flex-direction:column;justify-content:center;align-items:stretch;gap:10px;text-align:center}
+.starterRewardV2 .starterRewardPts{font-size:clamp(38px,12vw,58px);margin:4px 0}
+.starterRewardV2 .starterFact{margin:4px 0}
+.starterRewardV2 .starterUnlock,.starterRewardV2 h1,.starterRewardV2>p{position:relative;z-index:3}
+.starterRewardV2 .starterUnlock{margin:0;color:#dcff6b}
+.starterRewardV2 h1{font-size:clamp(26px,8vw,35px);overflow-wrap:anywhere}
+.starterRewardV2>p{margin:0}
+.starterMiniSpark{font-size:clamp(70px,24vw,115px);filter:drop-shadow(0 0 24px #89ffca);animation:starterPop .6s both}
+.starterNeonStage{position:relative;overflow:hidden;isolation:isolate;border-radius:18px;min-height:clamp(188px,32dvh,330px);width:100%;background:#090a1e;display:flex;justify-content:center;align-items:center;box-shadow:inset 0 0 50px rgba(103,71,226,.16)}
+.starterNeonStage img{width:100%;height:100%;position:absolute;inset:0;object-fit:contain;filter:drop-shadow(0 0 10px rgba(91,239,199,.5));animation:neonTrophyIntro 1.2s cubic-bezier(.18,.67,.21,1) both,neonTrophyBreathe 2.6s ease-in-out 1.2s infinite alternate}
+.starterNeonStage.starterNeonLarge{min-height:clamp(265px,46dvh,490px)}
+.starterTrophyShowcase .starterNeonStage{min-height:clamp(260px,46dvh,480px)}
+.neonSpark{position:absolute;width:45%;height:2px;background:linear-gradient(90deg,transparent,#59ffd1,transparent);filter:drop-shadow(0 0 8px #52ffc7);pointer-events:none;z-index:2;opacity:.4;transform:rotate(25deg);animation:neonFlash 1.45s infinite}
+.neonSparkA{left:5%;top:20%}.neonSparkB{right:4%;top:56%;transform:rotate(-38deg);animation-delay:.38s}.neonSparkC{left:8%;bottom:12%;animation-delay:.7s}
+.starterRewardV2>.starterCTA{position:relative;z-index:4;flex:0 0 auto;margin:5px 0 0}
+.starterRewardTarget{position:relative;z-index:3;margin:6px 0}
+.starterCompleteV2{min-height:calc(100dvh - 90px);padding:0;display:flex;flex-direction:column;gap:0;justify-content:flex-start;text-align:center}
+.starterTrophyShowcase{position:relative;isolation:isolate;background:linear-gradient(180deg,#090a1d,#2a1546);padding:10px 12px 22px}
+.starterTrophyShowcase>*{position:relative;z-index:1}
+.starterTrophyShowcase>.starterConfetti{position:absolute;z-index:5}
+.starterTrophyShowcase h1{font-size:clamp(32px,9vw,43px);line-height:1.12;color:#fff;letter-spacing:-1.4px}
+.starterTrophyShowcase p{font-size:12px;color:#e0d7ed;line-height:1.5;margin:8px 0 0}
+.starterShowcaseKicker{font-size:10px;font-weight:950;letter-spacing:.14em;color:#dfff75;margin:0 0 8px}
+.starterCompletionDetails{padding:15px;display:flex;flex-direction:column;gap:11px}
+.starterCompletionDetails>.starterCompleteScore{margin:0;display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap}
+.starterCompletionDetails .starterCompleteScore b{font-size:clamp(38px,11vw,50px);line-height:1;color:#dbff60}
+.starterCompletionDetails .starterCompleteScore span{font-size:11px;color:#e9dcfc;letter-spacing:.07em;font-weight:850}
+.starterCollectionTitle{font-size:10px;font-weight:900;letter-spacing:.08em;color:#e7ff9c}
+.starterCompletionDetails .starterMedals{margin:0 auto 3px;display:flex;flex-wrap:wrap;justify-content:center;gap:7px}
+.starterCompletionDetails .starterMedals span{font-size:10px;max-width:100%;white-space:normal}
+.starterFutureHint{font-size:13px;line-height:1.45;color:#ecdefc;margin:3px 0}
+.starterFinalCTA{display:block;width:100%;margin:9px 0 0;min-height:58px;position:relative;z-index:5}
+.starterTextLink{border:0;background:transparent;color:#bda6fa;font-size:12px;font-weight:850;min-height:36px;text-align:center;display:block;margin:0 auto;padding:6px 8px}
+.starterCompleteV2 .starterTextLink{color:#d5ff91}
+.starterCreateV2,.starterInvitedName{display:flex;flex-direction:column;gap:16px;background:linear-gradient(160deg,#fff,#faf5ff);border:1px solid #dfd3f8;border-radius:26px;padding:clamp(16px,4.5vw,23px);margin:0;width:100%}
+.starterCreateV2 .starterCreateTop{display:grid;gap:12px}
+.starterCreateV2 .starterKicker,.starterInvitedName .starterKicker{color:#7245ed}
+.starterCreateV2 h1,.starterInvitedName h1{font-size:clamp(26px,7vw,33px);line-height:1.15;color:#261b40;letter-spacing:-1px;overflow-wrap:anywhere}
+.starterCreateV2 h1 em{font-style:normal;color:#7044ec}
+.starterCreateV2 p,.starterInvitedName p{color:#6c617c;font-size:13px;line-height:1.55}
+.starterCreateV2>.starterCTA,.starterInvitedName>.starterCTA{width:100%;display:block;margin:0;flex:0 0 auto}
+.starterCreateV2 .starterPackPreview{margin:0;gap:10px}
+.starterCreateV2>.field,.starterInvitedName>.field{margin:0;gap:8px}
+.starterCreateV2 input,.starterInvitedName input{width:100%;min-width:0}
+.starterInvitedName{min-height:60dvh;justify-content:center}
+.starterInviteOverlay{z-index:5000;display:grid;place-items:end center;padding:0 10px env(safe-area-inset-bottom)}
+.starterInviteSheet{width:min(430px,100%);max-height:92dvh;overflow-y:auto;background:#faf6ff;border:1px solid #decffd;border-radius:27px 27px 14px 14px;padding:22px 18px;display:flex;flex-direction:column;gap:12px;box-shadow:0 -10px 70px rgba(27,8,62,.35)}
+.starterInviteGraphic{font-size:54px;text-align:center;letter-spacing:.1em}
+.starterInviteSheet h2{color:#2a1c49;font-size:25px;line-height:1.16}
+.starterInviteSheet p{font-size:13px;color:#685c7a;line-height:1.52}
+.starterInvitePreview{padding:15px;background:#f0e7ff;border:1px solid #e0d1ff;border-radius:18px;line-height:1.65;color:#483178;font-size:13px;font-weight:750}
+.starterInviteSheet .starterKicker{color:#7051eb}
+.starterInviteSheet>.btn{width:100%;margin:0;flex:0 0 auto}
+.starterInviteSheet .starterTextLink{color:#7051eb}
+.homeWelcomeV2{border-radius:24px;background:radial-gradient(circle at 95% 10%,rgba(253,148,224,.55),transparent 42%),linear-gradient(125deg,#382064,#7546db);padding:19px;color:#fff;margin:4px 0 20px}
+.homeWelcomeV2 h2{color:#fff;font-size:24px;line-height:1.2}
+.homeWelcomeV2 p{color:#ece0ff;font-size:12px;line-height:1.45;margin:9px 0 15px}
+.homeWelcomeV2 button{background:#dfff6d;border:0;color:#30204d;border-radius:15px;padding:12px 16px;font-weight:950;width:100%}
+.homeRailTitle{font-size:11px;font-weight:950;color:#7a63a0;letter-spacing:.09em;margin-bottom:9px}
+@keyframes neonTrophyIntro{0%{opacity:0;transform:scale(.55) rotate(-5deg);filter:brightness(1.8) blur(12px)}55%{opacity:1;transform:scale(1.075);filter:brightness(1.7) blur(0)}100%{opacity:1;transform:scale(1);filter:brightness(1)}}
+@keyframes neonTrophyBreathe{0%{filter:brightness(.9) drop-shadow(0 0 6px #a065fb)}100%{filter:brightness(1.28) drop-shadow(0 0 18px #5fffd1)}}
+@keyframes neonFlash{0%,100%{opacity:.16;filter:drop-shadow(0 0 6px #61ffc6)}33%{opacity:.88;filter:drop-shadow(0 0 15px #60ffce)}65%{opacity:.22}}
+@media (max-width:520px),(hover:none) and (pointer:coarse){
+ body{padding:0!important;display:block!important;width:100%!important}
+ #app{width:100%!important;max-width:100%!important;display:block}
+ .app{width:100%!important;max-width:100%!important;min-height:100dvh!important;border-radius:0!important;border-left:0!important;border-right:0!important}
+ .app .view{width:100%!important;max-width:100%!important;min-height:100dvh!important;padding-left:clamp(12px,4vw,19px)!important;padding-right:clamp(12px,4vw,19px)!important}
+ .starterFlow,.starterCompleteV2,.starterCreateV2,.starterRewardV2{width:100%!important;min-width:0!important;max-width:100%!important}
+ .starterRewardV2{border-radius:23px}
+}
+@media(prefers-reduced-motion:reduce){
+ .starterNeonStage img,.neonSpark,.starterMiniSpark,.starterTrophyShowcase .starterConfetti i{animation:none!important;transition:none!important}
+}
