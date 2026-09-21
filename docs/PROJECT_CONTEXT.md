@@ -1,5 +1,5 @@
 # Project Adda — Canonical Context
-Last updated: 2026-09-18
+Last updated: 2026-09-22
 
 ## Purpose
 This file is the bootstrap document for any new ChatGPT chat, developer, contractor, or AI agent working on Project Adda. If chat history conflicts with this file, CURRENT_STATE.md, DECISIONS.md, the live branch, or the Drive Product Ledger, the versioned sources of truth win.
@@ -40,6 +40,7 @@ Current stack:
 The active field-test store contains live Crew/member/Drop/response/chat/media data. Never replace, clear, rename, migrate, or reset the field-test store during a live wave unless explicitly required and recoverable. UI hotfixes must be additive/non-destructive.
 
 ## Current live-test objectives
+Current v0.6 add-on: play-before-create First Five + Bonus Five, milestone rewards, Starter Crew pack and activation funnel. Read docs/FIRST_FIVE_VIBE_RUN.md and docs/REWARD_ECONOMY.md when working on onboarding, Vibe points or monetization.
 Primary question: does a recipient who enters through a shared Drop continue voluntarily into other interactions?
 Watch:
 - shared Drop opens
