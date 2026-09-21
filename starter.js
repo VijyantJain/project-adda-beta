@@ -5,6 +5,20 @@ export function createStarterController(c){
   const head=()=>top('');
   const invite=()=>getInvite?.()||null;
   const confetti=()=>'<div class="starterConfetti" aria-hidden="true">'+Array.from({length:32},(_,i)=>'<i style="--i:'+i+';--tx:'+(((i*53)%300)-150)+'px;--ty:'+(((i*37)%380)-190)+'px"></i>').join('')+'</div>';
+  function trophySplash(){
+    if(typeof document==='undefined'||!document.body)return;
+    document.querySelector('.starterTrophySplash')?.remove();
+    const overlay=document.createElement('div');overlay.className='starterTrophySplash';
+    overlay.setAttribute('role','img');
+    overlay.setAttribute('aria-label','Glowing trophy unlocked with electric sparks');
+    overlay.innerHTML='<img src="/adda-neon-trophy.webp" onerror="this.onerror=null;this.src=\'/trophy-neon.svg\'" alt="">'
+      +'<div class="starterSplashRays" aria-hidden="true">✦ ✧ ✦</div>';
+    document.body.appendChild(overlay);
+    const dismiss=()=>overlay.remove();
+    overlay.addEventListener('click',dismiss,{once:true});
+    const prefersReduced=typeof matchMedia==='function'&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+    setTimeout(dismiss,prefersReduced?350:1650);
+  }
   const neonStage=(large=false)=>`<div class="starterNeonStage ${large?'starterNeonLarge':''}" aria-label="Glowing trophy, lightning and sparks">
     <img src="/adda-neon-trophy.webp" onerror="this.onerror=null;this.src='/trophy-neon.svg'" alt="Glowing purple-blue trophy with electric green lightning"/>
     <i class="neonSpark neonSparkA"></i><i class="neonSpark neonSparkB"></i><i class="neonSpark neonSparkC"></i>
@@ -71,6 +85,7 @@ export function createStarterController(c){
       <div class="starterRewardTarget"><b>${major?'Your new trophy is yours!':next?'Only '+(next.at-state.progress)+' more to '+esc(next.name):'All Starter trophies unlocked'}</b><div class="starterTrack"><i style="width:${(state.progress%5||5)*20}%"></i></div></div>
       <button class="btn starterCTA" onclick="window._starterNext()">${state.progress===5?'Claim my First Five →':state.progress===10?'See my Tenacious trophy →':'One more? Let’s go →'}</button>
     </section>`,false);
+    if(major&&m)trophySplash();
   }
   function next(){feedback=null;if(state.progress===5||state.bonusCompleted)mode='finish';render()}
   function complete(){
