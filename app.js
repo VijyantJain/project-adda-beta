@@ -357,7 +357,7 @@ function renderStarter(){
    onViewVibe:()=>{history.replaceState({},'','/');screen='vibe';render()},
    onCrewCreated:async (j,nickname)=>{
     crewId=j.crew.id;crew=j.crew;meName=nickname;localStorage.addaName=nickname;
-    rememberCrew(crew);profileId='';dropId='';
+    rememberCrew(crew);track('crew_created',{crewId:j.crew.id,entry:'first_five'});profileId='';dropId='';
     history.replaceState({},'',`/?crew=${crewId}`);
     await refreshCrew();screen='crew';render();toast('🎉 Your Crew has 5 Drops ready!');
    }
