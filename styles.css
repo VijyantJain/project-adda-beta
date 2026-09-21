@@ -852,3 +852,8 @@ html,body{background:
 @keyframes starterFloat{to{transform:translateY(-5px) rotate(3deg)}}
 @media(max-width:380px){.starterQuestion{padding:12px}.starterArt{height:149px}.starterArt>span{font-size:56px}.starterQuestion h1{font-size:23px}.starterIntroOrbs{font-size:27px}.starterIntro h1{font-size:31px}}
 @media(prefers-reduced-motion:reduce){.starterArt>span,.starterTrophyIcon,.starterCompleteTrophy,.starterConfetti i{animation:none!important}.starterChoice,.starterTrack i{transition:none!important}}
+
+/* Original lightweight local illustrations for the First Five. */
+.starterArtImage{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;display:block}
+.starterArt:has(.starterArtImage):before,.starterArt:has(.starterArtImage):after{display:none}
+.starterArt:has(.starterArtImage) i{color:#fff;font-size:29px;filter:drop-shadow(0 2px 5px rgba(40,20,80,.28))}
