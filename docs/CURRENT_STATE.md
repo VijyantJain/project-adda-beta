@@ -1,5 +1,5 @@
 # Project Adda — Current State
-Updated: 2026-09-18
+Updated: 2026-09-22
 
 ## Active branch
 v0.5-full-experience
@@ -11,6 +11,9 @@ https://deploy-preview-1--project-adda-field-test.netlify.app
 Persistent Netlify Blob field-test store. Seeded Crew/member/Drop/answer/chat/image data must remain intact.
 
 ## Current product capabilities
+- **NEW v0.6 First Five:** a new visitor without a Crew can immediately play 5 guided solo Starter Drops; optional Bonus 5, one-time server-authoritative Vibe rewards, real trophies and topical snippets, and Starter Crew creation with 5 real preseeded Drops
+- Existing root visitors with known Crews, exact shared Drop links, Crew links and public Vibe links retain their former entry paths
+
 - private Crew creation/join
 - multi-Crew Home
 - persistent top/bottom app shell
@@ -45,6 +48,14 @@ Persistent Netlify Blob field-test store. Seeded Crew/member/Drop/answer/chat/im
    - Chat senders
    - Most Likely result identities
 4. Existing field-test data remains unchanged.
+
+## v0.6 reward/architecture contract
+- Source-of-truth detail: docs/FIRST_FIVE_VIBE_RUN.md and docs/REWARD_ECONOMY.md.
+- Starter is stored only at starter/v1/<participantId>; original Crew/member/Drop/response/chat/media records untouched.
+- Starter rewards up to 180 Vibe once per person/browser ID (10 per distinct answer, +30 first-five, +50 all-ten).
+- Starter events are analytically distinct from real Crew Drop answers.
+- Current First Five art uses custom CSS/emoji illustration, not third-party stock photography.
+- Future gifting/paid cosmetics are documented as concepts, not live functionality.
 
 ## Product work next
 Do not add the entire future roadmap to the live test at once.
@@ -84,4 +95,4 @@ After current field-test learning is captured:
 - current prediction format needs outcome resolution/reputation later
 
 ## Active Task
-Verify the global shell/profile-link hotfix on real mobile browsers, then freeze the current field-test experience except for blocking defects. Collect field-test evidence while designing vNext around the Daily Vibe Loop, Crew Pulse, DMs, Moments/Blink, Plans/Memories and Arena in documented/separate implementation work.
+Mobile-smoke-test v0.6 First Five on a fresh browser, including 5 answers, refresh/retry idempotency, Bonus 5, trophy/Vibe score, Starter Crew 5-Drop seed, shared existing Crew/Drop flows, and unchanged Avengers data. Collect activation funnel and qualitative feedback. Fix blockers only, then plan daily repeating Vibe Run and gifting separately.
