@@ -382,7 +382,20 @@ export default async (req: Request, context: Context) => {
         {type:"rate",question:"Rate our Crew's plan-making skills 😂",options:["😬 Nonexistent","😕 Rarely happens","🙂 Sometimes","😍 Pretty good","🔥 Elite"]}
       ];
       if(!state.starterPackSeeded){
+        // Upgrade-safe: old Starter Crews already have five random-ID Drops.
+        // Do not add another five if their client retries on the new release.
+        const existingStarterDrops=(await listJSON(store,`drop/${crew.id}/`,50))
+          .filter((d:any)=>d?.starterPack===true);
+        if(existingStarterDrops.length>=5){
+          state.starterPackSeeded=true;
+          await store.setJSON(starterKey,state);
+          return ok({crew,participantId,reused:true,starterDrops:existingStarterDrops.length});
+        }
+        const existingQuestions=new Set(existingStarterDrops.map((d:any)=>d.question));
+        let seededCount=existingStarterDrops.length;
         for(let i=0;i<pack.length;i++){
+          if(seededCount>=5)break;
+          if(existingQuestions.has(pack[i].question))continue;
           const p=pack[i],dropId=`d_sp${i+1}_${crew.id.slice(2)}`,dropKey=`drop/${crew.id}/${dropId}`;
           const existing=await getJSON(store,dropKey);
           if(!existing){
@@ -394,8 +407,10 @@ export default async (req: Request, context: Context) => {
               showNames:false,allowChange:true,status:"open",starterPack:true};
             await store.setJSON(dropKey,d);
             await store.setJSON(`dropIndex/${crew.id}/${createdAt}-${dropId}`,{dropId,createdAt});
-          }
+            seededCount++;
+          }else{seededCount++;}
         }
+        if(seededCount<5)return bad('Starter Pack is preparing. Please retry.',503);
         state.starterPackSeeded=true;state.updatedAt=now();
         await store.setJSON(starterKey,state);
         await analyticsEvent(store,"starter_crew_created",participantId,crew.id,"",{starterDrops:pack.length},req,context);
