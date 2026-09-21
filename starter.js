@@ -4,7 +4,7 @@ export function createStarterController(c){
  const {app,shell,top,api,pid,esc,getKnownCrews,getName,onCrewCreated,toast}=c;
  const art={travel:'🏖️ 🏔️',denim:'👖 🔥',friends:'🫶 😂',roadtrip:'🚙 🎧',chai:'🍵 ☕',night:'🌃 🎬',food:'🍕 ✨'};
  const head=()=>top('');
- const confetti=()=>'<div class="starterConfetti" aria-hidden="true">'+Array.from({length:20},(_,i)=>'<i style="--i:'+i+'"></i>').join('')+'</div>';
+ const confetti=()=>'<div class="starterConfetti" aria-hidden="true">'+Array.from({length:20},(_,i)=>'<i style="--i:'+i+';--tx:'+(((i*47)%170)-85)+'px;--ty:'+(((i*29)%120)-60)+'px"></i>').join('')+'</div>';
  function render(){
   if(!state){app.innerHTML=shell(`${head()}<section class="starterIntro"><div class="starterIntroIcon">⚡</div><span class="starterKicker">PLAY FIRST · CREW LATER</span><h1>5 quick ones.<br><em>Find your Vibe.</em></h1><p>Pick, rate, guess, laugh. Earn a trophy before you invite anyone.</p><div class="starterIntroOrbs">🏖️ 👖 ☕ 🎧 🔥</div><button class="btn starterCTA" onclick="window._starterBegin()">Play my First Five →</button><small>About a minute · No login · No permissions</small></section>${getKnownCrews().length?'<button class="btn ghost" onclick="window._home()">Back to my Crews</button>':''}`,false);return}
   if(feedback){showFeedback();return}
