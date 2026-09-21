@@ -30,7 +30,7 @@ s8 midnight pizza run? (Rate)
 s9 weekend mood? (This or That)
 s10 one superpower for Crew? (Vote)
 
-Illustrations in v1: colorful CSS gradients and emoji art to avoid external image failures/copyright, no device permissions. Proper original image illustrations can replace CSS art in a design iteration.
+Illustrations in v1: five original bundled SVG vector scenes for First Five (travel, denim, friends, road trip, chai/coffee); bonus cards use local CSS/emoji gradients. There are no third-party image dependencies or phone permissions.
 
 ## Reward contract
 
@@ -43,7 +43,7 @@ Server-side one-time rewards:
 - starter points are additive to existing factual Vibe score in getVibe.
 - no points for idle scrolling, opening/closing a page, or fake share attempts.
 
-Onboarding achievements:
+Vibe level thresholds were expanded for fast early rewards while preserving older named level thresholds: Fresh 0, First Spark 10, Warming Up 25, On a Roll 45, Spark 60, Glow Up 100, Buzz 150, Main Character 300, Vibe Magnet 600, Adda Icon 1000, Legend 2000. Existing users keep their earned score, but their displayed numeric level index changes due to the inserted early tiers.\n\nOnboarding achievements:
 1 answer: ⚡ First Spark
 2: 🎯 Quick Starter
 3: 🔥 On a Roll
