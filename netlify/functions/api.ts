@@ -362,13 +362,18 @@ export default async (req: Request, context: Context) => {
       if(!/^p_[a-zA-Z0-9]{6,40}$/.test(participantId)||!nickname||!name)return bad("Add your name and Crew name.");
       const starterKey=`starter/v1/${participantId}`,state=await getJSON(store,starterKey);
       if(!state||Object.keys(state.answers||{}).length<5)return bad("Complete your First Five first.");
-      if(state.starterCrewId){
-        const existing=await getJSON(store,`crew/${state.starterCrewId}`);
-        if(existing)return ok({crew:existing,participantId,reused:true});
+      let crew=state.starterCrewId?await getJSON(store,`crew/${state.starterCrewId}`):null;
+      const reused=!!crew;
+      if(!crew){
+        const crewId=id("c_"),ts=now();
+        crew={id:crewId,name,createdAt:ts,createdBy:participantId,starterPack:true};
+        await store.setJSON(`crew/${crewId}`,crew);
+        await store.setJSON(`member/${crewId}/${participantId}`,{id:participantId,nickname,joinedAt:ts,provisional:false});
+        // Persist the Crew id *before* seeding, so interrupted requests cannot leave
+        // an unreferenced empty Crew or create multiple Crews on retry.
+        state.starterCrewId=crewId;state.nickname=nickname;state.updatedAt=now();
+        await store.setJSON(starterKey,state);
       }
-      const crewId=id("c_"),ts=now(),crew={id:crewId,name,createdAt:ts,createdBy:participantId,starterPack:true};
-      await store.setJSON(`crew/${crewId}`,crew);
-      await store.setJSON(`member/${crewId}/${participantId}`,{id:participantId,nickname,joinedAt:ts});
       const pack=[
         {type:"either",question:"Weekend plan: mountains or beach? 🏔️🏖️",options:["Mountains","Beach"]},
         {type:"vote",question:"Who controls the playlist on a road trip? 🎧",options:["Driver","DJ friend","Me","Shuffle"]},
@@ -376,20 +381,26 @@ export default async (req: Request, context: Context) => {
         {type:"short",question:"What's ONE thing our Crew must do this year? 👀",options:[]},
         {type:"rate",question:"Rate our Crew's plan-making skills 😂",options:["😬 Nonexistent","😕 Rarely happens","🙂 Sometimes","😍 Pretty good","🔥 Elite"]}
       ];
-      for(const p of pack){
-        const dropId=id("d_"),createdAt=now();
-        const d={id:dropId,crewId,type:p.type,question:p.question,
-          options:p.options.map((label:string,i:number)=>({id:p.type==="rate"?String(i+1):`o${i+1}`,label})),
-          mediaA:"",mediaB:"",createdBy:participantId,creatorName:nickname,createdAt,
-          thresholdMode:"count",thresholdCount:2,memberCountAtCreate:1,
-          showNames:false,allowChange:true,status:"open",starterPack:true};
-        await store.setJSON(`drop/${crewId}/${dropId}`,d);
-        await store.setJSON(`dropIndex/${crewId}/${createdAt}-${dropId}`,{dropId,createdAt});
+      if(!state.starterPackSeeded){
+        for(let i=0;i<pack.length;i++){
+          const p=pack[i],dropId=`d_sp${i+1}_${crew.id.slice(2)}`,dropKey=`drop/${crew.id}/${dropId}`;
+          const existing=await getJSON(store,dropKey);
+          if(!existing){
+            const createdAt=new Date(Date.parse(crew.createdAt)+i).toISOString();
+            const d={id:dropId,crewId:crew.id,type:p.type,question:p.question,
+              options:p.options.map((label:string,j:number)=>({id:p.type==="rate"?String(j+1):`o${j+1}`,label})),
+              mediaA:"",mediaB:"",createdBy:participantId,creatorName:nickname,createdAt,
+              thresholdMode:"count",thresholdCount:2,memberCountAtCreate:1,
+              showNames:false,allowChange:true,status:"open",starterPack:true};
+            await store.setJSON(dropKey,d);
+            await store.setJSON(`dropIndex/${crew.id}/${createdAt}-${dropId}`,{dropId,createdAt});
+          }
+        }
+        state.starterPackSeeded=true;state.updatedAt=now();
+        await store.setJSON(starterKey,state);
+        await analyticsEvent(store,"starter_crew_created",participantId,crew.id,"",{starterDrops:pack.length},req,context);
       }
-      state.nickname=nickname;state.starterCrewId=crewId;state.updatedAt=now();
-      await store.setJSON(starterKey,state);
-      await analyticsEvent(store,"starter_crew_created",participantId,crewId,"",{starterDrops:pack.length},req,context);
-      return ok({crew,participantId,starterDrops:pack.length});
+      return ok({crew,participantId,reused,starterDrops:pack.length});
     }
 
     if (action === "createCrew" && req.method === "POST") {
@@ -405,13 +416,22 @@ export default async (req: Request, context: Context) => {
     }
 
     if (action === "joinCrew" && req.method === "POST") {
-      const crewId = clean(body.crewId, 40), nickname = clean(body.nickname,24);
-      const participantId = clean(body.participantId,40) || id("p_");
-      const crew = await getJSON(store,`crew/${crewId}`);
-      if (!crew) return bad("Crew not found.",404);
-      if (!nickname) return bad("Your name is required.");
-      await store.setJSON(`member/${crewId}/${participantId}`, { id:participantId, nickname, joinedAt:now() });
-      return ok({ crew, participantId });
+      const crewId=clean(body.crewId,40),nickname=clean(body.nickname,24);
+      const participantId=clean(body.participantId,40)||id("p_");
+      const crew=await getJSON(store,`crew/${crewId}`);
+      if(!crew)return bad("Crew not found.",404);
+      if(!nickname)return bad("Your name is required.");
+      const memberKey=`member/${crewId}/${participantId}`;
+      const existing=await getJSON(store,memberKey);
+      // An invite may make a temporary mate before the First Five finishes.
+      // Never replace a real member's name with a temporary one on repeated link opens.
+      const provisional=body.provisional===true&&!existing;
+      const updated=existing&&body.provisional===true?existing:{
+        id:participantId,nickname,joinedAt:existing?.joinedAt||now(),
+        provisional:provisional||false
+      };
+      if(!existing||body.provisional!==true)await store.setJSON(memberKey,updated);
+      return ok({crew,participantId,member:updated,alreadyJoined:!!existing});
     }
 
     if (action === "getCrew") {
