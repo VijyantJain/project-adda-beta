@@ -1,7 +1,7 @@
 
 export function createStarterController(c){
  let state=null,feedback=null,busy=false,mode='play';
- const {app,shell,top,api,pid,esc,getKnownCrews,getName,onCrewCreated,toast}=c;
+ const {app,shell,top,api,pid,esc,getKnownCrews,getName,onCrewCreated,onViewVibe,toast}=c;
  const art={travel:'🏖️ 🏔️',denim:'👖 🔥',friends:'🫶 😂',roadtrip:'🚙 🎧',chai:'🍵 ☕',night:'🌃 🎬',food:'🍕 ✨'};
  const head=()=>top('');
  const confetti=()=>'<div class="starterConfetti" aria-hidden="true">'+Array.from({length:20},(_,i)=>'<i style="--i:'+i+';--tx:'+(((i*47)%170)-85)+'px;--ty:'+(((i*29)%120)-60)+'px"></i>').join('')+'</div>';
@@ -47,6 +47,7 @@ export function createStarterController(c){
   <div class="starterCompleteScore"><b>${state.points}</b><span>Starter Vibe ⚡</span></div><div class="starterMedals">${(state.earned||[]).map(m=>`<span>${m.icon} ${esc(m.name)}</span>`).join('')}</div>
   <section class="starterCrewOffer"><b>👀 NOW MAKE IT ABOUT YOUR FRIENDS</b><h2>What would your gang answer?</h2><p>We prepare 5 Drops. You only give your Crew a name.</p><button class="btn starterCTA" onclick="window._starterShowCrewForm()">Start my Crew with 5 Drops →</button></section>
   ${!bonus?'<button class="btn starterBonus" onclick="window._starterBonus()">Bonus 5 · Keep earning Vibe →</button>':''}
+  <button class="btn ghost" onclick="window._starterViewVibe()">See my Vibe score & badges →</button>
   ${getKnownCrews().length?'<button class="btn ghost" onclick="window._home()">Back to my Crews</button>':''}
   </section>`,false)
  }
@@ -68,5 +69,6 @@ export function createStarterController(c){
  window._starterBegin=begin;window._starterAnswer=answer;window._starterNext=next;window._starterBonus=bonus;
  window._starterShowCrewForm=showCrewForm;window._starterBackToTrophies=()=>{mode='finish';complete()};
  window._starterCreateCrew=createCrew;
+ window._starterViewVibe=()=>onViewVibe();
  return {render,begin}
 }
