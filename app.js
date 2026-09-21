@@ -354,6 +354,7 @@ function renderStarter(){
  if(!starterController){
   starterController=createStarterController({
    app,shell,top,api,pid,esc,getKnownCrews,getName:()=>meName,toast,
+   onViewVibe:()=>{history.replaceState({},'','/');screen='vibe';render()},
    onCrewCreated:async (j,nickname)=>{
     crewId=j.crew.id;crew=j.crew;meName=nickname;localStorage.addaName=nickname;
     rememberCrew(crew);profileId='';dropId='';
