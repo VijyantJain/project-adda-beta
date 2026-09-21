@@ -144,6 +144,14 @@ function renderDashboard(){
     </section>
 
     <section class="analyticsGrid">
+      ${s.starter?funnelHtml(s.starter.funnel).replace('Field-test funnel','First Five funnel'):''}
+      ${s.starter?barList('First Five · Quick pulse',[
+        {label:'Started',count:s.starter.started},
+        {label:'First answer',count:s.starter.firstAnswer},
+        {label:'🏆 First Five',count:s.starter.completedFive},
+        {label:'👑 Bonus Ten',count:s.starter.completedTen},
+        {label:'Created Starter Crew',count:s.starter.crews}
+      ]):''}
       ${funnelHtml(s.funnel)}
       ${dailyHtml(D.daily)}
       ${barList('Top cities',b.cities)}
