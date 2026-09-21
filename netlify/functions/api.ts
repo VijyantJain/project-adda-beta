@@ -38,6 +38,37 @@ const now = () => new Date().toISOString();
 const safeMediaRef=(v:any,crewId:string)=>{const x=clean(v,180);return x.startsWith(`media/${crewId}/`)?x:""};
 const mediaMime=(key:string)=>key.endsWith(".webp")?"image/webp":key.endsWith(".png")?"image/png":"image/jpeg";
 
+
+// Fixed, hand-curated first-session questions. Not part of any private Crew.
+const STARTER_DECK=[
+ {id:"s1",type:"either",tag:"THIS OR THAT",icon:"🏖️",art:"travel",question:"Free trip tomorrow. Where are we going? 👀",options:["Beach 🏖️","Mountains 🏔️"],fact:"Travel mood unlocked: whichever you pick, the best trips are the ones you actually take."},
+ {id:"s2",type:"rate",tag:"RATE",icon:"👖",art:"denim",question:"Rate the denim fit 🔥",options:["😬 Not for me","😕 Meh","🙂 Decent","😍 Love it","🔥 Obsessed"],fact:"Denim's signature blue is traditionally made using indigo dye."},
+ {id:"s3",type:"vote",tag:"WOULD YOU?",icon:"🫣",art:"friends",question:"Would you tell your bestie their outfit is a miss? 😂",options:["Of course 😭","Maybe privately 👀","Never! 🤐"],fact:"There's no correct answer here—your pick is part of your Vibe."},
+ {id:"s4",type:"vote",tag:"CREW CHAOS",icon:"🎧",art:"roadtrip",question:"Road trip! Who gets control of the aux? 🎶",options:["Me, obviously","The driver","The DJ friend","Pure shuffle"],fact:"The aux is shorthand for the auxiliary audio input—now it's also slang for playlist control."},
+ {id:"s5",type:"predict",tag:"GUESS THE CROWD",icon:"☕",art:"chai",question:"Guess the crowd: chai or coffee? 🔮",options:["Chai ☕","Coffee ☕"],fact:"Tea and coffee both naturally contain caffeine, though amounts vary by drink."},
+ {id:"s6",type:"either",tag:"THIS OR THAT",icon:"🌃",art:"night",question:"Perfect evening? ✨",options:["Rooftop hangout","Movie marathon"],fact:"A strong preference is a useful starting point for your next Crew plan."},
+ {id:"s7",type:"vote",tag:"PICK A VIBE",icon:"⚡",art:"friends",question:"Your most dangerous group chat habit? 😂",options:["Replying after 3 days","10 voice notes","Sending 57 reels","Reading everything silently"],fact:"Nothing to diagnose here—just a very relatable group-chat habit."},
+ {id:"s8",type:"rate",tag:"RATE",icon:"🍕",art:"food",question:"Rate the idea: midnight pizza run 🍕",options:["😬 Pass","😕 Meh","🙂 Maybe","😍 I'm in","🔥 Already outside"],fact:"Collect a few tastes like this and Adda can offer better Drop suggestions."},
+ {id:"s9",type:"either",tag:"THIS OR THAT",icon:"🌦️",art:"travel",question:"Weekend mood?",options:["Rain + chai","Sun + road trip"],fact:"Neither side wins—it's your taste, and that's what makes comparison fun."},
+ {id:"s10",type:"vote",tag:"CREW CHAOS",icon:"🏆",art:"friends",question:"You can pick ONE superpower for your Crew:",options:["Everyone on time","Endless holiday budget","No group-chat ghosting","Always agree on food"],fact:"You finished ten real choices. Bring your friends and see where they disagree."}
+];
+const STARTER_MILESTONES=[
+ {at:1,name:"First Spark",icon:"⚡",text:"Your first choice is in!"},
+ {at:2,name:"Quick Starter",icon:"🎯",text:"You're finding your rhythm."},
+ {at:3,name:"On a Roll",icon:"🔥",text:"Three down—you're rolling."},
+ {at:5,name:"First Five",icon:"🏆",text:"Your first Adda trophy is yours."},
+ {at:7,name:"Vibe Builder",icon:"💜",text:"The bonus round is heating up."},
+ {at:10,name:"Tenacious",icon:"👑",text:"You cleared the entire Starter Deck."}
+];
+function starterPayload(state:any){
+ const answers=state?.answers||{},completed=Object.keys(answers).length,firstFiveCompleted=STARTER_DECK.slice(0,5).every(q=>answers[q.id]!==undefined),
+ bonusCompleted=STARTER_DECK.every(q=>answers[q.id]!==undefined),points=completed*10+(firstFiveCompleted?30:0)+(bonusCompleted?50:0),
+ index=STARTER_DECK.findIndex(q=>answers[q.id]===undefined),next=STARTER_MILESTONES.find(x=>x.at>completed)||null;
+ return {progress:completed,total:STARTER_DECK.length,points,firstFiveCompleted,bonusCompleted,nextUnlock:next,earned:STARTER_MILESTONES.filter(x=>completed>=x.at),
+   answers,question:index<0?null:STARTER_DECK[index],lastQuestion:completed?STARTER_DECK.find(q=>q.id===Object.keys(answers)[completed-1])||null:null,
+   nickname:state?.nickname||"",starterCrewId:state?.starterCrewId||""};
+}
+
 const ANALYTICS_STARTED_AT="2026-09-18T14:00:00.000Z";
 const ANALYTICS_ADMIN_KEY_SHA256="8bd875312eca9b0767e93edec8eef779acc066e4dc22d20b633df6da53938878";
 const adminOK=(req:Request)=>{
@@ -268,6 +299,84 @@ export default async (req: Request, context: Context) => {
         visitors:visitorRows.slice(0,1000),
         recentEvents,eventCounts
       });
+    }
+
+
+    if(action==="starterGet" && req.method==="GET"){
+      const participantId=clean(url.searchParams.get("participantId"),40);
+      if(!/^p_[a-zA-Z0-9]{6,40}$/.test(participantId))return bad("Invalid participant.",400);
+      const key=`starter/v1/${participantId}`;
+      const state=await getJSON(store,key)||{answers:{},createdAt:now()};
+      if(!state.startedAt){
+        state.startedAt=now();
+        await store.setJSON(key,state);
+        await analyticsEvent(store,"starter_started",participantId,"","",{deck:"v1"},req,context);
+      }
+      return ok(starterPayload(state));
+    }
+    if(action==="starterAnswer" && req.method==="POST"){
+      const participantId=clean(body.participantId,40),questionId=clean(body.questionId,15),answer=clean(body.answer,100);
+      if(!/^p_[a-zA-Z0-9]{6,40}$/.test(participantId))return bad("Invalid participant.",400);
+      const q=STARTER_DECK.find(x=>x.id===questionId);if(!q)return bad("Question not found.",404);
+      if(!q.options.includes(answer))return bad("Choose one of the shown answers.");
+      const key=`starter/v1/${participantId}`,state=await getJSON(store,key)||{answers:{},createdAt:now()};
+      if(!state.answers||typeof state.answers!=="object")state.answers={};
+      // Only the first answer earns progress. Retries cannot farm Vibe.
+      if(state.answers[questionId]!==undefined){
+        return ok({...starterPayload(state),alreadyAnswered:true,feedback:q.fact,justUnlocked:null,earnedPoints:0});
+      }
+      const expected=STARTER_DECK.find(x=>state.answers[x.id]===undefined);
+      if(expected?.id!==questionId)return bad("Finish your current card first.");
+      state.answers[questionId]=answer;state.updatedAt=now();
+      await store.setJSON(key,state);
+      const n=Object.keys(state.answers).length,milestone=STARTER_MILESTONES.find(x=>x.at===n)||null;
+      const earnedPoints=10+(n===5?30:0)+(n===10?50:0);
+      await analyticsEvent(store,"starter_answered",participantId,"",questionId,{step:n,type:q.type,earnedPoints},req,context);
+      if(n===5||n===10)await analyticsEvent(store,n===5?"starter_first_five_completed":"starter_bonus_completed",participantId,"","",{step:n,points:starterPayload(state).points},req,context);
+      return ok({...starterPayload(state),alreadyAnswered:false,feedback:q.fact,justUnlocked:milestone,earnedPoints,answeredQuestion:{id:q.id,question:q.question,answer,icon:q.icon}});
+    }
+    if(action==="starterName" && req.method==="POST"){
+      const participantId=clean(body.participantId,40),nickname=clean(body.nickname,24);
+      if(!/^p_[a-zA-Z0-9]{6,40}$/.test(participantId)||!nickname)return bad("Add your name.");
+      const key=`starter/v1/${participantId}`,state=await getJSON(store,key);
+      if(!state||Object.keys(state.answers||{}).length<5)return bad("Play the First Five first.");
+      state.nickname=nickname;
+      await store.setJSON(key,state);
+      return ok(starterPayload(state));
+    }
+    if(action==="starterCreateCrew" && req.method==="POST"){
+      const participantId=clean(body.participantId,40),nickname=clean(body.nickname,24),name=clean(body.name,42);
+      if(!/^p_[a-zA-Z0-9]{6,40}$/.test(participantId)||!nickname||!name)return bad("Add your name and Crew name.");
+      const starterKey=`starter/v1/${participantId}`,state=await getJSON(store,starterKey);
+      if(!state||Object.keys(state.answers||{}).length<5)return bad("Complete your First Five first.");
+      if(state.starterCrewId){
+        const existing=await getJSON(store,`crew/${state.starterCrewId}`);
+        if(existing)return ok({crew:existing,participantId,reused:true});
+      }
+      const crewId=id("c_"),ts=now(),crew={id:crewId,name,createdAt:ts,createdBy:participantId,starterPack:true};
+      await store.setJSON(`crew/${crewId}`,crew);
+      await store.setJSON(`member/${crewId}/${participantId}`,{id:participantId,nickname,joinedAt:ts});
+      const pack=[
+        {type:"either",question:"Weekend plan: mountains or beach? 🏔️🏖️",options:["Mountains","Beach"]},
+        {type:"vote",question:"Who controls the playlist on a road trip? 🎧",options:["Driver","DJ friend","Me","Shuffle"]},
+        {type:"predict",question:"Will this Crew execute its next plan? 🔮",options:["Yes","No"]},
+        {type:"short",question:"What's ONE thing our Crew must do this year? 👀",options:[]},
+        {type:"rate",question:"Rate our Crew's plan-making skills 😂",options:["😬 Nonexistent","😕 Rarely happens","🙂 Sometimes","😍 Pretty good","🔥 Elite"]}
+      ];
+      for(const p of pack){
+        const dropId=id("d_"),createdAt=now();
+        const d={id:dropId,crewId,type:p.type,question:p.question,
+          options:p.options.map((label:string,i:number)=>({id:p.type==="rate"?String(i+1):`o${i+1}`,label})),
+          mediaA:"",mediaB:"",createdBy:participantId,creatorName:nickname,createdAt,
+          thresholdMode:"count",thresholdCount:2,memberCountAtCreate:1,
+          showNames:false,allowChange:true,status:"open",starterPack:true};
+        await store.setJSON(`drop/${crewId}/${dropId}`,d);
+        await store.setJSON(`dropIndex/${crewId}/${createdAt}-${dropId}`,{dropId,createdAt});
+      }
+      state.nickname=nickname;state.starterCrewId=crewId;state.updatedAt=now();
+      await store.setJSON(starterKey,state);
+      await analyticsEvent(store,"starter_crew_created",participantId,crewId,"",{starterDrops:pack.length},req,context);
+      return ok({crew,participantId,starterDrops:pack.length});
     }
 
     if (action === "createCrew" && req.method === "POST") {
@@ -532,7 +641,8 @@ export default async (req: Request, context: Context) => {
       }
 
       const answers=myResponses.length,dropsMade=myDrops.length,chatsSent=myChats.length,crews=memberships.length;
-      const score=answers*10+dropsMade*30+chatsSent*4+shares*20+crews*10+Math.min(streak,10)*5;
+      const starter=starterPayload(await getJSON(store,`starter/v1/${participantId}`));
+      const score=answers*10+dropsMade*30+chatsSent*4+shares*20+crews*10+Math.min(streak,10)*5+starter.points;
       const levels=[
         {min:0,name:"Fresh",icon:"✨"},
         {min:60,name:"Spark",icon:"⚡"},
@@ -583,7 +693,7 @@ export default async (req: Request, context: Context) => {
       return ok({
         score,level:{...level,index:levelIndex+1},nextLevel:next,progress,pointsToNext:next?Math.max(0,next.min-score):0,
         streak,activeDays:dates.length,answers,dropsMade,chatsSent,shares,crews,sessions:Number(visitor?.sessionCount)||0,
-        displayName,signature,typeCounts,badges,nextUnlock,crewRank
+        displayName:displayName||starter.nickname,signature,typeCounts,badges,nextUnlock,crewRank,starter:{progress:starter.progress,points:starter.points,firstFiveCompleted:starter.firstFiveCompleted,bonusCompleted:starter.bonusCompleted,earned:starter.earned}
       });
     }
 
