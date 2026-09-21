@@ -660,11 +660,16 @@ export default async (req: Request, context: Context) => {
       const score=answers*10+dropsMade*30+chatsSent*4+shares*20+crews*10+Math.min(streak,10)*5+starter.points;
       const levels=[
         {min:0,name:"Fresh",icon:"✨"},
-        {min:60,name:"Spark",icon:"⚡"},
-        {min:150,name:"Buzz",icon:"🔥"},
+        {min:10,name:"First Spark",icon:"⚡"},
+        {min:25,name:"Warming Up",icon:"🌟"},
+        {min:45,name:"On a Roll",icon:"🔥"},
+        {min:60,name:"Spark",icon:"💜"},
+        {min:100,name:"Glow Up",icon:"🌈"},
+        {min:150,name:"Buzz",icon:"⚡"},
         {min:300,name:"Main Character",icon:"😎"},
         {min:600,name:"Vibe Magnet",icon:"🧲"},
-        {min:1000,name:"Adda Icon",icon:"👑"}
+        {min:1000,name:"Adda Icon",icon:"👑"},
+        {min:2000,name:"Legend",icon:"🏆"}
       ];
       let level=levels[0],next:any=null;
       for(let i=0;i<levels.length;i++){if(score>=levels[i].min)level=levels[i];else{next=levels[i];break}}
