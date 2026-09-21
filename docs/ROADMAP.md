@@ -1,15 +1,18 @@
 # Project Adda — Product Roadmap
-Updated: 2026-09-18
+Updated: 2026-09-22
 Roadmap is milestone-based; dates should follow validation rather than force feature shipping.
 
 ## M0 — Current Field Test (NOW)
-Goal: validate entry-through-Drop and continued voluntary interaction.
+Goal: validate both entry-through-Drop and a direct first-timer's play-before-create experience.
 Ship only:
 - blocking UX fixes
 - stable global app shell
 - clickable identities -> Vibe profile
 - analytics/error instrumentation
 - current Drop/Chat/Vibe feature set
+- First Five + optional Bonus 5 + cumulative Vibe + introductory trophies
+- preseed 5 real Drops for a new Crew without requiring question authoring
+- separate First Five funnel and completion-to-Crew conversion
 
 Do not add major new social systems during the live wave.
 
@@ -35,6 +38,7 @@ Goal: make Adda a durable account-based product.
 - public/private profile controls
 
 ## M2 — Personal Retention Beta: Daily Vibe Loop
+Expand the finite v0.6 Starter Deck into a daily/seasonal reward supply, not an infinite reward loop for repeating the same starter questions.
 Goal: prove return behavior even when friends are inactive.
 - Daily Deck (small personalized set of micro-actions)
 - Vibe XP/score
@@ -124,6 +128,7 @@ Goal: create always-available discovery and public participation.
 - brand/name finalization
 
 ## M8 — Monetisation (only after retention)
+See docs/REWARD_ECONOMY.md for free gifts, premium cosmetic gifts and fairness/anti-farming questions; no paid Vibe purchases are approved.
 Candidate—not locked:
 - profile/Vibe cosmetics
 - Crew themes/effects
