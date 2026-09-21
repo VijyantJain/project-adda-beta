@@ -11,8 +11,8 @@ A person arriving alone was asked to name/create a Crew, write an unfamiliar Dro
 
 1. Direct root /: if no known local Crews, show First Five welcome; existing browsers with known Crews keep Home.
 2. /?play=1: manually enters First Five from an existing account/browser, useful for testing and sharing.
-3. /?crew=<id>&drop=<id>: keep the existing exact Drop answer/join flow; no new welcome gate.
-4. /?crew=<id>: keep existing Crew join/open flow.
+3. /?crew=<id>&drop=<id>: new visitor joins linked Crew provisionally, experiences First Five, then returns to the EXACT linked Drop after choosing a display name. Existing named participants continue directly to the Drop.
+4. /?crew=<id>: new visitor joins linked Crew provisionally, experiences First Five, then returns to linked Crew after choosing a display name. Existing named members keep their original direct entry.
 5. /?profile=<id>: keep public Vibe profile flow.
 6. Home: Vibe Run module lets existing users opt in; no rerouting of existing members.
 
@@ -30,7 +30,7 @@ s8 midnight pizza run? (Rate)
 s9 weekend mood? (This or That)
 s10 one superpower for Crew? (Vote)
 
-Illustrations in v1: five original bundled SVG vector scenes for First Five (travel, denim, friends, road trip, chai/coffee); bonus cards use local CSS/emoji gradients. There are no third-party image dependencies or phone permissions.
+Illustrations: first five use original bundled SVG card scenes; the full-screen reward stage uses a compressed crop of the exact neon trophy visual supplied by the user, bundled locally as adda-neon-trophy.webp with a local trophy-neon.svg fallback and animated lightning/sparks. No third-party image dependencies or phone permissions.
 
 ## Reward contract
 
@@ -43,7 +43,9 @@ Server-side one-time rewards:
 - starter points are additive to existing factual Vibe score in getVibe.
 - no points for idle scrolling, opening/closing a page, or fake share attempts.
 
-Vibe level thresholds were expanded for fast early rewards while preserving older named level thresholds: Fresh 0, First Spark 10, Warming Up 25, On a Roll 45, Spark 60, Glow Up 100, Buzz 150, Main Character 300, Vibe Magnet 600, Adda Icon 1000, Legend 2000. Existing users keep their earned score, but their displayed numeric level index changes due to the inserted early tiers.\n\nOnboarding achievements:
+Vibe level thresholds were expanded for fast early rewards while preserving older named level thresholds: Fresh 0, First Spark 10, Warming Up 25, On a Roll 45, Spark 60, Glow Up 100, Buzz 150, Main Character 300, Vibe Magnet 600, Adda Icon 1000, Legend 2000. Existing users keep their earned score, but their displayed numeric level index changes due to the inserted early tiers.
+
+Onboarding achievements:
 1 answer: ⚡ First Spark
 2: 🎯 Quick Starter
 3: 🔥 On a Roll
@@ -58,7 +60,7 @@ Milestones are all real. Show user remaining steps to the next actual unlock. Ne
 Welcome → Play my First Five → one obvious choice/card → visually select → saving feedback → server confirms answer/reward → +Vibe + actual milestone + topical trivia → next card → trophy on fifth card → user may:
 A. start private Crew pre-seeded with five ready-made Drops;
 B. continue optional Bonus 5;
-C. return to known Crews if already a participant.
+C. if invited, enter the originally linked Crew/Drop; no blank generic Create Crew diversion.
 
 Name and Crew name requested ONLY on choosing Create Crew, not before first play.
 
@@ -119,3 +121,17 @@ docs/REWARD_ECONOMY.md — future gifts + long-term economy
 ## QA before mass exposure
 
 Open /?play=1 as a new browser; finish 5; refresh; verify progress persists; hit answer twice; verify no duplicate reward; finish bonus 5; create Crew; confirm five real drops; open old Avengers URL unchanged; test slow network/retry, mobile fixed top, result navigation, Vibe score/badges, reduced motion. Netlify build success alone is not a real mobile E2E result.
+
+## v0.6.1 — Corrected first-time conversion and mobile reward design (2026-09-22)
+
+**Cohort A — direct newcomer:** First Five → optional Bonus Five → real trophy screen showing actual Starter Vibe and explicitly labelled 1–6 Starter achievements → one primary CTA (Start my own Crew) on Tenacious → only name and Crew name → five real seeded Drops → immediate in-app invitation prompt with engaging pre-filled message → user explicitly taps Invite to open native share sheet/WhatsApp fallback. No duplicate View Vibe/Back to Crews controls and no “not now, keep trophies” exit on the form. The First Five milestone may offer a modest Skip Bonus link in addition to Continue Bonus; Tenacious has one CTA.
+
+**Cohort B — invited newcomer:** Opening a Crew/Drop invitation adds a provisional Crew membership with a clearly temporary nickname; exact target Crew/Drop is retained. First Five/Bonus Five rewards run before redirect; Tenacious has exactly one primary CTA Enter <Crew>. A short name step finalizes existing membership, then the app opens the intended Crew or original Drop. Existing named members preserve direct entry. A guest opening the invite twice never overwrites a real member nickname.
+
+**Persistence:** Starter reward remains server-authoritative/idempotent under starter/v1/<participantId>. New Starter Crew ID is recorded *before* five idempotent seeded Drop writes; interrupted requests can retry; existing legacy Starter Crews with five random-ID seed Drops must not receive a second five. All original Crews/answers/chat/media remain intact. “Once per lifetime” is currently once per browser-local participant identity; verified cross-device once-only behavior needs M1 Auth.
+
+**Visuals/layout:** exact supplied neon-trophy image cropped and optimized for in-app use, large/full-width on mobile, CSS sizzling flashes/particles, respects reduced-motion preference. One consistent app-width canvas; fixed Adda header and icon bottom navigation on all post-onboarding screens, intentionally simplified navigation only during first-time journey.
+
+**Future identity/profile/contacts:** see docs/ONBOARDING_IDENTITY_CONTACTS.md. Email/mobile OTP and persistent account merging, unique @username, avatar/DP, bio and consent-based contacts sync are M1+ designs only, not a fake live signup form.
+
+**Current QA limit:** source syntax, Netlify preview build and simulated direct/invited flow tests succeeded; real multi-device Android/iPhone testing remains necessary before broad distribution.
