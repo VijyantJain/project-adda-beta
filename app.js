@@ -1,6 +1,7 @@
+import { createStarterController } from './starter.js';
 const $=s=>document.querySelector(s);const app=document.getElementById('app');
 const API='/api';
-const qs=new URLSearchParams(location.search);let crewId=qs.get('crew')||'';let dropId=qs.get('drop')||'';let profileId=qs.get('profile')||'';
+const qs=new URLSearchParams(location.search);let crewId=qs.get('crew')||'';let dropId=qs.get('drop')||'';let profileId=qs.get('profile')||'';const playFirstFive=qs.get('play')==='1';
 const pid=localStorage.addaPid||(`p_${crypto.randomUUID().replace(/-/g,'').slice(0,10)}`);localStorage.addaPid=pid;
 const sid=sessionStorage.addaSid||(`s_${crypto.randomUUID().replace(/-/g,'').slice(0,14)}`);sessionStorage.addaSid=sid;
 const firstLocalSeen=localStorage.addaFirstSeen||new Date().toISOString();const returningLocal=!!localStorage.addaFirstSeen;localStorage.addaFirstSeen=firstLocalSeen;
@@ -202,7 +203,7 @@ window._shareDrop=(id)=>{track('drop_shared',{dropId:id});share(`${location.orig
 
 async function boot(){try{
  if(profileId){screen='publicVibe';render();return}
- if(!crewId){screen=getKnownCrews().length?'home':'start';render();return}
+ if(!crewId){screen=playFirstFive||!getKnownCrews().length?'starter':'home';render();return}
  const c=await api('getCrew',{params:{crewId}});crew=c.crew;members=c.members;
  const member=members.find(m=>m.id===pid);
  if(!member){screen=dropId?'joinDrop':'join';render();return}
@@ -220,6 +221,7 @@ function render(err=''){stopPolling();
  if(screen==='recap')return renderRecap();
  if(screen==='crewInsights')return renderCrewInsights();
  if(screen==='chat')return renderChat();
+ if(screen==='starter')return renderStarter();
  if(screen==='start')return renderStart();
  if(screen==='join')return renderJoin();
  if(screen==='joinDrop')return renderJoinDrop();
@@ -231,7 +233,7 @@ function render(err=''){stopPolling();
 function renderHome(){
   const crews=getKnownCrews();
   const stats=localStats();
-  app.innerHTML=shell(`${homeStickyHeader()}<div class="row between"><h2>Your Crews</h2><button class="chip chipBtn" onclick="window._newCrew()">+ New Crew</button></div><div class="sp12"></div>${crews.length?`<div class="crewGrid">${crews.map(c=>`<button class="crewTile" onclick="window._openKnownCrew('${c.id}')"><div class="crewEmoji">👥</div><b>${esc(c.name)}</b><span>Open Crew →</span></button>`).join('')}</div>`:`<div class="card center"><h2>No Crews yet</h2><p class="sub" style="margin-top:6px">Start with one group you already talk to.</p></div>`}<div class="sp18"></div><div class="homeModules"><button onclick="window._go('vibe')"><span>✦</span><b>Your Vibe</b><small>${stats.response_submitted||0} answers so far</small></button><button onclick="window._go('profile')"><span>☺</span><b>Profile</b><small>Crews & settings</small></button></div>`)
+  app.innerHTML=shell(`${homeStickyHeader()}<div class="row between"><h2>Your Crews</h2><button class="chip chipBtn" onclick="window._newCrew()">+ New Crew</button></div><div class="sp12"></div>${crews.length?`<div class="crewGrid">${crews.map(c=>`<button class="crewTile" onclick="window._openKnownCrew('${c.id}')"><div class="crewEmoji">👥</div><b>${esc(c.name)}</b><span>Open Crew →</span></button>`).join('')}</div>`:`<div class="card center"><h2>No Crews yet</h2><p class="sub" style="margin-top:6px">Start with one group you already talk to.</p></div>`}<div class="sp18"></div><div class="homeModules"><button onclick="window._startFirstFive()"><span>⚡</span><b>Vibe Run</b><small>5 quick choices & rewards</small></button><button onclick="window._go('vibe')"><span>✦</span><b>Your Vibe</b><small>${stats.response_submitted||0} answers so far</small></button><button onclick="window._go('profile')"><span>☺</span><b>Profile</b><small>Crews & settings</small></button></div>`)
 }
 window._newCrew=()=>{crewId='';dropId='';crew=null;members=[];drops=[];history.replaceState({},'','/');screen='start';render()};
 
@@ -347,6 +349,27 @@ async function renderRecap(){
   app.innerHTML=shell(`${top('Recap','crew')}<div class="recapHero"><span>THIS CREW</span><h1>${esc(crew.name)}</h1><p>A lightweight recap built from real activity.</p></div><div class="sp12"></div><div class="statGrid"><div><b>${drops.length}</b><span>Drops</span></div><div><b>${responses}</b><span>Answers</span></div><div><b>${members.length}</b><span>Mates</span></div></div><div class="sp12"></div><div class="card"><h3>Highlights</h3><div class="sp12"></div><div class="recapLine"><span>✨</span><div><b>${ready} active result${ready===1?'':'s'}</b><small>revealed or live</small></div></div>${topType?`<div class="recapLine"><span>⚡</span><div><b>${labelType(topType)}</b><small>most-used format</small></div></div>`:''}${topDrop?`<div class="recapLine"><span>🔥</span><div><b>${esc(topDrop.question)}</b><small>${topDrop.responseCount||0} responses</small></div></div>`:''}</div><div class="sp12"></div><button class="btn primary" onclick="window._shareCrew()">Bring someone into the Crew</button>`)
 }
 
+let starterController=null;
+function renderStarter(){
+ if(!starterController){
+  starterController=createStarterController({
+   app,shell,top,api,pid,esc,getKnownCrews,getName:()=>meName,toast,
+   onCrewCreated:async (j,nickname)=>{
+    crewId=j.crew.id;crew=j.crew;meName=nickname;localStorage.addaName=nickname;
+    rememberCrew(crew);profileId='';dropId='';
+    history.replaceState({},'',`/?crew=${crewId}`);
+    await refreshCrew();screen='crew';render();toast('🎉 Your Crew has 5 Drops ready!');
+   }
+  });
+ }
+ return starterController.render()
+}
+window._startFirstFive=()=>{
+ profileId='';crewId='';dropId='';crew=null;members=[];drops=[];
+ history.pushState({},'','/?play=1');screen='starter';stopPolling();renderStarter();
+ return starterController.begin()
+};
+
 function renderStart(){app.innerHTML=shell(`${top('')}<div class="hero"><span class="chip darkchip">YOUR PRIVATE CIRCLE</span><div class="sp18"></div><h1>Start with your people.</h1><p style="color:#cbc5d2;margin-top:9px">A Crew is your private friend group on Adda.</p></div><div class="sp18"></div><div class="card"><div class="field"><label>Your name</label><input id="name" maxlength="24" placeholder="e.g. Vijyant"></div><div class="sp12"></div><div class="field"><label>Name your Crew</label><input id="crewName" maxlength="42" placeholder="e.g. Weekend Crew"></div><div class="sp18"></div><button class="btn primary" onclick="window._createCrew()">Start Crew</button></div>`,false)}
 window._createCrew=async()=>{const nickname=$('#name').value.trim(),name=$('#crewName').value.trim();if(!nickname||!name)return toast('Add your name and Crew name');try{const j=await api('createCrew',{method:'POST',body:{nickname,name,participantId:pid}});crewId=j.crew.id;crew=j.crew;meName=nickname;localStorage.addaName=nickname;rememberCrew(crew);history.replaceState({},'',`/?crew=${crewId}`);track('crew_created',{crewId:j.crew.id});await refreshCrew();screen='crew';render()}catch(e){toast(e.message)}};
 function renderJoin(){app.innerHTML=shell(`${top('Join Crew')}<div class="hero"><span class="chip darkchip">INVITE ONLY</span><div class="sp18"></div><h1>${esc(crew.name)}</h1><p style="color:#cbc5d2;margin-top:8px">${matesLabel()} are here.</p></div><div class="sp18"></div><div class="card"><div class="field"><label>What should your Crew call you?</label><input id="joinName" maxlength="24" value="${esc(meName)}" placeholder="Your name"></div><div class="sp18"></div><button class="btn primary" onclick="window._joinCrew()" >Join the Crew</button><p class="sub center" style="margin-top:9px">Become a mate and jump in.</p></div>`,false)}
@@ -366,7 +389,7 @@ async function refreshDrops(){const j=await api('listDrops',{params:{crewId,part
 async function renderCrew(){
   clearTimeout(pollTimer);await refreshCrew();rememberCrew(crew);await refreshDrops();
   const totalResponses=drops.reduce((n,d)=>n+(d.responseCount||0),0);
-  app.innerHTML=shell(`${crewStickyHeader()}<div class="crewModules"><button onclick="window._go('chat')" class="chatModule"><span class="moduleIcon">💬${hasUnreadChat()?'<i class="unreadDot"></i>':''}</span><b>Chat</b><small>${hasUnreadChat()?'New messages':'Talk here'}</small></button><button onclick="window._go('vibe')"><span>✦</span><b>Vibe</b><small>${matesLabel()}</small></button><button onclick="window._go('recap')"><span>✨</span><b>Recap</b><small>${totalResponses} answers</small></button><button onclick="window._go('crewSettings')"><span>⚙</span><b>Mates</b><small>Manage mates</small></button></div><div class="sp18"></div><div class="row between"><h2>Drops</h2><button class="chip chipBtn" onclick="window._go('create')">+ Create</button></div><div class="sp12"></div>${drops.length?drops.map(d=>`<button class="drop drop-${d.type}" style="width:100%;text-align:left" onclick="window._openDrop('${d.id}')"><div class="row between"><span class="chip">${labelType(d.type)}</span><span class="meta">${dropProgress(d)}</span></div>${d.mediaA?`<img class="dropThumb" src="${mediaUrl(d.mediaA)}" alt="">`:``}<div class="q">${esc(d.question)}</div><div class="meta">${d.type==='short'?(d.responseCount?`${d.responseCount} repl${d.responseCount===1?'y':'ies'} · live`:'Be first to reply'):d.revealed&&d.myResponse?'Result ready ✨':d.myResponse?'Waiting for friends…':'Tap to answer'}</div></button>`).join(''):`<div class="empty"><div><div style="font-size:44px">⚡</div><h2 style="margin-top:8px">No Drops yet</h2><p class="sub" style="margin-top:6px">Create one, then share it. Friends join when they answer.</p><div class="sp18"></div><button class="btn primary" onclick="window._go('create')">Create first Drop</button></div></div>`}`);
+  app.innerHTML=shell(`${crewStickyHeader()}${crew?.starterPack&&crew.createdBy===pid&&totalResponses<2?`<div class="starterCrewBanner"><b>🎉 Your 5 Drops are ready!</b><p>Answer one and invite your mates to compare their picks.</p><button onclick="window._shareCrew()">↗ Invite friends</button></div>`:''}<div class="crewModules"><button onclick="window._go('chat')" class="chatModule"><span class="moduleIcon">💬${hasUnreadChat()?'<i class="unreadDot"></i>':''}</span><b>Chat</b><small>${hasUnreadChat()?'New messages':'Talk here'}</small></button><button onclick="window._go('vibe')"><span>✦</span><b>Vibe</b><small>${matesLabel()}</small></button><button onclick="window._go('recap')"><span>✨</span><b>Recap</b><small>${totalResponses} answers</small></button><button onclick="window._go('crewSettings')"><span>⚙</span><b>Mates</b><small>Manage mates</small></button></div><div class="sp18"></div><div class="row between"><h2>Drops</h2><button class="chip chipBtn" onclick="window._go('create')">+ Create</button></div><div class="sp12"></div>${drops.length?drops.map(d=>`<button class="drop drop-${d.type}" style="width:100%;text-align:left" onclick="window._openDrop('${d.id}')"><div class="row between"><span class="chip">${labelType(d.type)}</span><span class="meta">${dropProgress(d)}</span></div>${d.mediaA?`<img class="dropThumb" src="${mediaUrl(d.mediaA)}" alt="">`:``}<div class="q">${esc(d.question)}</div><div class="meta">${d.type==='short'?(d.responseCount?`${d.responseCount} repl${d.responseCount===1?'y':'ies'} · live`:'Be first to reply'):d.revealed&&d.myResponse?'Result ready ✨':d.myResponse?'Waiting for friends…':'Tap to answer'}</div></button>`).join(''):`<div class="empty"><div><div style="font-size:44px">⚡</div><h2 style="margin-top:8px">No Drops yet</h2><p class="sub" style="margin-top:6px">Create one, then share it. Friends join when they answer.</p><div class="sp18"></div><button class="btn primary" onclick="window._go('create')">Create first Drop</button></div></div>`}`);
   schedulePoll('poll',()=>{if(screen==='crew')return renderCrew()},20000)
 }
 window._openDrop=id=>{dropId=id;history.replaceState({},'',`/?crew=${crewId}&drop=${id}`);screen='drop';render()};
