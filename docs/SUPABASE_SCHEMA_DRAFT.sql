@@ -305,3 +305,41 @@ create table reports (
 -- 4. Add indexes after query patterns are finalized.
 -- 5. Add scheduled cleanup for moments/ephemeral_media.
 -- 6. Add audit/moderation retention rules.
+
+
+-- v0.6.1 PROPOSAL ONLY: do NOT apply this draft to Netlify field-test data.
+-- Actual Supabase OTP/email/mobile authentication requires provider configuration and RLS.
+create table if not exists guest_identities (
+ participant_id text primary key,
+ profile_id uuid references profiles(id) on delete cascade,
+ linked_at timestamptz,
+ created_at timestamptz not null default now()
+);
+create table if not exists profile_onboarding (
+ profile_id uuid primary key references profiles(id) on delete cascade,
+ starter_completed_at timestamptz,
+ starter_crew_id uuid references crews(id) on delete set null,
+ nickname_saved_at timestamptz,
+ handle_saved_at timestamptz,
+ avatar_saved_at timestamptz,
+ bio_saved_at timestamptz,
+ contacts_opt_in_at timestamptz,
+ updated_at timestamptz not null default now()
+);
+create unique index if not exists profiles_handle_lower_unique
+ on profiles (lower(handle)) where handle is not null;
+create table if not exists crew_invites (
+ id uuid primary key default gen_random_uuid(),
+ crew_id uuid not null references crews(id) on delete cascade,
+ created_by uuid references profiles(id),
+ token_hash text not null unique,
+ expires_at timestamptz,
+ max_uses integer,
+ used_count integer not null default 0,
+ revoked_at timestamptz,
+ created_at timestamptz not null default now()
+);
+-- If contact discovery is approved, collect explicit revocable consent,
+-- use server-held keyed tokens / privacy-reviewed matching;
+-- never expose raw contact lists or phone-number lookups publicly.
+-- Add profile/dm/crew invite RLS policies and backend abuse throttles before deployment.
