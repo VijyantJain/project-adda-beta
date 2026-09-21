@@ -1,5 +1,5 @@
 # Project Adda — ChatGPT Continuity & Project Operating System
-Updated: 2026-09-18
+Updated: 2026-09-22
 
 ## Problem
 A long project must not depend on one ChatGPT conversation. Chats can become too long, context can be truncated, and no model should be expected to reconstruct exact code/product state from memory.
@@ -88,6 +88,13 @@ Every testable release should have:
 
 ## Why memory is not enough
 ChatGPT Memory can preserve high-level context, but exact source code, schema, commit IDs, feature flags, and detailed product decisions must live in versioned documents.
+
+## Documentation hygiene after each milestone
+- Add specific feature requirements to a canonical file such as FIRST_FIVE_VIBE_RUN.md / REWARD_ECONOMY.md.
+- Update CURRENT_STATE.md on an actual code/release transition.
+- Append new decisions to DECISIONS.md, and change ROADMAP only if sequencing changed.
+- Append a short linked summary to the Drive Ledger. Do not mirror enormous code snippets into Drive.
+- Only call an idea SHIPPED when source and deployment status support it; distinguish preview from production and build checks from device E2E.
 
 ## Minimum continuity packet
 If every other chat disappears, these files are sufficient to restart:
