@@ -8,7 +8,7 @@ export function createStarterController(c){
  function render(){
   if(!state){app.innerHTML=shell(`${head()}<section class="starterIntro"><div class="starterIntroIcon">⚡</div><span class="starterKicker">PLAY FIRST · CREW LATER</span><h1>5 quick ones.<br><em>Find your Vibe.</em></h1><p>Pick, rate, guess, laugh. Earn a trophy before you invite anyone.</p><div class="starterIntroOrbs">🏖️ 👖 ☕ 🎧 🔥</div><button class="btn starterCTA" onclick="window._starterBegin()">Play my First Five →</button><small>About a minute · No login · No permissions</small></section>${getKnownCrews().length?'<button class="btn ghost" onclick="window._home()">Back to my Crews</button>':''}`,false);return}
   if(feedback){showFeedback();return}
-  if(state.firstFiveCompleted&&(state.progress===5||state.bonusCompleted||mode==='finish')){complete();return}
+  if(state.firstFiveCompleted&&((state.progress===5&&mode!=='play')||state.bonusCompleted||mode==='finish')){complete();return}
   const q=state.question;if(!q){mode='finish';complete();return}
   const max=state.progress<5?5:10,progress=state.progress%5;
   app.innerHTML=shell(`${head()}<div class="starterTopline"><span>⚡ ${state.progress<5?'FIRST FIVE':'BONUS ROUND'}</span><b>${state.progress+1} / ${max}</b></div><div class="starterTrack"><i style="width:${progress*20}%"></i></div>
