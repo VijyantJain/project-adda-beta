@@ -324,3 +324,11 @@ Supporting:
 
 ## 20. Principle
 Adda should feel alive because people and identity matter—not because the product merely maximizes endless scrolling.
+
+
+## v0.6.1 first-session conversion and Home
+Two different first-time cohorts now share one reward engine. Direct visitor plays, collects genuine milestones and receives only a seeded-Crew creation CTA at Tenacious; invited newcomer joins provisionally then plays before entering the original invited Crew or Drop. The trophy stage uses the precise neon reference cropped from the user's screenshot with flashes/particles. No first-timer is intentionally routed through the unrelated generic empty-Crew creator.
+
+Current Home is a genuine personalized Crews/Vibe dashboard, not a fake public feed. Future Home “For You” mixes real replies, friends' Crews/Moments, next personal mission and selected Arena recommendations, while Arena remains its own rolling public content/discovery surface.
+
+Account/auth/profile/contact progression is documented in ONBOARDING_IDENTITY_CONTACTS.md. Real email/mobile OTP, unique @handle, photo, bio and contact sync are not shipped in Netlify field test; they need identity/auth/permissions and privacy work in M1+.
