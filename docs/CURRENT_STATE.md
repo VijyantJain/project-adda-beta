@@ -1,5 +1,5 @@
 # Project Adda — Current State
-Updated: 2026-09-22
+Updated: 2026-09-22 · v0.6.1
 
 ## Active branch
 v0.5-full-experience
@@ -11,6 +11,11 @@ https://deploy-preview-1--project-adda-field-test.netlify.app
 Persistent Netlify Blob field-test store. Seeded Crew/member/Drop/answer/chat/image data must remain intact.
 
 ## Current product capabilities
+- v0.6.1: exact screenshot-neon trophy full-screen reward stage, responsive question/creation/completion canvas, no redundant Tenacious/form buttons
+- v0.6.1: auto-enrol only genuinely new invitee as provisional member, run Starter then finalize display name and enter exact invited Crew/Drop; existing named users remain direct
+- v0.6.1: retry-safe Starter Crew creation with legacy five-seed protection and immediate in-app invite prompt; no reset of seeded Avengers Crew
+- richer Home with genuine Vibe and Crew access, no fake public feed
+
 - **NEW v0.6 First Five:** a new visitor without a Crew can immediately play 5 guided solo Starter Drops; optional Bonus 5, one-time server-authoritative Vibe rewards, real trophies and topical snippets, and Starter Crew creation with 5 real preseeded Drops
 - Existing root visitors with known Crews, exact shared Drop links, Crew links and public Vibe links retain their former entry paths
 
@@ -95,7 +100,10 @@ After current field-test learning is captured:
 - current prediction format needs outcome resolution/reputation later
 
 ## Active Task
-Mobile-smoke-test v0.6 First Five on a fresh browser, including 5 answers, refresh/retry idempotency, Bonus 5, trophy/Vibe score, Starter Crew 5-Drop seed, shared existing Crew/Drop flows, and unchanged Avengers data. Collect activation funnel and qualitative feedback. Fix blockers only, then plan daily repeating Vibe Run and gifting separately.
+Mobile-smoke-test v0.6.1 solo and invited First Five on a fresh browser, including 5 answers, refresh/retry idempotency, Bonus 5, trophy/Vibe score, Starter Crew 5-Drop seed, shared existing Crew/Drop flows, and unchanged Avengers data. Collect activation funnel and qualitative feedback. Fix blockers only, then plan daily repeating Vibe Run and gifting separately.
 
 ## Vibe level curve (v0.6)
 Early levels have small thresholds 0/10/25/45/60/100/150, followed by wider steps 300/600/1000/2000. Existing earned scores remain; displayed numeric level indexes shift after adding the early levels. Solo players can view earned Vibe after First Five without creating a Crew.
+
+## Identity and upcoming profile work
+Current local participantId is not a true lifetime user ID; no real email/phone OTP or contact sync is deployed. See docs/ONBOARDING_IDENTITY_CONTACTS.md for verified account merge, handles, DP/avatar, bio and permission-on-intent contacts.
