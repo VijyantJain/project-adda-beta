@@ -21,3 +21,5 @@ M1 verified mobile/email OTP via configured provider, authenticated cross-device
 
 ## Safety and release
 This is not merged to main production. Existing Crew/Drop/chat/media/response stores untouched. Invitation share must be tapped by user; opening share sheet does not prove delivered invite. Before sending widely, test solo link, fresh Crew invite link, existing Avengers link, 5/10 refresh/retry, five seed count, mobile fixed nav and actual share sheets.
+
+Last finishing patch: the genuine neon trophy briefly fills the entire mobile viewport after milestone 5/10 and can be tapped to dismiss (reduced motion respected). Returning users retain the fixed bottom navigation on generic new-Crew and Join screens; first-run focus screens omit it intentionally.
