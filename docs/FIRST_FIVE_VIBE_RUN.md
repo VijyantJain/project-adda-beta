@@ -135,3 +135,6 @@ Open /?play=1 as a new browser; finish 5; refresh; verify progress persists; hit
 **Future identity/profile/contacts:** see docs/ONBOARDING_IDENTITY_CONTACTS.md. Email/mobile OTP and persistent account merging, unique @username, avatar/DP, bio and consent-based contacts sync are M1+ designs only, not a fake live signup form.
 
 **Current QA limit:** source syntax, Netlify preview build and simulated direct/invited flow tests succeeded; real multi-device Android/iPhone testing remains necessary before broad distribution.
+
+### Full-viewport milestone flash (v0.6.1)
+After a real major milestone on card 5 or 10, show a short 1.65s full-viewport animation using the exact user-supplied local neon-trophy WebP, tappable to dismiss; then the reward details and next action remain visible. Reduced-motion preference uses a brief static display. Existing user post-onboarding generic Create/Join pages display the persistent bottom navbar; the focus-first Starter/invited-name screens intentionally hide it.
