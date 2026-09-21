@@ -13,7 +13,7 @@ export function createStarterController(c){
   const max=state.progress<5?5:10,progress=state.progress%5;
   app.innerHTML=shell(`${head()}<div class="starterTopline"><span>⚡ ${state.progress<5?'FIRST FIVE':'BONUS ROUND'}</span><b>${state.progress+1} / ${max}</b></div><div class="starterTrack"><i style="width:${progress*20}%"></i></div>
   <div class="starterBalance"><span>✨ ${state.points} Vibe earned</span><span>${state.nextUnlock?state.nextUnlock.at-state.progress+' to '+esc(state.nextUnlock.name):'All trophies earned'}</span></div>
-  <section class="starterQuestion"><span class="starterQuestionTag">${esc(q.icon)} ${esc(q.tag)}</span><div class="starterArt art-${esc(q.art)}"><span>${art[q.art]||'⚡'}</span><i>✦</i></div><h1>${esc(q.question)}</h1><p>Tap your pick 👇</p>
+  <section class="starterQuestion"><span class="starterQuestionTag">${esc(q.icon)} ${esc(q.tag)}</span><div class="starterArt art-${esc(q.art)}">${["travel","denim","friends","roadtrip","chai"].includes(q.art)?`<img class="starterArtImage" src="/starter-${q.art}.svg" alt="">`:`<span>${art[q.art]||'⚡'}</span>`}<i>✦</i></div><h1>${esc(q.question)}</h1><p>Tap your pick 👇</p>
   <div class="starterChoices">${q.options.map((o,i)=>`<button class="starterChoice" onclick="window._starterAnswer(${i})"><span class="choiceIndex">${i+1}</span><b>${esc(o)}</b><span>↗</span></button>`).join('')}</div><div id="starterSaving" class="starterSaving" aria-live="polite"></div></section><p class="starterFootnote">Your progress is saved automatically.</p>`,false)
  }
  async function begin(){
