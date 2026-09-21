@@ -107,3 +107,6 @@ Early levels have small thresholds 0/10/25/45/60/100/150, followed by wider step
 
 ## Identity and upcoming profile work
 Current local participantId is not a true lifetime user ID; no real email/phone OTP or contact sync is deployed. See docs/ONBOARDING_IDENTITY_CONTACTS.md for verified account merge, handles, DP/avatar, bio and permission-on-intent contacts.
+
+## Latest v0.6.1 finish
+After milestone 5/10, neon trophy plays in full-viewport splash with tap-to-dismiss and reduced-motion handling, then the standard reward details. Existing-user generic Crew Create/Join pages now retain bottom nav; focused first-run Starter/name screens intentionally do not. Main production remains unmerged.
