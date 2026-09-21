@@ -12,7 +12,7 @@ export function createStarterController(c){
   const q=state.question;if(!q){mode='finish';complete();return}
   const max=state.progress<5?5:10,progress=state.progress%5;
   app.innerHTML=shell(`${head()}<div class="starterTopline"><span>⚡ ${state.progress<5?'FIRST FIVE':'BONUS ROUND'}</span><b>${state.progress+1} / ${max}</b></div><div class="starterTrack"><i style="width:${progress*20}%"></i></div>
-  <div class="starterBalance"><span>✨ ${state.points} Vibe earned</span><span>${5-progress} to next trophy</span></div>
+  <div class="starterBalance"><span>✨ ${state.points} Vibe earned</span><span>${state.nextUnlock?state.nextUnlock.at-state.progress+' to '+esc(state.nextUnlock.name):'All trophies earned'}</span></div>
   <section class="starterQuestion"><span class="starterQuestionTag">${esc(q.icon)} ${esc(q.tag)}</span><div class="starterArt art-${esc(q.art)}"><span>${art[q.art]||'⚡'}</span><i>✦</i></div><h1>${esc(q.question)}</h1><p>Tap your pick 👇</p>
   <div class="starterChoices">${q.options.map((o,i)=>`<button class="starterChoice" onclick="window._starterAnswer(${i})"><span class="choiceIndex">${i+1}</span><b>${esc(o)}</b><span>↗</span></button>`).join('')}</div><div id="starterSaving" class="starterSaving" aria-live="polite"></div></section><p class="starterFootnote">Your progress is saved automatically.</p>`,false)
  }
@@ -34,7 +34,7 @@ export function createStarterController(c){
  function showFeedback(){
   const f=feedback,m=f.justUnlocked,done=state.progress===5,last=state.progress===10,next=state.nextUnlock;
   app.innerHTML=shell(`${head()}<section class="starterReward">
-   ${m?confetti():''}<div class="starterTrophyIcon">${m?m.icon:'⚡'}</div><span class="starterUnlock">${m?'ACHIEVEMENT UNLOCKED':'CHOICE SAVED'}</span><h1>${m?esc(m.name)+'!':'Nice pick! ✨'}</h1><p>${m?esc(m.text):'You’re on a roll.'}</p>
+   ${m?confetti():''}<div class="starterTrophyIcon">${m?m.icon:'⚡'}</div><span class="starterUnlock">${m?'ACHIEVEMENT UNLOCKED':f.alreadyAnswered?'ALREADY COUNTED':'CHOICE SAVED'}</span><h1>${m?esc(m.name)+'!':f.alreadyAnswered?'Your Vibe is safe ✨':'Nice pick! ✨'}</h1><p>${m?esc(m.text):f.alreadyAnswered?'No duplicate points—you already earned this one.':'You’re on a roll.'}</p>
    <div class="starterRewardPts">+${f.earnedPoints||0} <small>Vibe</small></div><div class="starterScoreTotal">${state.points} total Starter Vibe</div>
    <div class="starterFact"><b>💡 A LITTLE EXTRA</b><p>${esc(f.feedback||'Your choice is saved.')}</p></div>
    <div class="starterRewardTarget"><b>${done?'First Five complete!':last?'Starter Deck complete!':next?'Only '+(next.at-state.progress)+' more to '+esc(next.name):'All trophies unlocked'}</b><div class="starterTrack"><i style="width:${(state.progress%5||5)*20}%"></i></div></div>
