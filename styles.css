@@ -847,7 +847,7 @@ html,body{background:
 .starterCrewBanner button{padding:10px 13px;border:0;background:#7349f3;color:white;border-radius:12px;font-size:11px;font-weight:900}
 .starterConfetti{pointer-events:none;position:absolute;z-index:3;inset:0;overflow:hidden}
 .starterConfetti i{position:absolute;left:50%;top:26%;width:8px;height:13px;border-radius:2px;background:hsl(calc(var(--i)*37),85%,66%);transform:rotate(calc(var(--i)*38deg));animation:starterBurst .95s ease-out both;animation-delay:calc(var(--i)*17ms)}
-@keyframes starterBurst{0%{opacity:0;transform:translate(0,0) scale(.1) rotate(0)}15%{opacity:1}100%{opacity:0;transform:translate(calc((var(--i) - 10)*17px),calc((var(--i) - 12)*15px)) rotate(calc(var(--i)*44deg))}}
+@keyframes starterBurst{0%{opacity:0;transform:translate(0,0) scale(.1) rotate(0)}15%{opacity:1}100%{opacity:0;transform:translate(var(--tx),var(--ty)) rotate(calc(var(--i)*44deg))}}
 @keyframes starterPop{0%{transform:scale(.65) rotate(-10deg);opacity:.4}65%{transform:scale(1.13) rotate(5deg)}100%{transform:scale(1)}}
 @keyframes starterFloat{to{transform:translateY(-5px) rotate(3deg)}}
 @media(max-width:380px){.starterQuestion{padding:12px}.starterArt{height:149px}.starterArt>span{font-size:56px}.starterQuestion h1{font-size:23px}.starterIntroOrbs{font-size:27px}.starterIntro h1{font-size:31px}}
