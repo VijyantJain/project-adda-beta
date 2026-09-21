@@ -54,7 +54,7 @@ Persistent Netlify Blob field-test store. Seeded Crew/member/Drop/answer/chat/im
 - Starter is stored only at starter/v1/<participantId>; original Crew/member/Drop/response/chat/media records untouched.
 - Starter rewards up to 180 Vibe once per person/browser ID (10 per distinct answer, +30 first-five, +50 all-ten).
 - Starter events are analytically distinct from real Crew Drop answers.
-- Current First Five art uses custom CSS/emoji illustration, not third-party stock photography.
+- First Five uses five local original SVG scenes; bonus cards use CSS/emoji gradients. No remote image dependency.
 - Future gifting/paid cosmetics are documented as concepts, not live functionality.
 
 ## Product work next
@@ -96,3 +96,6 @@ After current field-test learning is captured:
 
 ## Active Task
 Mobile-smoke-test v0.6 First Five on a fresh browser, including 5 answers, refresh/retry idempotency, Bonus 5, trophy/Vibe score, Starter Crew 5-Drop seed, shared existing Crew/Drop flows, and unchanged Avengers data. Collect activation funnel and qualitative feedback. Fix blockers only, then plan daily repeating Vibe Run and gifting separately.
+
+## Vibe level curve (v0.6)
+Early levels have small thresholds 0/10/25/45/60/100/150, followed by wider steps 300/600/1000/2000. Existing earned scores remain; displayed numeric level indexes shift after adding the early levels. Solo players can view earned Vibe after First Five without creating a Crew.
