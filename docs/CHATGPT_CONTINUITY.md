@@ -106,3 +106,7 @@ If every other chat disappears, these files are sufficient to restart:
 - ARCHITECTURE_VNEXT.md
 - current GitHub branch
 - Drive Living Product Ledger
+
+
+## Current continuation checkpoint — v0.6.1
+Read FIRST_FIVE_VIBE_RUN.md for the actual two new-user journeys, exact screenshot trophy asset, one-action Tenacious page and seeded-Crew invite prompt. Read ONBOARDING_IDENTITY_CONTACTS.md before adding OTP/handles/avatar/contact features. Verify CURRENT_STATE against current branch and preview deploy status; do not assume production main contains preview changes. Update the Living Product Ledger when new feedback changes a flow.
