@@ -50,3 +50,16 @@ Future free/premium gifts are concept proposals only. Preserve Vibe as earned ac
 
 ## D016 — Document on each meaningful product change
 Update the feature-specific canonical spec, CURRENT_STATE, DECISIONS and ROADMAP as appropriate, then append the Drive Product Ledger handoff. Do not duplicate full master specs across every file or leave unique decisions only in chat.
+
+
+## D017 — Separate solo and invited first journeys
+Solo first-timer: First Five / Bonus → one Tenacious Crew-creation CTA → five seeded Drops → share dialog. Invited first-timer: provisional enrollment, First Five, one Enter <Crew> CTA, display-name finalization, original Crew/Drop. Existing members keep direct flow; see FIRST_FIVE_VIBE_RUN.md.
+
+## D018 — Honest final reward and visual consistency
+Tenacious itself shows earned Starter Vibe and specifically labeled Starter achievements. No View Vibe/Back to Crews buttons there and no “not now” escape on Crew form. Reward uses the exact supplied neon-trophy screenshot crop with animated flashes, reduced-motion and full-width mobile presentation.
+
+## D019 — Invite/share is user-initiated
+After backend confirms five seeded Drops, show a dialog previewing a fun prefilled invite. Open OS share/WhatsApp only on user action; opening the share sheet is not equivalent to verified delivery.
+
+## D020 — Verified identity and contacts are staged, never faked
+Beta browser-local participantId does not provide a true lifetime guarantee. Actual email/phone OTP, cross-device merge, profile handle, DP, bio and contacts opt-in need M1 provider/database foundations. Permission prompts must follow the user's explicit Find Friends action.
