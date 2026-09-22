@@ -459,13 +459,14 @@ export default async (req: Request, context: Context) => {
       if(!Object.prototype.hasOwnProperty.call(allowed,step))return bad("Unknown guide step.");
       const key=`guide/v1/${participantId}`,state=await getJSON(store,key)||{steps:{},createdAt:now()};
       state.steps=state.steps||{};
-      if(!state.steps[step]){
+      const isNew=!state.steps[step];
+      if(isNew){
         state.steps[step]={points:allowed[step],at:now(),crewId};
         await store.setJSON(key,state);
         await analyticsEvent(store,"guide_step_completed",participantId,crewId,"",{step,points:allowed[step]},req,context);
       }
       const points=Object.keys(state.steps).reduce((sum:number,k:string)=>sum+Number(state.steps[k]?.points||0),0);
-      return ok({step,points,steps:state.steps,earnedPoints:state.steps[step]?.points||0});
+      return ok({step,points,steps:state.steps,earnedPoints:isNew?(state.steps[step]?.points||0):0});
     }
 
     if(action==="starterGet" && req.method==="GET"){
