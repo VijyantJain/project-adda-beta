@@ -201,6 +201,19 @@ function renderDashboard(){
         {label:'Created Starter Crew',count:s.starter.crews}
       ]):''}
       ${founderDeepDive()}
+      ${D.deepDive?.guidedPersonal?barList('Private Vibe & 5-tab guided mission',[
+        {label:'Personal warm-up shown',count:D.deepDive.guidedPersonal.started},
+        {label:'Interest explicitly chosen',count:D.deepDive.guidedPersonal.interestChosen},
+        {label:'Surprise Me selected',count:D.deepDive.guidedPersonal.surpriseMe},
+        {label:'Private cards answered',count:D.deepDive.guidedPersonal.privateCards},
+        {label:'Two private cards completed',count:D.deepDive.guidedPersonal.personalCompleted},
+        {label:'Five-tab tour started',count:D.deepDive.guidedPersonal.tabsStarted},
+        {label:'Profile saved locally',count:D.deepDive.guidedPersonal.localProfileReady},
+        {label:'Beta account handoff',count:D.deepDive.guidedPersonal.betaHandoff}
+      ]):''}
+      ${D.deepDive?.guidedPersonal?barList('Explicit interest preferences',D.deepDive.guidedPersonal.packCounts):''}
+      ${D.deepDive?.guidedPersonal?barList('Tab walkthroughs seen',D.deepDive.guidedPersonal.tabs):''}
+      ${D.deepDive?.guidedPersonal?barList('One-time guide rewards earned',D.deepDive.guidedPersonal.rewards):''}
       ${funnelHtml(s.funnel)}
       ${barList('Guided Crew onboarding',[
         {label:'Tour started',count:D.eventCounts?.crew_guide_started||0},
