@@ -268,10 +268,55 @@ function renderHome(){
 }
 window._newCrew=()=>{if(!getKnownCrews().length){return window._home()}crewId='';dropId='';crew=null;members=[];drops=[];history.replaceState({},'','/');screen='start';render()};
 
+function localProfile(){try{return JSON.parse(localStorage.addaLocalProfile||'{}')}catch{return {}}}
+function ownAvatar(){return localProfile().avatar||''}
+function profileAvatarMarkup(){return ownAvatar()?`<img src="${ownAvatar()}" class="addaOwnAvatar" alt="Your profile photo">`:'☺'}
 function renderProfile(){
-  const crews=getKnownCrews(),stats=localStats();
-  app.innerHTML=shell(`${top('')}<div class="profileCard"><div class="profileBig">☺</div><h1>${esc(meName||'You')}</h1><p class="sub">${crews.length} Crew${crews.length===1?'':'s'} · ${stats.response_submitted||0} answers · ${stats.drop_created||0} Drops made</p></div><div class="sp18"></div><button class="btn primary" onclick="window._sharePublicProfile()">Share my Vibe profile</button><div class="sp12"></div><button class="btn ghost" onclick="window._newCrew()">Start another Crew</button><div class="sp12"></div><div class="card"><h3>Your Crews</h3><div class="sp12"></div>${crews.length?crews.map(c=>`<button class="settingsRow" onclick="window._openKnownCrew('${c.id}')"><span>👥 ${esc(c.name)}</span><b>›</b></button>`).join(''):'<p class="sub">No Crews yet.</p>'}</div>`)
+ const crews=getKnownCrews(),stats=localStats(),p=localProfile();
+ app.innerHTML=shell(`${top('')}<div class="profileCard"><div class="profileBig">${profileAvatarMarkup()}</div>
+ <h1>${esc(p.displayName||meName||'You')}</h1>
+ ${p.bio?`<p class="sub">${esc(p.bio)}</p>`:''}
+ <p class="sub">${crews.length} Crew${crews.length===1?'':'s'} · ${stats.response_submitted||0} Crew answers · ${stats.drop_created||0} Drops made</p>
+ <div class="sp12"></div><button class="btn primary" onclick="window._editProfile()">✏️ Edit my profile & photo</button></div>
+ <div class="sp18"></div>
+ <div class="card"><h3>💾 Save progress across devices</h3><p class="sub" style="margin:9px 0">Your current test profile is tied to this browser. Verified email/phone signup and a globally unique @username will arrive with the account database; they are not active in this field test.</p></div>
+ <div class="sp12"></div><button class="btn ghost" onclick="window._sharePublicProfile()">Share my Vibe profile</button>
+ <div class="sp12"></div><button class="btn ghost" onclick="window._newCrew()">Start another Crew</button>
+ <div class="sp12"></div><div class="card"><h3>Your Crews</h3><div class="sp12"></div>${crews.length?crews.map(c=>`<button class="settingsRow" onclick="window._openKnownCrew('${c.id}')"><span>👥 ${esc(c.name)}</span><b>›</b></button>`).join(''):'<p class="sub">No Crews yet.</p>'}</div>`)
 }
+window._editProfile=()=>{
+ const p=localProfile();
+ app.innerHTML=shell(`${top('Edit profile','profile')}<main class="card addaProfileEditor">
+ <h2>Your profile 💜</h2><p class="sub">Test version: saved on this device. Photo and bio are not public or synced yet.</p>
+ <div class="addaEditAvatar">${profileAvatarMarkup()}</div>
+ <label class="btn ghost addaPhotoPick" for="addaPhotoFile">📷 Add or change profile photo</label>
+ <input id="addaPhotoFile" type="file" accept="image/*" style="position:absolute;opacity:0;width:1px;height:1px" onchange="window._localProfilePhoto(this)">
+ <div class="field"><label>Display name</label><input id="addaEditName" maxlength="24" value="${esc(p.displayName||meName)}" placeholder="Your name"></div>
+ <div class="field"><label>About me</label><textarea id="addaEditBio" maxlength="140" placeholder="A line your mates will recognize...">${esc(p.bio||'')}</textarea></div>
+ <button class="btn primary" onclick="window._saveLocalProfile()">Save changes</button><button class="btn ghost" onclick="window._go('profile')">Cancel</button>
+ </main>`)
+};
+window._localProfilePhoto=async el=>{
+ const file=el.files?.[0];if(!file)return;
+ if(file.size>8000000)return toast('Use a photo under 8 MB.');
+ try{
+   const image=new Image(),url=URL.createObjectURL(file);
+   image.src=url;await image.decode();
+   const c=document.createElement('canvas'),size=160;c.width=size;c.height=size;
+   const g=c.getContext('2d'),crop=Math.min(image.naturalWidth,image.naturalHeight);
+   g.drawImage(image,(image.naturalWidth-crop)/2,(image.naturalHeight-crop)/2,crop,crop,0,0,size,size);
+   const avatar=c.toDataURL('image/jpeg',.68);URL.revokeObjectURL(url);
+   const p=localProfile();p.avatar=avatar;localStorage.addaLocalProfile=JSON.stringify(p);
+   document.querySelector('.addaEditAvatar').innerHTML=profileAvatarMarkup();toast('Photo saved on this device');
+ }catch(e){toast('Could not process photo. Try JPEG or PNG.')}
+};
+window._saveLocalProfile=()=>{
+ const name=$('#addaEditName')?.value.trim(),bio=$('#addaEditBio')?.value.trim();
+ if(!name)return toast('Enter your display name');
+ const p=localProfile();p.displayName=name;p.bio=bio||'';
+ try{localStorage.addaLocalProfile=JSON.stringify(p);meName=name;localStorage.addaName=name;track('profile_edited',{hasBio:!!p.bio,hasAvatar:!!p.avatar});screen='profile';render();toast('Profile saved on this device')}
+ catch(e){toast('Device storage is full. Try a smaller photo.')}
+};
 
 async function renderVibe(){
   let v;
