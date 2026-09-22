@@ -557,7 +557,7 @@ function tourStep(i){
  ];
  const show=(tries=0)=>{
   if(!guideActive()||guide.tour!==i+1)return;
-  if(i===1&&screen!=='crew'&&tries<18){setTimeout(()=>show(tries+1),160);return}
+  if(i===1&&screen!=='crew'){if(tries<60){setTimeout(()=>show(tries+1),250);return}guideDisplay('Crew is taking a moment…','Your tour and earlier answers are saved. Retry the Crew screen when your connection is ready.','Retry Crew →',()=>tourStep(1),'.nav5 button:nth-child(2)');return}
   const [title,body,cta,step]=steps[i];
   track('guide_tab_seen',{tab:step.slice(5),step:i+1});
   guideDisplay(title,body,cta,()=>{
