@@ -69,7 +69,7 @@ export function createStarterController(c){
     const label=document.getElementById('starterSaving');if(label)label.textContent='Saving your choice…';
     try{
       const r=await api('starterAnswer',{method:'POST',body:{participantId:pid,questionId:q.id,answer}});
-      state=r;feedback=r;if(state.bonusCompleted)onCompleted?.(state);showFeedback();
+      state=r;feedback=r;if(q.id==='s6'&&r.deckVersion==='v2'){const ix=q.options.indexOf(answer);localStorage.setItem('addaStarterInterest',['rides','style','music','food','travel','memes','fitness'][ix]||'memes')}if(state.bonusCompleted)onCompleted?.(state);showFeedback();
     }catch(e){toast(e.message);render()}finally{busy=false}
   }
   function showFeedback(){
