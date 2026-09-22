@@ -148,3 +148,10 @@ Avoid damaging the core social loop with premature ads.
 
 ## M1 account/profile/contact dependencies
 Real email + phone OTP (configured Supabase/email/SMS provider), verified profile IDs, merged browser guests and Vibe, unique handle availability, DP/avatar, optional bio, per-profile privacy, optional permission-on-intent Find Friends. See ONBOARDING_IDENTITY_CONTACTS.md.
+
+## v0.6.2 current preview gate
+- Identical intro for both new-user cohorts, ten Starter answers required, Tenacious CTA routed to seeded Crew or existing invited Crew/Drop.
+- Guided first-Crew spotlight/real first two Drop answers and skip path.
+- Analytics v2 as decision room (direct vs invited, eligible D1/D7, quality, detailed event/screen/error panels).
+- Device-local profile editor tested; M1 is verified OTP and stable profiles.
+- Professional domain on a stable production build before wider field-test invitations; Cloudflare Pages + Supabase staged migration after freeze/backup, not a blind hosting switch.
