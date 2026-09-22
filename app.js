@@ -219,7 +219,7 @@ async function boot(){try{
  }
  if(member?.provisional){
    pendingInvite={crewId,crewName:crew.name,dropId};
-   screen='starter';renderStarter();starterController.begin();return;
+   screen='starter';renderStarter();return;
  }
  if(!member){screen=dropId?'joinDrop':'join';render();return}
  meName=member.nickname;localStorage.addaName=meName;rememberCrew(crew);
@@ -408,6 +408,61 @@ window._startFirstFive=()=>{
  history.pushState({},'','/?play=1');screen='starter';stopPolling();renderStarter();
  return starterController.begin()
 };
+// One-time, lightweight in-app learning: explain the Crew, guide two real answers,
+// then release navigation. Stored locally during beta; account-based sync is M1.
+let guide={active:false,step:0,answers:0,lastDrop:''};
+function guideKey(){return 'addaGuideDone_'+crewId}
+function guideActive(){return guide.active&&crewId&&localStorage.getItem(guideKey())!=='1'}
+function removeGuide(){document.querySelector('.addaGuidedLayer')?.remove();document.querySelectorAll('.addaGuideSpot').forEach(x=>x.classList.remove('addaGuideSpot'))}
+function guideDisplay(title,body,cta,action,selector){
+ removeGuide();
+ const target=selector?document.querySelector(selector):null;
+ if(target)target.classList.add('addaGuideSpot');
+ const layer=document.createElement('div');layer.className='addaGuidedLayer';
+ layer.innerHTML=`<div class="addaGuideShade"></div><section class="addaGuideCard" role="dialog" aria-label="Adda quick tour">
+ <div class="addaGuideStep">⚡ QUICK CREW TOUR · ${guide.step+1}/4</div><h2>${esc(title)}</h2><p>${esc(body)}</p>
+ <button class="btn primary" id="addaGuideAction">${esc(cta)}</button><button class="addaGuideSkip" id="addaGuideSkip">Skip guide</button></section>`;
+ document.body.appendChild(layer);
+ layer.querySelector('#addaGuideAction').addEventListener('click',()=>{removeGuide();action?.()});
+ layer.querySelector('#addaGuideSkip').addEventListener('click',()=>{guide.active=false;localStorage.setItem(guideKey(),'1');removeGuide();track('crew_guide_skipped',{step:guide.step})});
+}
+function startFirstCrewGuide(){
+ if(!crewId||localStorage.getItem(guideKey())==='1'||guide.active)return;
+ guide={active:true,step:0,answers:0,lastDrop:''};
+ track('crew_guide_started',{crewId});
+ setTimeout(guideCrew,100)
+}
+function guideCrew(){
+ if(!guideActive()||screen!=='crew')return;
+ if(!drops.length)return;
+ guide.step=0;
+ guideDisplay('This is your Crew 👥','Your private place with your mates. Drops, chat, fun reveals and your shared history live here.','Show me a Drop →',()=>{
+  guide.step=1;guideDisplay('A Drop is a quick question ⚡','Everyone can answer, compare picks and discover what the gang thinks. You can create your own later.','Try the first Drop →',()=>{
+    const first=drops.find(d=>!d.myResponse)||drops[0];if(first)window._openDrop(first.id)
+  },'.drop')
+ },'.crewStickyHeader')
+}
+function guideDrop(){
+ if(!guideActive()||screen!=='drop')return;
+ guide.step=2;
+ guideDisplay('Make your pick 👀','Choose an option (or type your reply), then tap Submit. Your answer counts toward the Crew reveal.','Got it — I’ll answer →',()=>{},'#submitAnswer')
+}
+function guideAfterAnswer(){
+ if(!guideActive())return;
+ guide.answers++;
+ if(guide.answers>=2){
+   guide.step=3;
+   guideDisplay('You’re officially a mate! 🏆','That’s two Drops answered. Explore Chat, Vibe, Recap and the + button. Every new question makes the Crew more interesting.','Explore my Crew →',()=>{localStorage.setItem(guideKey(),'1');guide.active=false;track('crew_guide_completed',{crewId});dropId='';history.replaceState({},'',`/?crew=${crewId}`);screen='crew';render()},'.appStickyHeader');
+   return
+ }
+ guide.step=3;
+ guideDisplay('First Drop done! 🎉','You just joined the conversation. Try one more Drop to see how the flow works.','Try another Drop →',()=>{
+   const other=drops.find(d=>d.id!==guide.lastDrop&&!d.myResponse);
+   if(other)window._openDrop(other.id);
+   else {dropId='';screen='crew';render();guide.step=0;setTimeout(guideCrew,300)}
+ },'.appStickyHeader')
+}
+
 function renderInvitedName(){
  if(!pendingInvite)return window._home();
  app.innerHTML=shell(`${top('')}<main class="starterInvitedName">
@@ -428,7 +483,7 @@ window._finishInvitedJourney=async()=>{
    crewId=v.crewId;dropId=v.dropId||'';meName=nickname;localStorage.addaName=nickname;localStorage.addaStarterFinished='1';
    rememberCrew(crew);pendingInvite=null;await refreshCrew();
    history.replaceState({},'',dropId?`/?crew=${crewId}&drop=${dropId}`:`/?crew=${crewId}`);
-   screen=dropId?'drop':'crew';render();
+   screen=dropId?'drop':'crew';await render();startFirstCrewGuide();
  }catch(e){toast(e.message);if(btn){btn.disabled=false;btn.textContent='Enter Crew →'}}
 };
 function showStarterInvitePrompt(){
@@ -444,9 +499,9 @@ function showStarterInvitePrompt(){
   <button id="starterInviteLater" class="starterTextLink">I'll invite them later</button>
  </section>`;
  document.body.appendChild(overlay);
- overlay.querySelector('#starterInviteNow').addEventListener('click',()=>{overlay.remove();window._shareCrew()});
- overlay.querySelector('#starterInviteLater').addEventListener('click',()=>overlay.remove());
- overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove()});
+ overlay.querySelector('#starterInviteNow').addEventListener('click',()=>{overlay.remove();window._shareCrew();setTimeout(startFirstCrewGuide,1000)});
+ overlay.querySelector('#starterInviteLater').addEventListener('click',()=>{overlay.remove();startFirstCrewGuide()});
+ overlay.addEventListener('click',e=>{if(e.target===overlay){overlay.remove();startFirstCrewGuide()}});
 }
 
 function renderStart(){app.innerHTML=shell(`${top('')}<div class="hero"><span class="chip darkchip">YOUR PRIVATE CIRCLE</span><div class="sp18"></div><h1>Start with your people.</h1><p style="color:#cbc5d2;margin-top:9px">A Crew is your private friend group on Adda.</p></div><div class="sp18"></div><div class="card"><div class="field"><label>Your name</label><input id="name" maxlength="24" placeholder="e.g. Vijyant"></div><div class="sp12"></div><div class="field"><label>Name your Crew</label><input id="crewName" maxlength="42" placeholder="e.g. Weekend Crew"></div><div class="sp18"></div><button class="btn primary" onclick="window._createCrew()">Start Crew</button></div>`)}
