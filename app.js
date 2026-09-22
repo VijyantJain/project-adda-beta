@@ -98,7 +98,7 @@ window._go=s=>{track('screen_view',{screen:s});screen=s;stopPolling();render()};
 window._home=()=>{stopPolling();if(!getKnownCrews().length){screen='starter';renderStarter();starterController?.begin();return}crewId='';dropId='';crew=null;members=[];drops=[];pendingInvite=null;history.replaceState({},'','/');screen='home';render()};
 window._openCurrentCrew=()=>{if(crewId&&crew){screen='crew';render()}else{const first=getKnownCrews()[0];if(first)window._openKnownCrew(first.id);else{screen='start';render()}}};
 window._createAction=()=>{if(crewId&&crew){screen='create';render()}else if(!getKnownCrews().length){window._home()}else{screen='start';render()}};
-window._openKnownCrew=id=>{track('crew_opened',{targetCrewId:id});crewId=id;dropId='';history.replaceState({},'',`/?crew=${id}`);screen='boot';boot()};
+window._openKnownCrew=id=>{track('crew_opened',{targetCrewId:id});crewId=id;dropId='';history.replaceState({},'',`/?crew=${id}`);screen='boot';return boot()};
 function stopPolling(){clearTimeout(pollTimer);clearTimeout(chatTimer)}
 function schedulePoll(kind,fn,ms){
   const hiddenDelay=Math.max(ms,30000);
@@ -283,8 +283,17 @@ function renderProfile(){
  <div class="card"><h3>💾 Save progress across devices</h3><p class="sub" style="margin:9px 0">Your current test profile is tied to this browser. Verified email/phone signup and a globally unique @username will arrive with the account database; they are not active in this field test.</p></div>
  <div class="sp12"></div><button class="btn ghost" onclick="window._sharePublicProfile()">Share my Vibe profile</button>
  <div class="sp12"></div><button class="btn ghost" onclick="window._newCrew()">Start another Crew</button>
+ <div class="sp12"></div><button class="btn ghost" onclick="window._replayGuide()">⚡ Replay my welcome tour</button>
  <div class="sp12"></div><div class="card"><h3>Your Crews</h3><div class="sp12"></div>${crews.length?crews.map(c=>`<button class="settingsRow" onclick="window._openKnownCrew('${c.id}')"><span>👥 ${esc(c.name)}</span><b>›</b></button>`).join(''):'<p class="sub">No Crews yet.</p>'}</div>`)
 }
+window._replayGuide=async()=>{
+ const id=crewId||getKnownCrews()[0]?.id;if(!id)return toast('Join a Crew first');
+ localStorage.removeItem('addaGuideDone_'+id);localStorage.removeItem('addaGuideStarted_'+id);
+ localStorage.removeItem('addaPersonalGuideDone_'+pid);localStorage.removeItem('addaPersonalGuide_'+pid);
+ guide={active:false,step:0,answers:0,lastDrop:'',originCrewId:id,tour:0};
+ await window._openKnownCrew(id);
+ setTimeout(startFirstCrewGuide,350);
+};
 window._editProfile=()=>{
  const p=localProfile();
  app.innerHTML=shell(`${top('Edit profile','profile')}<main class="card addaProfileEditor">
@@ -563,7 +572,12 @@ function profileGuideStep(i){
  }
  if(i===1){
   guideDisplay('Say a little about yourself 💬','Write a short bio in the highlighted box. It is device-local until verified profiles are launched.','Write my bio →',()=>{
-   document.getElementById('addaEditBio')?.focus();setTimeout(()=>profileGuideStep(2),350)
+   document.getElementById('addaEditBio')?.focus();
+   if(!document.getElementById('addaBioNext')){
+    const btn=document.createElement('button');btn.className='btn ghost';btn.id='addaBioNext';btn.textContent='Continue to username →';
+    btn.addEventListener('click',()=>profileGuideStep(2));
+    document.getElementById('addaEditBio')?.insertAdjacentElement('afterend',btn);
+   }
   },'#addaEditBio');return
  }
  guideDisplay('Claim your future @name 👀','Pick a username draft; global uniqueness is NOT active in the browser-only beta. Enter it then Save changes.','Let me add my name →',()=>{
