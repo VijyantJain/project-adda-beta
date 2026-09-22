@@ -97,3 +97,5 @@ No midway Skip or outside-tap dismissal. Only one advertised coach-card action a
 Direct new users earn a personal Aura before they know Adda. Make Aura the next primary destination; optional Crew CTA. Invited users enter their actual shared Crew/Drop. Record solo-to-profile/social activation and do not conflate creator invitations with true personal value.
 ## D032 — Cold start requires a truthful independent personal loop
 Plan a finite, interest-led Daily Aura Deck after validating current activation; no fake members, manufactured vote percentages, fabricated scarcity, manipulative notification pressure or click-for-points farming. Distinguish current Starter from future daily repeat supply.
+
+**D029 implementation note:** Server-supplied historical Starter feedback, level names and badge display labels must use Aura too; numeric scores and stable old record identifiers are intentionally not migrated or reset.

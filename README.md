@@ -1,4 +1,4 @@
-# Project Adda — Living Beta (v0.7 preview)
+# Project Adda — Living Beta (v0.7.1 preview)
 
 Functional multi-user validation build for Project Adda. The current `v0.5-full-experience` branch holds the newer v0.7 guided onboarding and product architecture. `main` is the separate production line; do not assume it includes preview features.
 

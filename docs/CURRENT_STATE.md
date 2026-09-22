@@ -1,5 +1,5 @@
 # Project Adda — Current State
-Updated: 2026-09-22 · v0.6.1
+Updated: 2026-09-23 · v0.7.1 preview
 
 ## Active branch
 v0.5-full-experience
@@ -137,3 +137,5 @@ User-facing Aura name replaces Vibe without renaming historical API/event/storag
 Onboarding lock permits private interest-guide overlay interactions while blocking unrelated app taps. If a returning member/replay has fewer than two unanswered real Drops, the tour continues to five-tab navigation without inventing extra responses or trapping the user. Crew progress count remains alongside Answered/Your turn badge. Commit and mobile acceptance status must be verified independently.
 
 **v0.7.1 final interaction review:** Profile guide values are collected before modal replacement; canceling the native photo picker leaves avatar/default options active; strict interaction guard persists until the final Explore Adda action. Aura itself gives zero-Crew users a Personalize my Aura action. Emoji avatar can be changed later in the normal profile editor. Solo Aura opens have a founder dashboard count. Mobile E2E still pending.
+
+**Aura copy completeness:** new and legacy Starter visible feedback, Starter milestone 7 label and level 600 name also use Aura; the user-facing rename has no data/score/key migration. Existing users retain exact earned numeric points and badge thresholds.

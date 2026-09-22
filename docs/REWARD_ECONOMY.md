@@ -50,3 +50,6 @@ Free gift receipt-to-return, reciprocal action (not spam), DM/Drop continuation,
 Starter one-time rewards: SHIPPED in preview.
 Paid gifts: IDEA, not a locked feature or business model.
 Gift points both sides: HYPOTHESIS requiring abuse and economic design.
+
+## v0.7.1 visible Aura vocabulary
+The same earned numerical progression is now displayed as Aura Score, with milestone label Aura Builder and level label Aura Magnet. Preserve historical event and internal API names for compatibility. An Aura title is factual participation/game progression, not an inferred personality/mental-state verdict. No rewards may be manufactured from anonymous screen taps.

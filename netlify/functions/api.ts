@@ -43,7 +43,7 @@ const mediaMime=(key:string)=>key.endsWith(".webp")?"image/webp":key.endsWith(".
 const STARTER_DECK=[
  {id:"s1",type:"either",tag:"THIS OR THAT",icon:"🏖️",art:"travel",question:"Free trip tomorrow. Where are we going? 👀",options:["Beach 🏖️","Mountains 🏔️"],fact:"Travel mood unlocked: whichever you pick, the best trips are the ones you actually take."},
  {id:"s2",type:"rate",tag:"RATE",icon:"👖",art:"denim",question:"Rate the denim fit 🔥",options:["😬 Not for me","😕 Meh","🙂 Decent","😍 Love it","🔥 Obsessed"],fact:"Denim's signature blue is traditionally made using indigo dye."},
- {id:"s3",type:"vote",tag:"WOULD YOU?",icon:"🫣",art:"friends",question:"Would you tell your bestie their outfit is a miss? 😂",options:["Of course 😭","Maybe privately 👀","Never! 🤐"],fact:"There's no correct answer here—your pick is part of your Vibe."},
+ {id:"s3",type:"vote",tag:"WOULD YOU?",icon:"🫣",art:"friends",question:"Would you tell your bestie their outfit is a miss? 😂",options:["Of course 😭","Maybe privately 👀","Never! 🤐"],fact:"There's no correct answer here—your pick is part of your Aura."},
  {id:"s4",type:"vote",tag:"CREW CHAOS",icon:"🎧",art:"roadtrip",question:"Road trip! Who gets control of the aux? 🎶",options:["Me, obviously","The driver","The DJ friend","Pure shuffle"],fact:"The aux is shorthand for the auxiliary audio input—now it's also slang for playlist control."},
  {id:"s5",type:"predict",tag:"GUESS THE CROWD",icon:"☕",art:"chai",question:"Guess the crowd: chai or coffee? 🔮",options:["Chai ☕","Coffee ☕"],fact:"Tea and coffee both naturally contain caffeine, though amounts vary by drink."},
  {id:"s6",type:"either",tag:"THIS OR THAT",icon:"🌃",art:"night",question:"Perfect evening? ✨",options:["Rooftop hangout","Movie marathon"],fact:"A strong preference is a useful starting point for your next Crew plan."},
@@ -56,7 +56,7 @@ const STARTER_DECK=[
 const STARTER_V2_COMMON=[
  {id:"s1",type:"either",tag:"REALITY CHECK",icon:"😂",art:"friends",question:"‘We leave at 6 sharp.’ What time does your gang ACTUALLY leave?",options:["6:00. We are built different 😎","8:47 and someone's still showering 💀"],fact:"Group-plan punctuality is a surprisingly universal argument. Your Crew can settle it with an actual Drop."},
  {id:"s2",type:"rate",tag:"THE GROUP CHAT",icon:"🎤",art:"friends",question:"Rate a NINE-MINUTE voice note that starts with ‘Bro, listen...’",options:["😬 Blocked","😕 At 2× speed","🙂 Okay fine","😍 Tell me EVERYTHING","🔥 Put it on Spotify"],fact:"Audio messages help people share tone, but text can be easier to skim in a hurry."},
- {id:"s3",type:"vote",tag:"NOBODY IS INNOCENT",icon:"📱",art:"friends",question:"Phone at 2%. Cab arriving in 5 min. Your move?",options:["Screenshot the OTP","Charge for 30 seconds","Ask the gang to call","Manifest battery 🔋"],fact:"Planning under pressure feels different for every person. There is no right answer to your Vibe."},
+ {id:"s3",type:"vote",tag:"NOBODY IS INNOCENT",icon:"📱",art:"friends",question:"Phone at 2%. Cab arriving in 5 min. Your move?",options:["Screenshot the OTP","Charge for 30 seconds","Ask the gang to call","Manifest battery 🔋"],fact:"Planning under pressure feels different for every person. There is no right answer to your Aura."},
  {id:"s4",type:"either",tag:"TOO REAL",icon:"🍕",art:"chai",question:"Your mates say ‘Let's split the bill equally’ but you ordered...",options:["One chai. JUST ONE. 😭","The entire menu 😌"],fact:"The bill-splitting dilemma gets funnier when friends have wildly different orders."},
  {id:"s5",type:"vote",tag:"DANGEROUS WORDS",icon:"👀",art:"roadtrip",question:"Which group-chat message is the BIGGEST red flag?",options:["‘On my way’ 🚿","‘We should plan something’","‘Quick question…’","‘I have news’ 🫢"],fact:"Tiny phrases can become giant inside jokes; the best Crew Drops often start with one."},
  {id:"s6",type:"vote",tag:"MAKE IT YOURS",icon:"⚡",art:"friends",question:"Your next two Drops should match YOUR vibe. Pick one:",options:["Wheels & rides 🏍️","Fashion & looks ✨","Music & concerts 🎧","Food & cafés 🍕","Travel & escapes 🏖️","Memes & chaos 😂","Sports & fitness 🏏"],fact:"Your choice tunes only your private warm-up. Shared Crew Drops remain the same for everyone."}
@@ -100,7 +100,7 @@ const STARTER_MILESTONES=[
  {at:2,name:"Quick Starter",icon:"🎯",text:"You're finding your rhythm."},
  {at:3,name:"On a Roll",icon:"🔥",text:"Three down—you're rolling."},
  {at:5,name:"First Five",icon:"🏆",text:"Your first Adda trophy is yours."},
- {at:7,name:"Vibe Builder",icon:"💜",text:"The bonus round is heating up."},
+ {at:7,name:"Aura Builder",icon:"💜",text:"The bonus round is heating up."},
  {at:10,name:"Tenacious",icon:"👑",text:"You cleared the entire Starter Deck."}
 ];
 function starterPayload(state:any){
@@ -517,7 +517,7 @@ export default async (req: Request, context: Context) => {
       if(!state.answers||typeof state.answers!=="object")state.answers={};
       const deck=activeStarterDeck(state),q=deck.find((x:any)=>x.id===questionId);if(!q)return bad("Question not found.",404);
       if(!q.options.includes(answer))return bad("Choose one of the shown answers.");
-      // Only the first answer earns progress. Retries cannot farm Vibe.
+      // Only the first answer earns progress. Retries cannot farm Aura.
       if(state.answers[questionId]!==undefined){
         return ok({...starterPayload(state),alreadyAnswered:true,feedback:q.fact,justUnlocked:null,earnedPoints:0});
       }
@@ -887,7 +887,7 @@ export default async (req: Request, context: Context) => {
         {min:100,name:"Glow Up",icon:"🌈"},
         {min:150,name:"Buzz",icon:"⚡"},
         {min:300,name:"Main Character",icon:"😎"},
-        {min:600,name:"Vibe Magnet",icon:"🧲"},
+        {min:600,name:"Aura Magnet",icon:"🧲"},
         {min:1000,name:"Adda Icon",icon:"👑"},
         {min:2000,name:"Legend",icon:"🏆"}
       ];
