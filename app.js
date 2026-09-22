@@ -512,6 +512,77 @@ function guideAfterAnswer(){
  },'.appStickyHeader')
 }
 
+
+function guideAward(step){
+ api('guideStep',{method:'POST',body:{participantId:pid,step,crewId:guide.originCrewId}})
+ .then(r=>{if(r.earnedPoints)toast('⚡ +'+r.earnedPoints+' Vibe')})
+ .catch(e=>console.warn('guide points',e.message))
+}
+function startFiveTabTour(){guide.tour=1;track('guide_five_tabs_started',{crewId:guide.originCrewId});tourStep(0)}
+function tourStep(i){
+ if(!guideActive())return;
+ guide.tour=i+1;guide.step=4+i;
+ if(i===0){dropId='';window._home()}
+ if(i===1)window._openKnownCrew(guide.originCrewId);
+ if(i===2)window._createAction();
+ if(i===3)window._go('vibe');
+ if(i===4)window._go('profile');
+ const steps=[
+ ['Home 🏠','Your base: saved Crews, your Vibe and things waiting for you.','Open Crew →','tour_home'],
+ ['Crew 👥','Your private circle: shared Drops, chat, mates and recap.','Explore Create →','tour_crew'],
+ ['Create +','This is how you start new Drops. Try later—you do not need to publish during a tour.','See my Vibe →','tour_create'],
+ ['Vibe ✨','Your earned level, trophies, streak and personal show-off space.','Visit Profile →','tour_vibe'],
+ ['Profile ☺','Your face, name, bio, preferences and eventually your verified account.','Make it mine →','tour_profile']
+ ];
+ const show=(tries=0)=>{
+  if(!guideActive()||guide.tour!==i+1)return;
+  if(i===1&&screen!=='crew'&&tries<18){setTimeout(()=>show(tries+1),160);return}
+  const [title,body,cta,step]=steps[i];
+  track('guide_tab_seen',{tab:step.slice(5),step:i+1});
+  guideDisplay(title,body,cta,()=>{
+   guideAward(step);
+   if(i===4){window._editProfile();setTimeout(()=>profileGuideStep(0),180)}
+   else tourStep(i+1)
+  },'.nav5 button:nth-child('+(i+1)+')');
+ };
+ setTimeout(()=>show(),i===1?230:110);
+}
+function profileGuideStep(i){
+ if(!guideActive())return;
+ guide.step=9+i;guide.profileStage=i;
+ if(i===0){
+  guideDisplay('Put a face to your Vibe 📸','Choose a profile photo if you want. We never open your camera or gallery without your tap.','Choose photo →',()=>document.getElementById('addaPhotoFile')?.click(),'.addaPhotoPick');
+  const b=document.createElement('button');b.className='addaGuideSkip';b.textContent='Skip photo for now →';
+  b.addEventListener('click',()=>{removeGuide();profileGuideStep(1)});
+  document.querySelector('.addaGuideCard')?.appendChild(b);return
+ }
+ if(i===1){
+  guideDisplay('Say a little about yourself 💬','Write a short bio in the highlighted box. It is device-local until verified profiles are launched.','Write my bio →',()=>{
+   document.getElementById('addaEditBio')?.focus();setTimeout(()=>profileGuideStep(2),350)
+  },'#addaEditBio');return
+ }
+ guideDisplay('Claim your future @name 👀','Pick a username draft; global uniqueness is NOT active in the browser-only beta. Enter it then Save changes.','Let me add my name →',()=>{
+  document.getElementById('addaEditHandle')?.focus();
+  guide.step=12;
+  guideDisplay('Finish your profile 💜','After entering your username draft, tap Save. Verified OTP will be the last mission only after real Auth is connected.','I will save now →',()=>document.getElementById('addaEditHandle')?.focus(),'.addaProfileSave')
+ },'#addaEditHandle')
+}
+function guideProfileSaved(p){
+ if(!guideActive()||guide.tour!==5)return;
+ if(p.bio)guideAward('profile_bio');
+ if(p.avatar)guideAward('profile_photo');
+ if(p.handleDraft)guideAward('profile_handle_draft');
+ const id=guide.originCrewId;
+ guide.active=false;localStorage.setItem('addaGuideTourDone_'+pid,'1');
+ localStorage.setItem('addaGuideAuthStatus_'+pid,'awaiting_provider');
+ track('guide_profile_ready',{hasPhoto:!!p.avatar,hasBio:!!p.bio,hasHandleDraft:!!p.handleDraft});
+ setTimeout(()=>{
+  guideDisplay('Your Vibe is taking shape 🏆','Your beta profile is saved on this device. Verified email/mobile OTP, global username and cross-device recovery need our account service. Play on in the meantime.','Explore Adda →',()=>{
+   localStorage.setItem('addaGuideDone_'+id,'1');removeGuide();track('guide_beta_handoff',{authStatus:'awaiting_provider'})
+  },'.profileCard')
+ },160)
+}
+
 function renderInvitedName(){
  if(!pendingInvite)return window._home();
  app.innerHTML=shell(`${top('')}<main class="starterInvitedName">
