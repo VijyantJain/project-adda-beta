@@ -27,9 +27,9 @@ export function createStarterController(c){
     if(!state){
       const v=invite();
       app.innerHTML=shell(`${head()}<section class="starterIntro">
-        <span class="starterKicker">${v?'WELCOME TO '+esc(v.crewName).toUpperCase():'PLAY FIRST · CREW LATER'}</span>
-        <h1>${v?'Your mates are waiting. 👀':'5 quick ones.<br><em>Find your Vibe.</em>'}</h1>
-        <p>${v?'You’re in the Crew! Warm up with 5 quick choices, collect your first trophy, then jump into '+esc(v.crewName)+'.':'Pick, rate, guess, laugh. Earn your first trophy before inviting anyone.'}</p>
+        <span class="starterKicker">PLAY FIRST · CREW LATER</span>
+        <h1>5 quick ones.<br><em>Find your Vibe.</em></h1>
+        <p>Pick, rate, guess, laugh. Earn your first trophy before inviting anyone.${v?'<br><b>'+esc(v.crewName)+' is waiting for you after the warm-up. 👀</b>':''}</p>
         <div class="starterIntroOrbs">🏖️ 👖 ☕ 🎧 🔥</div>
         <button class="btn starterCTA" onclick="window._starterBegin()">Play my First Five →</button>
         <small>No login · No permissions · About a minute</small></section>`,false);
@@ -56,7 +56,7 @@ export function createStarterController(c){
     app.innerHTML=shell(`${head()}<div class="starterLoading">⚡<h2>Getting your Vibe ready…</h2></div>`,false);
     try{
       state=await api('starterGet',{params:{participantId:pid}});
-      if(state.firstFiveCompleted)onCompleted?.(state);
+      if(state.bonusCompleted)onCompleted?.(state);
       mode=state.firstFiveCompleted?'finish':'play';render();
     }catch(e){
       app.innerHTML=shell(`${head()}<div class="starterLoading"><h2>Couldn’t load your Vibe Run.</h2><p>${esc(e.message)}</p><button class="btn primary" onclick="window._starterBegin()">Retry</button></div>`,false);
@@ -69,7 +69,7 @@ export function createStarterController(c){
     const label=document.getElementById('starterSaving');if(label)label.textContent='Saving your choice…';
     try{
       const r=await api('starterAnswer',{method:'POST',body:{participantId:pid,questionId:q.id,answer}});
-      state=r;feedback=r;if(state.firstFiveCompleted)onCompleted?.(state);showFeedback();
+      state=r;feedback=r;if(state.bonusCompleted)onCompleted?.(state);showFeedback();
     }catch(e){toast(e.message);render()}finally{busy=false}
   }
   function showFeedback(){
@@ -101,18 +101,18 @@ export function createStarterController(c){
         <span class="starterCollectionTitle">🏆 YOUR STARTER ACHIEVEMENTS · ${medals.length}/6</span>
         <div class="starterMedals">${medals.map(m=>`<span>${esc(m.icon)} ${esc(m.name)}</span>`).join('')}</div>
         <p class="starterFutureHint">${v?'Your next adventure is waiting inside '+esc(v.crewName)+'.':"That was the warm-up. Now discover what your own friends would choose."}</p>
-        <button class="btn starterCTA starterFinalCTA" onclick="window._starterPrimary()">${v?'Enter '+esc(v.crewName)+' →':hasCrew?'Enter my Crew →':bonus?'Start my own Crew →':'Keep playing · Bonus Five →'}</button>
-        ${!bonus&&!hasCrew?`<button class="starterTextLink" onclick="window._starterSkipBonus()">${v?'Jump into '+esc(v.crewName)+' now':'Start my own Crew now'} →</button>`:''}
+        <button class="btn starterCTA starterFinalCTA" onclick="window._starterPrimary()">${!bonus?'Play my next Five →':v?'Enter '+esc(v.crewName)+' →':hasCrew?'Enter my Crew →':'Start my own Crew →'}</button>
+        
       </section>
     </main>`,false);
   }
   function primary(){
+    if(!state?.bonusCompleted){mode='play';render();return;}
     if(invite())return onEnterInvite();
     if(state?.starterCrewId)return onEnterExistingCrew?.(state.starterCrewId);
-    if(state?.bonusCompleted)return showCrewForm();
-    mode='play';render();
+    return showCrewForm();
   }
-  function skipBonus(){if(invite())return onEnterInvite();showCrewForm()}
+  function skipBonus(){mode='play';render()}
   function showCrewForm(){
     mode='create';
     app.innerHTML=shell(`${head()}<main class="starterCreateV2">
