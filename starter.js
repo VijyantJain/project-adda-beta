@@ -29,7 +29,7 @@ export function createStarterController(c){
       app.innerHTML=shell(`${head()}<section class="starterIntro">
         <span class="starterKicker">PLAY FIRST · CREW LATER</span>
         <h1>5 quick ones.<br><em>Find your Vibe.</em></h1>
-        <p>Pick, rate, guess, laugh. Earn your first trophy before inviting anyone.${v?'<br><b>'+esc(v.crewName)+' is waiting for you after the warm-up. 👀</b>':''}</p>
+        <p>Pick, rate, guess, laugh. Earn your first trophy before inviting anyone.</p>
         <div class="starterIntroOrbs">🏖️ 👖 ☕ 🎧 🔥</div>
         <button class="btn starterCTA" onclick="window._starterBegin()">Play my First Five →</button>
         <small>No login · No permissions · About a minute</small></section>`,false);
