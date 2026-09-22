@@ -202,6 +202,15 @@ function renderDashboard(){
       ]):''}
       ${founderDeepDive()}
       ${funnelHtml(s.funnel)}
+      ${barList('Guided Crew onboarding',[
+        {label:'Tour started',count:D.eventCounts?.crew_guide_started||0},
+        {label:'First guided answer',count:(D.recentEvents||[]).filter(e=>e.event==='crew_guide_answered'&&e.meta?.number===1).length},
+        {label:'Second guided answer',count:(D.recentEvents||[]).filter(e=>e.event==='crew_guide_answered'&&e.meta?.number===2).length},
+        {label:'Tour completed',count:D.eventCounts?.crew_guide_completed||0},
+        {label:'Tour skipped',count:D.eventCounts?.crew_guide_skipped||0},
+        {label:'Invite prompt shown',count:D.eventCounts?.starter_invite_prompt_shown||0},
+        {label:'Invite share launched',count:D.eventCounts?.starter_invite_share_opened||0}
+      ])}
       ${dailyHtml(D.daily)}
       ${barList('Top cities',b.cities)}
       ${barList('Countries',b.countries)}
