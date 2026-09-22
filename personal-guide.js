@@ -12,20 +12,21 @@ const packs={
 };
 const styleVariant={man:["Your entrance? More aura? 👀",["Sharp tailored look","Streetwear, sneakers & shades"]],woman:["Your night-out mood? ✨",["Statement sparkle","Chic & classy"]]};
 const key="addaPersonalGuide_"+pid,done="addaPersonalGuideDone_"+pid;
-let interest="",gender="",index=0,answers=[],busy=false;
+let interest="",gender="",index=0,answers=[],busy=false,confirmed=false;
 const load=()=>{try{return JSON.parse(localStorage.getItem(key)||"{}")}catch{return {}}};
-const save=()=>localStorage.setItem(key,JSON.stringify({interest,gender,index,answers}));
+const save=()=>localStorage.setItem(key,JSON.stringify({interest,gender,index,answers,confirmed}));
 function overlay(html){document.querySelector(".addaPersonalOverlay")?.remove();const o=document.createElement("div");o.className="addaPersonalOverlay";o.setAttribute("role","dialog");o.setAttribute("aria-label","Your personal Vibe");o.innerHTML='<main class="addaPersonalStage">'+html+"</main>";document.body.appendChild(o)}
 function finish(){
  const p=getProfile();p.interest=interest;p.gender=gender;p.privateVibePicks=answers;saveProfile(p);localStorage.setItem(done,"1");
  document.querySelector(".addaPersonalOverlay")?.remove();track("personal_guide_completed",{interest});onDone();
 }
 function render(){
- if(!interest){
-  overlay('<span class="starterKicker">PICK YOUR VIBE 💜</span><h1>What do YOU like?</h1><p>These next two picks are private and won’t change your Crew mates’ shared Drops.</p><div class="addaInterestGrid">'+Object.entries(packs).map(([id,p])=>'<button class="addaInterestPick" data-pack="'+id+'"><span>'+p.emoji+'</span><b>'+esc(p.name)+'</b></button>').join("")+'</div><div class="field"><label>Gender (optional and private)</label><select id="personalGender"><option value="">Prefer not to say</option><option value="man">Man</option><option value="woman">Woman</option><option value="nonbinary">Nonbinary / another identity</option></select></div><p class="sub">Interests decide the card pack. Gender never blocks an interest.</p><button class="starterTextLink" id="surpriseMe">Surprise me instead →</button>');
+ if(!confirmed){
+  overlay('<span class="starterKicker">PICK YOUR VIBE 💜</span><h1>What do YOU like?</h1><p>These next two picks are private and won’t change your Crew mates’ shared Drops.</p><div class="addaInterestGrid">'+Object.entries(packs).map(([id,p])=>'<button class="addaInterestPick '+(interest===id?'selected':'')+'" data-pack="'+id+'"><span>'+p.emoji+'</span><b>'+esc(p.name)+'</b></button>').join("")+'</div><div class="field"><label>Gender (optional and private)</label><select id="personalGender"><option value="">Prefer not to say</option><option value="man">Man</option><option value="woman">Woman</option><option value="nonbinary">Nonbinary / another identity</option></select></div><p class="sub">Interests decide the card pack. Gender never blocks an interest.</p><button class="starterTextLink" id="surpriseMe">Surprise me instead →</button>');
   document.getElementById("personalGender").value=gender;
-  document.querySelectorAll("[data-pack]").forEach(b=>b.addEventListener("click",()=>{interest=b.dataset.pack;gender=document.getElementById("personalGender").value;save();track("personal_pack_selected",{interest});render()}));
-  document.getElementById("surpriseMe").addEventListener("click",()=>{interest="memes";gender="";save();track("personal_pack_skipped",{});render()});return;
+ const go=document.createElement("button");go.id="personalStart";go.className="btn starterCTA";go.textContent="Start my private picks →";go.disabled=!interest;document.querySelector(".addaPersonalStage")?.appendChild(go);go.addEventListener("click",()=>{gender=document.getElementById("personalGender").value;confirmed=true;save();track("personal_pack_selected",{interest});render()});
+  document.querySelectorAll("[data-pack]").forEach(b=>b.addEventListener("click",()=>{interest=b.dataset.pack;gender=document.getElementById("personalGender").value;save();render()}));
+  document.getElementById("surpriseMe").addEventListener("click",()=>{interest="memes";gender="";confirmed=true;save();track("personal_pack_skipped",{});render()});return;
  }
  const p=packs[interest],d=interest==="style"&&index===0&&styleVariant[gender]?styleVariant[gender]:p.q[index];
  overlay('<span class="starterKicker">JUST FOR YOU · '+(index+1)+'/2</span><div class="addaPrivateMedia"><img src="/starter-'+p.art+'.svg" alt=""><span>'+p.emoji+'</span></div><h1>'+esc(d[0])+'</h1><p>Your personal picks stay outside shared Crew results.</p><div class="starterChoices">'+d[1].map((x,i)=>'<button class="starterChoice" data-choice="'+i+'"><span class="choiceIndex">'+(i+1)+'</span><b>'+esc(x)+'</b><span>↗</span></button>').join("")+'</div><div id="personalStatus" aria-live="polite"></div>');
@@ -40,6 +41,6 @@ function render(){
   }catch(e){toast(e.message);render()}finally{busy=false}
  }));
 }
-function start(){if(localStorage.getItem(done)==="1"){onDone();return}const st=load();interest=packs[st.interest]?st.interest:"";gender=st.gender||"";index=st.index||0;answers=st.answers||[];if(index>=2){finish();return}track("personal_guide_started",{});render()}
+function start(){if(localStorage.getItem(done)==="1"){onDone();return}const st=load();interest=packs[st.interest]?st.interest:(packs[localStorage.getItem("addaStarterInterest")]?localStorage.getItem("addaStarterInterest"):"");gender=st.gender||"";index=st.index||0;answers=st.answers||[];confirmed=!!st.confirmed||index>0;if(index>=2){finish();return}track("personal_guide_started",{});render()}
 return{start}
 }
