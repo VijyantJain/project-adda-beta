@@ -113,3 +113,7 @@ Read FIRST_FIVE_VIBE_RUN.md for the actual two new-user journeys, exact screensh
 
 ## Latest 2026-09-22 continuation checkpoint
 Current branch v0.5-full-experience has newer v0.6.2 preview than production main. Source ZIP can be downloaded from https://github.com/VijyantJain/project-adda-beta/archive/refs/heads/v0.5-full-experience.zip. FIRST_FIVE_VIBE_RUN.md, ANALYTICS_V2.md and TECHNOLOGY_MIGRATION_PLAN.md are canonical for recent onboarding/analytics/hosting decisions. No Supabase projects were present in connected account at last check. Existing Netlify field-test Blob store must never be cleared or renamed. Per-device DP/name/bio editor is beta only; real OTP/signup not yet shipped.
+
+
+## Latest v0.7 preview checkpoint
+Start with docs/FEATURE_SPEC_CHECKLIST.md (99 stable IDs), docs/ONBOARDING_M07_SRS.md (current guided code vs blocked Auth), docs/CONTENT_ASSET_REGISTRY.md (Starter v2 + outstanding real-image work), docs/CURRENT_STATE.md (actual release), docs/DECISIONS.md (versioning/gender/invite rationale), docs/ROADMAP.md (gates). Branch v0.5-full-experience remains preview, not main. Download complete source/assets ZIP from https://github.com/VijyantJain/project-adda-beta/archive/refs/heads/v0.5-full-experience.zip. New photo/media assets may be incomplete; don't state world-class final photographic visuals are ready while D-020 open. Connected Supabase has no project/provider configured at last check, so verified OTP is blocked.

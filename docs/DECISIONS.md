@@ -75,3 +75,16 @@ Ashburn/USA/Linux is not independently a bot/internal marker. Track automation U
 
 ## D024 — Profile beta versus verified identity
 A functioning browser-local name/bio/DP editor may ship now, prominently labeled device-only. Never claim working email/mobile OTP, global username availability or cross-device sync without actual configured backend/Auth/SMS/email provider and migration.
+
+
+## D025 — Version starter deck, never overwrite prior participants
+New Starter records deckVersion=v2 with 6 common + 2 selected-interest + 2 common content; v1 answers keep original 10 questions. Points and six achievements remain consistent. Changing content for in-progress records requires new versioned deck, not in-place reassignment.
+
+## D026 — Private interest-led guide and optional gender
+Interest pack explicit and selectable by everyone. Gender optional/private as SECONDARY tone for requested selected interest; no exclusive gender access or inference. Two guided interest questions are personal, not added to common Crew Drop inventory/reveals/Recap. All Crew members retain five shared seed Drops.
+
+## D027 — Complete five-tab + profile guide after two real Crew answers
+Ordered Home → Crew → + Create → Vibe → Profile coach marks and real screen navigation. Profile photo optional, bio, username draft; no fake uniqueness claims. Preserve opt-out/replay, guide progress and no repeated server points on retries.
+
+## D028 — OTP is an actual deployment gate
+The user-approved end-state is guided email/mobile OTP through authenticated account creation. Current beta cannot complete that step without provider, SMS/email service and DB. Mark guide as awaiting_provider rather than falsely claiming verification; users stay able to play and return. Never silently treat localStorage as a verified identity.

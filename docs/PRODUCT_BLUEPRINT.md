@@ -332,3 +332,9 @@ Two different first-time cohorts now share one reward engine. Direct visitor pla
 Current Home is a genuine personalized Crews/Vibe dashboard, not a fake public feed. Future Home “For You” mixes real replies, friends' Crews/Moments, next personal mission and selected Arena recommendations, while Arena remains its own rolling public content/discovery surface.
 
 Account/auth/profile/contact progression is documented in ONBOARDING_IDENTITY_CONTACTS.md. Real email/mobile OTP, unique @handle, photo, bio and contact sync are not shipped in Netlify field test; they need identity/auth/permissions and privacy work in M1+.
+
+
+## M0.7 first-use guide / content experiment
+New browser v2 Starter cards use six mass-relatable questions including explicit interest selection, then two cards drawn from one of seven private interest packs, then two universal identity/crew cards; legacy v1 unchanged. After first Crew entry, two more PRIVATE preference picks, two real SHARED Crew answers, sequential coach marks across Home/Crew/+/Vibe/Profile and guided local profile. Full guided signup is the future end-state and remains awaiting real OTP/provider.
+Gender is optional secondary input for user-selected content, never a proxy for inferred interests or a barrier. All private picks stay outside Crew aggregates; common shared Crew Drops and results are the same for all its mates. Continue reward loop on genuine progress, one-time server-side points, explicit user choice and reasonable skip controls.
+See FEATURE_SPEC_CHECKLIST.md and ONBOARDING_M07_SRS.md.

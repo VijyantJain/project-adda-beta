@@ -119,3 +119,13 @@ After milestone 5/10, neon trophy plays in full-viewport splash with tap-to-dism
 - Private founder analytics v2 adds traffic-quality signals, D1/D7 eligible cohorts, direct/invited entry segments, First Five completion, first-answer latency, errors by message, source/paths/screens/hourly, engagement and active respondents. Analytics v2 dictionary: docs/ANALYTICS_V2.md.
 - Screenshot-only USA/Ashburn/Linux signals do not establish Netlify internals or unique US humans. These rows are retained; only explicit automation UA/missing-browser heuristics flagged for review.
 - No existing Crew/Drop/response/chat/media data reset. Current branch differs from main; PREVIEW only. Source ZIP: GitHub branch archive; see docs/TECHNOLOGY_MIGRATION_PLAN.md.
+
+
+## M0.7 preview — CURRENT (2026-09-22)
+- New browser starters use versioned v2 quirky content: six universal questions with s6 explicit interest choice, two interest-led private personalized Starter questions, and two final universal cards. Exact old v1 starter records continue their old questions and awards unchanged; no original Crew data reset.
+- First-time Crew guide now begins with optional gender + interest confirmation and two PRIVATE interest-led questions worth 10+15 one-time server Vibe, then two ACTUAL shared Crew Drop answers, then spotlight walkthrough left-to-right of Home, Crew, +, Vibe, Profile. Profile coach marks guide optional photo, bio and username draft; no fake global username availability.
+- Guide points have separate additive guide/v1/<pid> backend ledger; retry returns zero additional earned points. Five-tab tour state and Crew two-answer progress resume after browser refresh; Profile offers replay without duplicating points.
+- Browser-local profile supports name, bio, locally compressed DP, username draft, interests and optional private gender. Initial s6 interest is preselected when Crew personal guide begins. No gender-only exclusion; different user's private cards never fragment common shared Crew results.
+- Real OTP signup / verified account / public DP & username availability **NOT deployed** because no configured Supabase Auth and delivery provider/project. The guided beta ends its currently available steps as awaiting_provider, not OTP verified; app remains usable.
+- Starter art remains five original bundled SVG illustrations plus user-supplied neon trophy. Premium realistic/licensed image and motion library is an OPEN design/asset acceptance item; do not claim it is produced.
+- Full canonical 99-item ledger docs/FEATURE_SPEC_CHECKLIST.md; feature-specific implementation SRS docs/ONBOARDING_M07_SRS.md and asset docs/CONTENT_ASSET_REGISTRY.md. Preview branch only; real iPhone/Android test required before wider sharing.

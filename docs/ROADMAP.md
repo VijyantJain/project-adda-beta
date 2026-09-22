@@ -155,3 +155,9 @@ Real email + phone OTP (configured Supabase/email/SMS provider), verified profil
 - Analytics v2 as decision room (direct vs invited, eligible D1/D7, quality, detailed event/screen/error panels).
 - Device-local profile editor tested; M1 is verified OTP and stable profiles.
 - Professional domain on a stable production build before wider field-test invitations; Cloudflare Pages + Supabase staged migration after freeze/backup, not a blind hosting switch.
+
+
+## M0.7 — Guided and personal activation (preview; device QA pending)
+Implemented preview: versioned ten-card Starter v2, interest-selected cards, seven private interest packs, optional gender secondary, two private guided cards, one-time guided Vibe, two real Crew replies, all five-tab tour, local photo/bio/username draft setup, tour replay/resume and activation instrumentation.
+Open before campaign freeze: photorealistic/high-quality original licensed content for ten common and fourteen pack variants, real mobile/in-app WhatsApp acceptance, ensure all guided highlight actions & forms on iOS/Android, accessibility/motion review.
+Infrastructure-blocked: real email/mobile OTP, globally unique @handle availability, public/synced DP/bio, provider-backed friend discovery. See ONBOARDING_M07_SRS, CONTENT_ASSET_REGISTRY, FEATURE_SPEC_CHECKLIST.
