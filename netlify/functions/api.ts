@@ -52,6 +52,49 @@ const STARTER_DECK=[
  {id:"s9",type:"either",tag:"THIS OR THAT",icon:"🌦️",art:"travel",question:"Weekend mood?",options:["Rain + chai","Sun + road trip"],fact:"Neither side wins—it's your taste, and that's what makes comparison fun."},
  {id:"s10",type:"vote",tag:"CREW CHAOS",icon:"🏆",art:"friends",question:"You can pick ONE superpower for your Crew:",options:["Everyone on time","Endless holiday budget","No group-chat ghosting","Always agree on food"],fact:"You finished ten real choices. Bring your friends and see where they disagree."}
 ];
+// Versioned Starter content; existing in-flight v1 answers are not rewritten.
+const STARTER_V2_COMMON=[
+ {id:"s1",type:"either",tag:"REALITY CHECK",icon:"😂",art:"friends",question:"‘We leave at 6 sharp.’ What time does your gang ACTUALLY leave?",options:["6:00. We are built different 😎","8:47 and someone's still showering 💀"],fact:"Group-plan punctuality is a surprisingly universal argument. Your Crew can settle it with an actual Drop."},
+ {id:"s2",type:"rate",tag:"THE GROUP CHAT",icon:"🎤",art:"friends",question:"Rate a NINE-MINUTE voice note that starts with ‘Bro, listen...’",options:["😬 Blocked","😕 At 2× speed","🙂 Okay fine","😍 Tell me EVERYTHING","🔥 Put it on Spotify"],fact:"Audio messages help people share tone, but text can be easier to skim in a hurry."},
+ {id:"s3",type:"vote",tag:"NOBODY IS INNOCENT",icon:"📱",art:"friends",question:"Phone at 2%. Cab arriving in 5 min. Your move?",options:["Screenshot the OTP","Charge for 30 seconds","Ask the gang to call","Manifest battery 🔋"],fact:"Planning under pressure feels different for every person. There is no right answer to your Vibe."},
+ {id:"s4",type:"either",tag:"TOO REAL",icon:"🍕",art:"chai",question:"Your mates say ‘Let's split the bill equally’ but you ordered...",options:["One chai. JUST ONE. 😭","The entire menu 😌"],fact:"The bill-splitting dilemma gets funnier when friends have wildly different orders."},
+ {id:"s5",type:"vote",tag:"DANGEROUS WORDS",icon:"👀",art:"roadtrip",question:"Which group-chat message is the BIGGEST red flag?",options:["‘On my way’ 🚿","‘We should plan something’","‘Quick question…’","‘I have news’ 🫢"],fact:"Tiny phrases can become giant inside jokes; the best Crew Drops often start with one."},
+ {id:"s6",type:"vote",tag:"MAKE IT YOURS",icon:"⚡",art:"friends",question:"Your next two Drops should match YOUR vibe. Pick one:",options:["Wheels & rides 🏍️","Fashion & looks ✨","Music & concerts 🎧","Food & cafés 🍕","Travel & escapes 🏖️","Memes & chaos 😂","Sports & fitness 🏏"],fact:"Your choice tunes only your private warm-up. Shared Crew Drops remain the same for everyone."}
+];
+const STARTER_V2_INTERESTS:any={
+ "Wheels & rides 🏍️":[
+  {id:"s7",type:"either",tag:"WHEELS",icon:"🏍️",art:"roadtrip",question:"Two keys. ONE dream ride. Which are you taking?",options:["Full-send sportbike 🏍️","Cruiser, leather & sunsets 🛣️"],fact:"Sportbikes emphasize agility and performance; cruisers generally emphasize relaxed riding."},
+  {id:"s8",type:"vote",tag:"ROAD TRIP",icon:"🚗",art:"roadtrip",question:"The gang leaves tomorrow. What's YOUR job?",options:["Driver/AUX dictator","Snack manager","The lost navigator","I packed three fits"],fact:"Pick a Crew road-trip Drop next and find out whose actual role matches yours."}],
+ "Fashion & looks ✨":[
+  {id:"s7",type:"either",tag:"STYLE BATTLE",icon:"💅",art:"denim",question:"You walk in and everybody turns. Which LOOK are you?",options:["Bold glam + statement pieces ✨","Quiet luxury + clean tailoring 🖤"],fact:"Personal style is not a gender rule. It's how you choose to present yourself."},
+  {id:"s8",type:"rate",tag:"OUTFIT CHECK",icon:"👟",art:"denim",question:"Rate the idea: dressing up JUST for a coffee run.",options:["😬 No way","😕 A little much","🙂 Cute","😍 Of course","🔥 It's my runway"],fact:"Style is subjective—your friends may rate the same outfit very differently."}],
+ "Music & concerts 🎧":[
+  {id:"s7",type:"either",tag:"AUX WARS",icon:"🎤",art:"friends",question:"ONE concert ticket. Where's the better night?",options:["Front-row chaos 🔥","Intimate rooftop gig 🌃"],fact:"Big crowds and tiny venues create very different kinds of energy."},
+  {id:"s8",type:"vote",tag:"EXPOSED",icon:"🎧",art:"friends",question:"Your most criminal AUX habit?",options:["Same track, 9 times","Skip everyone else's song","Playlist named ‘Untitled’","Only sad songs at parties"],fact:"A playlist is a great way to start a Crew argument without taking it seriously."}],
+ "Food & cafés 🍕":[
+  {id:"s7",type:"either",tag:"MIDNIGHT HUNGER",icon:"🍕",art:"chai",question:"It's 12:45 AM. The gang is hungry. Where to?",options:["Street-food mission 🌮","Dessert café, maximum gossip 🍰"],fact:"A simple food poll makes an easy first Crew Plan."},
+  {id:"s8",type:"rate",tag:"FRIENDSHIP TEST",icon:"🍟",art:"chai",question:"Rate someone who steals your LAST fry.",options:["😬 Criminal","😕 Rude","🙂 One is fine","😍 Take it","🔥 I'd buy them more"],fact:"Snack preferences can be surprisingly good inside-joke material."}],
+ "Travel & escapes 🏖️":[
+  {id:"s7",type:"either",tag:"JUST PACK",icon:"🌊",art:"travel",question:"48 hours free. ZERO itinerary. You choose...",options:["Mountains & mist 🏔️","Beach & night sky 🏝️"],fact:"The trip that actually happens beats the perfect plan stuck in chat."},
+  {id:"s8",type:"vote",tag:"GROUP TRIP",icon:"🧳",art:"travel",question:"Your role on a group holiday?",options:["Excel sheet boss","Late packer","Photos or it didn't happen","I book the food"],fact:"Plans can bring these real roles into your private Crew."}],
+ "Memes & chaos 😂":[
+  {id:"s7",type:"vote",tag:"CHAT CRIMES",icon:"🫣",art:"friends",question:"When the chat gets serious, YOU...",options:["Drop the worst meme","Disappear 🫥","Send a 12-min voice note","Change the topic"],fact:"Group humor is often context: the same meme is funnier when your friends know why."},
+  {id:"s8",type:"either",tag:"PLOT TWIST",icon:"💀",art:"friends",question:"Which is the bigger betrayal?",options:["Left on read for 3 days","Sent the reel to EVERYONE else"],fact:"These are social jokes, not predictions about any specific person."}],
+ "Sports & fitness 🏏":[
+  {id:"s7",type:"either",tag:"MATCH DAY",icon:"🏏",art:"roadtrip",question:"One perfect Saturday. Choose the mood.",options:["Stadium with the gang 🏟️","Playing a match ourselves 🏏"],fact:"Being a fan and being a player can bring people together differently."},
+  {id:"s8",type:"rate",tag:"GYM BUDDY",icon:"💪",art:"friends",question:"Rate the friend who says ‘Gym tomorrow pakka.’",options:["😬 Ghost","😕 Never comes","🙂 Occasionally","😍 Pretty solid","🔥 Wakes ME up"],fact:"A real Crew challenge works better than a fake leaderboard."}]
+};
+const STARTER_V2_TAIL=[
+ {id:"s9",type:"vote",tag:"SELF-EXPOSE",icon:"🫣",art:"friends",question:"When the whole Crew finally makes a plan, YOU are the one who...",options:["Shows up early somehow","Calls to cancel","Brings three extra people","Asks ‘where are we going?’"],fact:"Your private answers help you pick which Crew jokes to start with."},
+ {id:"s10",type:"either",tag:"ONE LAST THING",icon:"🏆",art:"friends",question:"Your dream friend-group superpower?",options:["Every plan ACTUALLY happens ✅","Nobody EVER leaves the chat on read 👀"],fact:"Ten honest picks down. The real fun is seeing what your friends choose."}
+];
+function activeStarterDeck(state:any){
+ if(state?.deckVersion!=="v2")return STARTER_DECK;
+ const choice=state.answers?.s6;
+ const pack=STARTER_V2_INTERESTS[choice]||STARTER_V2_INTERESTS["Memes & chaos 😂"];
+ return [...STARTER_V2_COMMON,...pack,...STARTER_V2_TAIL];
+}
+
 const STARTER_MILESTONES=[
  {at:1,name:"First Spark",icon:"⚡",text:"Your first choice is in!"},
  {at:2,name:"Quick Starter",icon:"🎯",text:"You're finding your rhythm."},
@@ -61,11 +104,11 @@ const STARTER_MILESTONES=[
  {at:10,name:"Tenacious",icon:"👑",text:"You cleared the entire Starter Deck."}
 ];
 function starterPayload(state:any){
- const answers=state?.answers||{},completed=Object.keys(answers).length,firstFiveCompleted=STARTER_DECK.slice(0,5).every(q=>answers[q.id]!==undefined),
- bonusCompleted=STARTER_DECK.every(q=>answers[q.id]!==undefined),points=completed*10+(firstFiveCompleted?30:0)+(bonusCompleted?50:0),
- index=STARTER_DECK.findIndex(q=>answers[q.id]===undefined),next=STARTER_MILESTONES.find(x=>x.at>completed)||null;
- return {progress:completed,total:STARTER_DECK.length,points,firstFiveCompleted,bonusCompleted,nextUnlock:next,earned:STARTER_MILESTONES.filter(x=>completed>=x.at),
-   answers,question:index<0?null:STARTER_DECK[index],lastQuestion:completed?STARTER_DECK.find(q=>q.id===Object.keys(answers)[completed-1])||null:null,
+ const deck=activeStarterDeck(state),answers=state?.answers||{},completed=Object.keys(answers).length,firstFiveCompleted=deck.slice(0,5).every((q:any)=>answers[q.id]!==undefined),
+ bonusCompleted=deck.every((q:any)=>answers[q.id]!==undefined),points=completed*10+(firstFiveCompleted?30:0)+(bonusCompleted?50:0),
+ index=deck.findIndex((q:any)=>answers[q.id]===undefined),next=STARTER_MILESTONES.find(x=>x.at>completed)||null;
+ return {progress:completed,total:deck.length,points,firstFiveCompleted,bonusCompleted,nextUnlock:next,earned:STARTER_MILESTONES.filter(x=>completed>=x.at),
+   answers,deckVersion:state?.deckVersion||"v1",question:index<0?null:deck[index],lastQuestion:completed?deck.find((q:any)=>q.id===Object.keys(answers)[completed-1])||null:null,
    nickname:state?.nickname||"",starterCrewId:state?.starterCrewId||""};
 }
 
@@ -429,32 +472,32 @@ export default async (req: Request, context: Context) => {
       const participantId=clean(url.searchParams.get("participantId"),40);
       if(!/^p_[a-zA-Z0-9]{6,40}$/.test(participantId))return bad("Invalid participant.",400);
       const key=`starter/v1/${participantId}`;
-      const state=await getJSON(store,key)||{answers:{},createdAt:now()};
+      const state=await getJSON(store,key)||{answers:{},deckVersion:'v2',createdAt:now()};
       if(!state.startedAt){
         state.startedAt=now();
         await store.setJSON(key,state);
-        await analyticsEvent(store,"starter_started",participantId,"","",{deck:"v1"},req,context);
+        await analyticsEvent(store,"starter_started",participantId,"","",{deck:state.deckVersion||"v1"},req,context);
       }
       return ok(starterPayload(state));
     }
     if(action==="starterAnswer" && req.method==="POST"){
       const participantId=clean(body.participantId,40),questionId=clean(body.questionId,15),answer=clean(body.answer,100);
       if(!/^p_[a-zA-Z0-9]{6,40}$/.test(participantId))return bad("Invalid participant.",400);
-      const q=STARTER_DECK.find(x=>x.id===questionId);if(!q)return bad("Question not found.",404);
-      if(!q.options.includes(answer))return bad("Choose one of the shown answers.");
-      const key=`starter/v1/${participantId}`,state=await getJSON(store,key)||{answers:{},createdAt:now()};
+      const key=`starter/v1/${participantId}`,state=await getJSON(store,key)||{answers:{},deckVersion:"v2",createdAt:now()};
       if(!state.answers||typeof state.answers!=="object")state.answers={};
+      const deck=activeStarterDeck(state),q=deck.find((x:any)=>x.id===questionId);if(!q)return bad("Question not found.",404);
+      if(!q.options.includes(answer))return bad("Choose one of the shown answers.");
       // Only the first answer earns progress. Retries cannot farm Vibe.
       if(state.answers[questionId]!==undefined){
         return ok({...starterPayload(state),alreadyAnswered:true,feedback:q.fact,justUnlocked:null,earnedPoints:0});
       }
-      const expected=STARTER_DECK.find(x=>state.answers[x.id]===undefined);
+      const expected=deck.find((x:any)=>state.answers[x.id]===undefined);
       if(expected?.id!==questionId)return bad("Finish your current card first.");
       state.answers[questionId]=answer;state.updatedAt=now();
       await store.setJSON(key,state);
       const n=Object.keys(state.answers).length,milestone=STARTER_MILESTONES.find(x=>x.at===n)||null;
       const earnedPoints=10+(n===5?30:0)+(n===10?50:0);
-      await analyticsEvent(store,"starter_answered",participantId,"",questionId,{step:n,type:q.type,earnedPoints},req,context);
+      await analyticsEvent(store,"starter_answered",participantId,"",questionId,{step:n,type:q.type,deckVersion:state.deckVersion||"v1",interest:questionId==="s6"&&state.deckVersion==="v2"?answer:undefined,earnedPoints},req,context);
       if(n===5||n===10)await analyticsEvent(store,n===5?"starter_first_five_completed":"starter_bonus_completed",participantId,"","",{step:n,points:starterPayload(state).points},req,context);
       return ok({...starterPayload(state),alreadyAnswered:false,feedback:q.fact,justUnlocked:milestone,earnedPoints,answeredQuestion:{id:q.id,question:q.question,answer,icon:q.icon}});
     }
