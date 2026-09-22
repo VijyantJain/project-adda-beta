@@ -475,7 +475,7 @@ function startFirstCrewGuide(){
  if(!crewId||localStorage.getItem(guideKey())==='1'||guide.active)return;
  guide={active:true,step:0,answers:0,lastDrop:''};
  track('crew_guide_started',{crewId});
- setTimeout(guideCrew,100)
+ setTimeout(()=>screen==='drop'?guideDrop():guideCrew(),130)
 }
 function guideCrew(){
  if(!guideActive()||screen!=='crew')return;
@@ -526,7 +526,7 @@ window._finishInvitedJourney=async()=>{
    const v=pendingInvite;
    await api('joinCrew',{method:'POST',body:{crewId:v.crewId,participantId:pid,nickname,provisional:false}});
    crewId=v.crewId;dropId=v.dropId||'';meName=nickname;localStorage.addaName=nickname;localStorage.addaStarterFinished='1';
-   rememberCrew(crew);pendingInvite=null;await refreshCrew();
+   rememberCrew(crew);pendingInvite=null;await refreshCrew();await refreshDrops();
    history.replaceState({},'',dropId?`/?crew=${crewId}&drop=${dropId}`:`/?crew=${crewId}`);
    screen=dropId?'drop':'crew';await render();startFirstCrewGuide();
  }catch(e){toast(e.message);if(btn){btn.disabled=false;btn.textContent='Enter Crew →'}}
