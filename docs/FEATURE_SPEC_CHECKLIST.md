@@ -63,6 +63,11 @@ Status legend:
 - [ ] **D-020** Premium original realistic photography/animation asset library — `IN_PROGRESS`
 - [ ] **D-021** Content rights/attribution/source registry and compression pipeline — `IN_PROGRESS`
 
+- [ ] **D-022** Rank It / reorder full list as a distinct Drop (not generic Vote) — `PLANNED`
+- [ ] **D-023** React-only Drop / rapid emoji-response format with clear aggregation — `PLANNED`
+- [ ] **D-024** Optional AI-assisted Drop creation (always human editable, never required for core report or submission) — `PLANNED`
+- [ ] **D-025** Personal pack and Crew content moderation / template prompt revision workflow — `SPEC`
+
 ## C — Crew, chat, social
 - [x] **C-001** Crew hub (Drops, Chat, Vibe, Recap, Mates) — `BETA`
 - [x] **C-002** Invite via native share plus fallback — `BETA`
