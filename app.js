@@ -484,6 +484,11 @@ function guideActive(){return guide.active&&(guide.originCrewId||crewId)&&localS
 function guardGuideInteraction(e){
  if(!guideActive())return;
  const target=e.target;if(!(target instanceof Element))return;
+ // The interest-led private two-card warm-up is part of onboarding, not background UI.
+ if(personalGuideActive){
+   if(target.closest('.addaPersonalOverlay button,.addaPersonalOverlay input,.addaPersonalOverlay select,.addaPersonalOverlay textarea'))return;
+   e.preventDefault();e.stopImmediatePropagation();return;
+ }
  const modal=document.querySelector('.addaGuidedLayer');
  const withinGuide=target.closest('.addaGuidedLayer .addaGuideCard button,.addaGuidedLayer .addaGuideCard input,.addaGuidedLayer .addaGuideCard textarea,.addaGuidedLayer .addaGuideCard select');
  const photoInput=guide.profileStage===0&&target.matches('#addaPhotoFile');
@@ -512,7 +517,12 @@ function startFirstCrewGuide(){
  guide={active:true,step:0,answers:Number(saved.answers)||0,lastDrop:saved.lastDrop||'',originCrewId:crewId,tour:Number(saved.tour)||0};
  localStorage.setItem('addaGuideStarted_'+crewId,'1');
  track('crew_guide_started',{crewId,resume:!!saved.answers||!!saved.tour});
- if(!personalGuide)personalGuide=createPersonalGuide({api,pid,esc,toast,track,getCrewId:()=>guide.originCrewId,getProfile:localProfile,saveProfile:p=>localStorage.addaLocalProfile=JSON.stringify(p),onDone:()=>{personalGuideActive=false;setTimeout(()=>screen==='drop'?guideDrop():guideCrew(),120)}});
+ if(!personalGuide)personalGuide=createPersonalGuide({api,pid,esc,toast,track,getCrewId:()=>guide.originCrewId,getProfile:localProfile,saveProfile:p=>localStorage.addaLocalProfile=JSON.stringify(p),onDone:()=>{personalGuideActive=false;
+   // Never demand two new answers from a Crew that has fewer than two available Drops.
+   const open=drops.filter(d=>!d.myResponse).length;
+   if(guide.answers+open<2){track('crew_guide_no_more_drops',{answered:guide.answers,available:open});startFiveTabTour();return}
+   setTimeout(()=>{if(screen==='drop'&&!drops.some(d=>d.id===dropId&&!d.myResponse)){dropId='';screen='crew';render();setTimeout(guideCrew,120)}else if(screen==='drop')guideDrop();else guideCrew()},120)
+ }});
  if(guide.tour>0){personalGuideActive=false;tourStep(Math.min(4,guide.tour-1));return}
  if(guide.answers>=2){personalGuideActive=false;startFiveTabTour();return}
  personalGuideActive=true;personalGuide.start()
@@ -546,7 +556,7 @@ function guideAfterAnswer(){
  guideDisplay('First answer in! 🎉','One more Drop and you’re ready.','Try another Drop →',()=>{
    const other=drops.find(d=>d.id!==guide.lastDrop&&!d.myResponse);
    if(other)window._openDrop(other.id);
-   else {dropId='';screen='crew';render();guide.step=0;setTimeout(guideCrew,300)}
+   else {track('crew_guide_no_more_drops',{answered:guide.answers,available:0});startFiveTabTour()}
  },'.appStickyHeader')
 }
 
@@ -683,7 +693,7 @@ async function refreshDrops(){const j=await api('listDrops',{params:{crewId,part
 async function renderCrew(){
   clearTimeout(pollTimer);await refreshCrew();rememberCrew(crew);await refreshDrops();
   const totalResponses=drops.reduce((n,d)=>n+(d.responseCount||0),0);
-  app.innerHTML=shell(`${crewStickyHeader()}${crew?.starterPack&&crew.createdBy===pid&&totalResponses<2?`<div class="starterCrewBanner"><b>🎉 Your 5 Drops are ready!</b><p>Answer one and invite your mates to compare their picks.</p><button onclick="window._shareCrew()">↗ Invite friends</button></div>`:''}<div class="crewModules"><button onclick="window._go('chat')" class="chatModule"><span class="moduleIcon">💬${hasUnreadChat()?'<i class="unreadDot"></i>':''}</span><b>Chat</b><small>${hasUnreadChat()?'New messages':'Talk here'}</small></button><button onclick="window._go('vibe')"><span>✦</span><b>Aura</b><small>${matesLabel()}</small></button><button onclick="window._go('recap')"><span>✨</span><b>Recap</b><small>${totalResponses} answers</small></button><button onclick="window._go('crewSettings')"><span>⚙</span><b>Mates</b><small>Manage mates</small></button></div><div class="sp18"></div><div class="row between"><h2>Drops</h2><button class="chip chipBtn" onclick="window._go('create')">+ Create</button></div><div class="sp12"></div>${drops.length?drops.slice().sort((a,b)=>Number(!!a.myResponse)-Number(!!b.myResponse)).map(d=>`<button class="drop drop-${d.type} ${d.myResponse?'dropHasAnswer':'dropNeedsAnswer'}" aria-label="${d.myResponse?'Answered':'Not answered'}: ${esc(d.question)}" style="width:100%;text-align:left" onclick="window._openDrop('${d.id}')"><div class="row between"><span class="chip">${labelType(d.type)}</span><span class="dropStatus ${d.myResponse?'isAnswered':'isPending'}">${d.myResponse?d.revealed?'✨ Result ready':'✓ Answered':'○ Your turn'}</span></div>${d.mediaA?`<img class="dropThumb" src="${mediaUrl(d.mediaA)}" alt="">`:``}<div class="q">${esc(d.question)}</div><div class="meta">${d.type==='short'?(d.responseCount?`${d.responseCount} repl${d.responseCount===1?'y':'ies'} · live`:'Be first to reply'):d.revealed&&d.myResponse?'Result ready ✨':d.myResponse?'Waiting for friends…':'Tap to answer'}</div></button>`).join(''):`<div class="empty"><div><div style="font-size:44px">⚡</div><h2 style="margin-top:8px">No Drops yet</h2><p class="sub" style="margin-top:6px">Create one, then share it. Friends join when they answer.</p><div class="sp18"></div><button class="btn primary" onclick="window._go('create')">Create first Drop</button></div></div>`}`);
+  app.innerHTML=shell(`${crewStickyHeader()}${crew?.starterPack&&crew.createdBy===pid&&totalResponses<2?`<div class="starterCrewBanner"><b>🎉 Your 5 Drops are ready!</b><p>Answer one and invite your mates to compare their picks.</p><button onclick="window._shareCrew()">↗ Invite friends</button></div>`:''}<div class="crewModules"><button onclick="window._go('chat')" class="chatModule"><span class="moduleIcon">💬${hasUnreadChat()?'<i class="unreadDot"></i>':''}</span><b>Chat</b><small>${hasUnreadChat()?'New messages':'Talk here'}</small></button><button onclick="window._go('vibe')"><span>✦</span><b>Aura</b><small>${matesLabel()}</small></button><button onclick="window._go('recap')"><span>✨</span><b>Recap</b><small>${totalResponses} answers</small></button><button onclick="window._go('crewSettings')"><span>⚙</span><b>Mates</b><small>Manage mates</small></button></div><div class="sp18"></div><div class="row between"><h2>Drops</h2><button class="chip chipBtn" onclick="window._go('create')">+ Create</button></div><div class="sp12"></div>${drops.length?drops.slice().sort((a,b)=>Number(!!a.myResponse)-Number(!!b.myResponse)).map(d=>`<button class="drop drop-${d.type} ${d.myResponse?'dropHasAnswer':'dropNeedsAnswer'}" aria-label="${d.myResponse?'Answered':'Not answered'}: ${esc(d.question)}" style="width:100%;text-align:left" onclick="window._openDrop('${d.id}')"><div class="row between"><span class="chip">${labelType(d.type)}</span><span class="dropStatus ${d.myResponse?'isAnswered':'isPending'}">${d.myResponse?d.revealed?'✨ Result ready':'✓ Answered':'○ Your turn'}</span></div><div class="meta" style="margin-top:5px">${dropProgress(d)}</div>${d.mediaA?`<img class="dropThumb" src="${mediaUrl(d.mediaA)}" alt="">`:``}<div class="q">${esc(d.question)}</div><div class="meta">${d.type==='short'?(d.responseCount?`${d.responseCount} repl${d.responseCount===1?'y':'ies'} · live`:'Be first to reply'):d.revealed&&d.myResponse?'Result ready ✨':d.myResponse?'Waiting for friends…':'Tap to answer'}</div></button>`).join(''):`<div class="empty"><div><div style="font-size:44px">⚡</div><h2 style="margin-top:8px">No Drops yet</h2><p class="sub" style="margin-top:6px">Create one, then share it. Friends join when they answer.</p><div class="sp18"></div><button class="btn primary" onclick="window._go('create')">Create first Drop</button></div></div>`}`);
   if(!guideActive())schedulePoll('poll',()=>{if(screen==='crew')return renderCrew()},30000);
   if(guideActive()&&!personalGuideActive&&guide.tour===0&&!document.querySelector('.addaGuidedLayer'))setTimeout(guideCrew,120)
 }
