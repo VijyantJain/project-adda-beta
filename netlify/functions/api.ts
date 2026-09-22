@@ -401,6 +401,30 @@ export default async (req: Request, context: Context) => {
     }
 
 
+
+    // Separate private guided steps from shared Crew Drops. Never invent votes/results.
+    if(action==="guideGet" && req.method==="GET"){
+      const participantId=clean(url.searchParams.get("participantId"),40);
+      if(!/^p_[a-zA-Z0-9]{6,40}$/.test(participantId))return bad("Invalid participant.",400);
+      const st=await getJSON(store,`guide/v1/${participantId}`)||{steps:{}};
+      return ok({steps:st.steps||{},points:Object.keys(st.steps||{}).reduce((t:string|number,k:string)=>Number(t)+Number(st.steps[k]?.points||0),0)});
+    }
+    if(action==="guideStep" && req.method==="POST"){
+      const participantId=clean(body.participantId,40),step=clean(body.step,48),crewId=clean(body.crewId,40);
+      if(!/^p_[a-zA-Z0-9]{6,40}$/.test(participantId))return bad("Invalid participant.",400);
+      const allowed:any={personal_one:10,personal_two:15,tour_home:5,tour_crew:5,tour_create:5,tour_vibe:5,tour_profile:5,profile_bio:10,profile_photo:10,profile_handle_draft:10};
+      if(!Object.prototype.hasOwnProperty.call(allowed,step))return bad("Unknown guide step.");
+      const key=`guide/v1/${participantId}`,state=await getJSON(store,key)||{steps:{},createdAt:now()};
+      state.steps=state.steps||{};
+      if(!state.steps[step]){
+        state.steps[step]={points:allowed[step],at:now(),crewId};
+        await store.setJSON(key,state);
+        await analyticsEvent(store,"guide_step_completed",participantId,crewId,"",{step,points:allowed[step]},req,context);
+      }
+      const points=Object.keys(state.steps).reduce((sum:number,k:string)=>sum+Number(state.steps[k]?.points||0),0);
+      return ok({step,points,steps:state.steps,earnedPoints:state.steps[step]?.points||0});
+    }
+
     if(action==="starterGet" && req.method==="GET"){
       const participantId=clean(url.searchParams.get("participantId"),40);
       if(!/^p_[a-zA-Z0-9]{6,40}$/.test(participantId))return bad("Invalid participant.",400);
@@ -744,6 +768,8 @@ export default async (req: Request, context: Context) => {
       const displayName=membershipRows.slice().sort((a:any,b:any)=>String(b.joinedAt||"").localeCompare(String(a.joinedAt||"")))[0]?.nickname||"";
       const myResponses=responseBlobs.filter((b:any)=>b.key.endsWith("/"+participantId));
       const starter=starterPayload(await getJSON(store,`starter/v1/${participantId}`));
+      const guideState=await getJSON(store,`guide/v1/${participantId}`)||{steps:{}};
+      const guidePoints=Object.values(guideState.steps||{}).reduce((n:any,x:any)=>Number(n)+Number(x.points||0),0);
       const myDrops=dropRows.filter((d:any)=>d.createdBy===participantId);
       const myChats=chatRows.filter((m:any)=>m.participantId===participantId);
       const allEvents=[...legacyEvents,...analyticsEvents];
@@ -778,7 +804,7 @@ export default async (req: Request, context: Context) => {
 
       const answers=myResponses.length,dropsMade=myDrops.length,chatsSent=myChats.length,crews=memberships.length;
       const totalAnswers=answers+starter.progress;
-      const score=answers*10+dropsMade*30+chatsSent*4+shares*20+crews*10+Math.min(streak,10)*5+starter.points;
+      const score=answers*10+dropsMade*30+chatsSent*4+shares*20+crews*10+Math.min(streak,10)*5+starter.points+guidePoints;
       const levels=[
         {min:0,name:"Fresh",icon:"✨"},
         {min:10,name:"First Spark",icon:"⚡"},
@@ -836,7 +862,7 @@ export default async (req: Request, context: Context) => {
       return ok({
         score,level:{...level,index:levelIndex+1},nextLevel:next,progress,pointsToNext:next?Math.max(0,next.min-score):0,
         streak,activeDays:dates.length,answers:totalAnswers,starterAnswers:starter.progress,dropsMade,chatsSent,shares,crews,sessions:Number(visitor?.sessionCount)||0,
-        displayName:displayName||starter.nickname,signature,typeCounts,badges,nextUnlock,crewRank,starter:{progress:starter.progress,points:starter.points,firstFiveCompleted:starter.firstFiveCompleted,bonusCompleted:starter.bonusCompleted,earned:starter.earned}
+        displayName:displayName||starter.nickname,signature,typeCounts,badges,nextUnlock,crewRank,starter:{progress:starter.progress,points:starter.points,firstFiveCompleted:starter.firstFiveCompleted,bonusCompleted:starter.bonusCompleted,earned:starter.earned},guided:{points:guidePoints,steps:guideState.steps||{}}
       });
     }
 
