@@ -225,7 +225,8 @@ async function boot(){try{
  if(!member){screen=dropId?'joinDrop':'join';render();return}
  meName=member.nickname;localStorage.addaName=meName;rememberCrew(crew);
  if(dropId){screen='drop';render();return}
- screen='crew';render();
+ screen='crew';await render();
+ if(localStorage.getItem('addaGuideStarted_'+crewId)==='1'&&localStorage.getItem('addaGuideDone_'+crewId)!=='1'&&!guide.active)setTimeout(startFirstCrewGuide,220);
 }catch(e){screen='notfound';render(e.message)}}
 
 function render(err=''){stopPolling();
@@ -288,7 +289,7 @@ function renderProfile(){
 }
 window._replayGuide=async()=>{
  const id=crewId||getKnownCrews()[0]?.id;if(!id)return toast('Join a Crew first');
- localStorage.removeItem('addaGuideDone_'+id);localStorage.removeItem('addaGuideStarted_'+id);
+ localStorage.removeItem('addaGuideDone_'+id);localStorage.removeItem('addaGuideStarted_'+id);localStorage.removeItem('addaGuideState_'+id);
  localStorage.removeItem('addaPersonalGuideDone_'+pid);localStorage.removeItem('addaPersonalGuide_'+pid);
  guide={active:false,step:0,answers:0,lastDrop:'',originCrewId:id,tour:0};
  await window._openKnownCrew(id);
@@ -489,9 +490,13 @@ function guideDisplay(title,body,cta,action,selector){
 }
 function startFirstCrewGuide(){
  if(!crewId||localStorage.getItem(guideKey())==='1'||guide.active)return;
- guide={active:true,step:0,answers:0,lastDrop:'',originCrewId:crewId,tour:0};
- track('crew_guide_started',{crewId});
+ const saved=JSON.parse(localStorage.getItem('addaGuideState_'+crewId)||'{}');
+ guide={active:true,step:0,answers:Number(saved.answers)||0,lastDrop:saved.lastDrop||'',originCrewId:crewId,tour:Number(saved.tour)||0};
+ localStorage.setItem('addaGuideStarted_'+crewId,'1');
+ track('crew_guide_started',{crewId,resume:!!saved.answers||!!saved.tour});
  if(!personalGuide)personalGuide=createPersonalGuide({api,pid,esc,toast,track,getCrewId:()=>guide.originCrewId,getProfile:localProfile,saveProfile:p=>localStorage.addaLocalProfile=JSON.stringify(p),onDone:()=>{personalGuideActive=false;setTimeout(()=>screen==='drop'?guideDrop():guideCrew(),120)}});
+ if(guide.tour>0){personalGuideActive=false;tourStep(Math.min(4,guide.tour-1));return}
+ if(guide.answers>=2){personalGuideActive=false;startFiveTabTour();return}
  personalGuideActive=true;personalGuide.start()
 }
 function guideCrew(){
@@ -512,6 +517,7 @@ function guideDrop(){
 function guideAfterAnswer(){
  if(!guideActive())return;
  guide.answers++;
+ localStorage.setItem('addaGuideState_'+guide.originCrewId,JSON.stringify({answers:guide.answers,lastDrop:guide.lastDrop,tour:guide.tour}));
  track('crew_guide_answered',{number:guide.answers,crewId,dropId:guide.lastDrop});
  if(guide.answers>=2){
    guide.step=3;
@@ -536,6 +542,7 @@ function startFiveTabTour(){guide.tour=1;track('guide_five_tabs_started',{crewId
 function tourStep(i){
  if(!guideActive())return;
  guide.tour=i+1;guide.step=4+i;
+ localStorage.setItem('addaGuideState_'+guide.originCrewId,JSON.stringify({answers:guide.answers,lastDrop:guide.lastDrop,tour:guide.tour}));
  if(i===0){dropId='';window._home()}
  if(i===1)window._openKnownCrew(guide.originCrewId);
  if(i===2)window._createAction();
@@ -597,7 +604,7 @@ function guideProfileSaved(p){
  track('guide_profile_ready',{hasPhoto:!!p.avatar,hasBio:!!p.bio,hasHandleDraft:!!p.handleDraft});
  setTimeout(()=>{
   guideDisplay('Your Vibe is taking shape 🏆','Your beta profile is saved on this device. Verified email/mobile OTP, global username and cross-device recovery need our account service. Play on in the meantime.','Explore Adda →',()=>{
-   localStorage.setItem('addaGuideDone_'+id,'1');removeGuide();track('guide_beta_handoff',{authStatus:'awaiting_provider'})
+   localStorage.setItem('addaGuideDone_'+id,'1');removeGuide();track('guide_beta_handoff',{authStatus:'awaiting_provider'});localStorage.removeItem('addaGuideState_'+id)
   },'.profileCard')
  },160)
 }
