@@ -1034,3 +1034,8 @@ html,body{background:
 .dropNeedsAnswer{border-left-color:#7142eb}
 .addaStarterOptionalCrew{display:block;text-align:center;margin:12px auto 2px;color:#e8d7ff;text-decoration:underline}
 @media(max-width:365px){.addaGuideAvatars{grid-template-columns:repeat(3,1fr)}}
+
+/* v0.7.1 final: let beta users replace an emoji avatar any time */
+.addaProfileAvatarChoices{display:grid;gap:7px;text-align:center}
+.addaAvatarTray{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.addaAvatarTray button{min-width:0;min-height:43px;border:1px solid #d8c6f5;background:#f9f3ff;border-radius:12px;font-size:23px}

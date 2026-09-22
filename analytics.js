@@ -198,6 +198,7 @@ function renderDashboard(){
         {label:'First answer',count:s.starter.firstAnswer},
         {label:'🏆 First Five',count:s.starter.completedFive},
         {label:'👑 Bonus Ten',count:s.starter.completedTen},
+        {label:'Personal Aura opens after Tenacious',count:D.eventCounts?.starter_solo_explore||0},
         {label:'Created Starter Crew',count:s.starter.crews}
       ]):''}
       ${founderDeepDive()}

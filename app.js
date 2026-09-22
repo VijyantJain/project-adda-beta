@@ -287,7 +287,7 @@ function renderProfile(){
  <p class="sub" style="margin-top:9px">Your current test profile is tied to this browser. Verified email/phone signup and a globally unique @username will arrive with the account database; they are not active in this field test.</p>
  <p class="sub" style="margin-top:7px">You can keep playing while this final account-verification mission is pending; it is NOT marked verified.</p></div>
  <div class="sp12"></div><button class="btn ghost" onclick="window._sharePublicProfile()">Share my Aura profile</button>
- <div class="sp12"></div><button class="btn ghost" onclick="window._newCrew()">Start another Crew</button>
+ <div class="sp12"></div><button class="btn ghost" onclick="window._newCrew()">${crews.length?'Start another Crew':'Start a Crew whenever you like'}</button>
  <div class="sp12"></div><button class="btn ghost" onclick="window._replayGuide()">⚡ Replay my welcome tour</button>
  <div class="sp12"></div><div class="card"><h3>Your Crews</h3><div class="sp12"></div>${crews.length?crews.map(c=>`<button class="settingsRow" onclick="window._openKnownCrew('${c.id}')"><span>👥 ${esc(c.name)}</span><b>›</b></button>`).join(''):'<p class="sub">No Crews yet.</p>'}</div>`)
 }
@@ -304,6 +304,7 @@ window._editProfile=()=>{
  app.innerHTML=shell(`${top('Edit profile','profile')}<main class="card addaProfileEditor">
  <h2>Your profile 💜</h2><p class="sub">Test version: saved on this device. Photo and bio are not public or synced yet.</p>
  <div class="addaEditAvatar">${profileAvatarMarkup()}</div>
+ ${!guideActive()?`<div class="addaProfileAvatarChoices"><p class="sub">Or use an avatar (change any time):</p><div class="addaAvatarTray">${['😎','🦊','🐼','👾','🦄','🤠'].map(emoji=>`<button type="button" aria-label="Choose ${emoji} avatar" onclick="window._chooseLocalAvatar('${emoji}')">${emoji}</button>`).join('')}</div></div>`:''}
  <label class="btn ghost addaPhotoPick" for="addaPhotoFile">📷 Add or change profile photo</label>
  <input id="addaPhotoFile" type="file" accept="image/*" style="position:absolute;opacity:0;width:1px;height:1px" onchange="window._localProfilePhoto(this)">
  <div class="field"><label>Display name</label><input id="addaEditName" maxlength="24" value="${esc(p.displayName||meName)}" placeholder="Your name"></div>
@@ -314,6 +315,7 @@ window._editProfile=()=>{
  <button class="btn primary addaProfileSave" onclick="window._saveLocalProfile()">Save changes</button>${guideActive()?'':'<button class="btn ghost" onclick="window._go(\'profile\')">Cancel</button>'}
  </main>`)
 };
+window._chooseLocalAvatar=emoji=>{if(!['😎','🦊','🐼','👾','🦄','🤠'].includes(emoji))return;const p=localProfile();p.avatar='';p.avatarEmoji=emoji;try{localStorage.addaLocalProfile=JSON.stringify(p);document.querySelector('.addaEditAvatar').innerHTML=profileAvatarMarkup();toast('Avatar saved on this device');track('profile_avatar_selected',{kind:'emoji'})}catch(e){toast('Could not save avatar')}};
 window._localProfilePhoto=async el=>{
  const file=el.files?.[0];if(!file)return;
  if(file.size>8000000)return toast('Use a photo under 8 MB.');
@@ -359,6 +361,7 @@ async function renderVibe(){
       <div class="vibeProgress"><i style="width:${v.progress||0}%"></i></div>
       <div class="vibeProgressCopy">${v.nextLevel?`<span>${v.pointsToNext} Aura to ${esc(v.nextLevel.name)}</span><b>${v.progress}%</b>`:'<span>Top level unlocked</span><b>100%</b>'}</div>
     </section>
+    ${!getKnownCrews().length?`<section class="card addaSoloNext"><h2>Your Aura starts here 💜</h2><p>You’ve earned your first trophies. Make your profile yours — no Crew needed.</p><button class="btn primary" onclick="window._editProfile()">Personalize my Aura →</button><button class="btn ghost" onclick="window._home()">Explore Adda →</button></section>`:''}
 
     <div class="vibeFlexGrid">
       <div class="vibeFlex"><span>🏆</span><small>Crew rank</small><b>${rank}</b><em>${rankSub}</em></div>
@@ -509,7 +512,12 @@ function guideDisplay(title,body,cta,action,selector){
  <div class="addaGuideStep">⚡ YOUR ADDA TOUR</div><h2>${esc(title)}</h2><p>${esc(body)}</p>
  <button class="btn primary" id="addaGuideAction">${esc(cta)}</button></section>`;
  document.body.appendChild(layer);
- layer.querySelector('#addaGuideAction').addEventListener('click',()=>{removeGuide();action?.()});
+ layer.querySelector('#addaGuideAction').addEventListener('click',()=>{
+  // The wizard's inputs live IN this card. Read them before any replacement.
+  // Keep photo choices visible if the user cancels the native file picker.
+  if(guide.tour===5&&guide.profileStage>=0){action?.();return}
+  removeGuide();action?.()
+ });
 }
 function startFirstCrewGuide(){
  if(!crewId||localStorage.getItem(guideKey())==='1'||guide.active)return;
@@ -622,12 +630,12 @@ function guideProfileSaved(p){
  if(p.avatar)guideAward('profile_photo');else if(p.avatarEmoji)guideAward('profile_avatar');
  if(p.handleDraft)guideAward('profile_handle_draft');
  const id=guide.originCrewId;
- guide.active=false;localStorage.setItem('addaGuideTourDone_'+pid,'1');
+ localStorage.setItem('addaGuideTourDone_'+pid,'1');
  localStorage.setItem('addaGuideAuthStatus_'+pid,'awaiting_provider');
  track('guide_profile_ready',{hasPhoto:!!p.avatar,hasBio:!!p.bio,hasHandleDraft:!!p.handleDraft});
  setTimeout(()=>{
   guideDisplay('Your Aura is ready 🏆','Saved on this device. Verified account and sync are coming later.','Explore Adda →',()=>{
-   localStorage.setItem('addaGuideDone_'+id,'1');removeGuide();track('guide_beta_handoff',{authStatus:'awaiting_provider'});localStorage.removeItem('addaGuideState_'+id)
+   guide.active=false;localStorage.setItem('addaGuideDone_'+id,'1');removeGuide();track('guide_beta_handoff',{authStatus:'awaiting_provider'});localStorage.removeItem('addaGuideState_'+id)
   },'.profileCard')
  },160)
 }

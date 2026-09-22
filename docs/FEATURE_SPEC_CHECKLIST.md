@@ -183,3 +183,5 @@ Preserve the historical 103 feature IDs. Six additive IDs below; register is now
 **Open M0.8:** V-015 Daily Aura Deck is PLANNED (no fabricated Arena users, fake FOMO, fake popularity, endless reward farming or mandatory friend invitations). Real photo pack D-020 remains IN_PROGRESS; authenticated account P-013 remains BLOCKED. No existing Crew/Drop/chat/media keys or persistent stores changed.
 
 **v0.7.1 regression QA note:** P-019 must preserve interaction with its own private interest-led overlay and support guide replay when a Crew has 0 or 1 unanswered Drops. D-026 badges supplement, not erase, Crew response-progress indicators. These conditions remain BETA pending actual device evidence.
+
+**v0.7.1 final interaction review:** Profile guide values are collected before modal replacement; canceling the native photo picker leaves avatar/default options active; strict interaction guard persists until the final Explore Adda action. Aura itself gives zero-Crew users a Personalize my Aura action. Emoji avatar can be changed later in the normal profile editor. Solo Aura opens have a founder dashboard count. Mobile E2E still pending.
