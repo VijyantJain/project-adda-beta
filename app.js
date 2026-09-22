@@ -495,6 +495,7 @@ function guideDrop(){
 function guideAfterAnswer(){
  if(!guideActive())return;
  guide.answers++;
+ track('crew_guide_answered',{number:guide.answers,crewId,dropId:guide.lastDrop});
  if(guide.answers>=2){
    guide.step=3;
    guideDisplay('You’re officially a mate! 🏆','That’s two Drops answered. Explore Chat, Vibe, Recap and the + button. Every new question makes the Crew more interesting.','Explore my Crew →',()=>{localStorage.setItem(guideKey(),'1');guide.active=false;track('crew_guide_completed',{crewId});dropId='';history.replaceState({},'',`/?crew=${crewId}`);screen='crew';render()},'.appStickyHeader');
@@ -544,7 +545,8 @@ function showStarterInvitePrompt(){
   <button id="starterInviteLater" class="starterTextLink">I'll invite them later</button>
  </section>`;
  document.body.appendChild(overlay);
- overlay.querySelector('#starterInviteNow').addEventListener('click',()=>{overlay.remove();window._shareCrew();setTimeout(startFirstCrewGuide,1000)});
+ track('starter_invite_prompt_shown',{crewId});
+ overlay.querySelector('#starterInviteNow').addEventListener('click',()=>{overlay.remove();track('starter_invite_share_opened',{crewId});window._shareCrew();setTimeout(startFirstCrewGuide,1000)});
  overlay.querySelector('#starterInviteLater').addEventListener('click',()=>{overlay.remove();startFirstCrewGuide()});
  overlay.addEventListener('click',e=>{if(e.target===overlay){overlay.remove();startFirstCrewGuide()}});
 }
