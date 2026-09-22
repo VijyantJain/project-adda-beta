@@ -45,3 +45,9 @@ Netlify Observability **requests** measure HTTP traffic to functions/assets, not
 
 ## Architecture follow-up
 Current dashboard computes large aggregates directly from Blob lists and returns first 1,000 visitors + latest 250 events. This is beta-grade and can be slow/costly. On Supabase/Postgres move to indexed append-only events and materialized/daily aggregates, anonymization/retention policy, access controls, event schema versioning and robust traffic-source tagging. Do not claim full historic backfill of missing geo or visitor identity.
+
+
+## Guided M0.7 activation (new preview events)
+`personal_guide_started` browser enters interest warm-up; `personal_pack_selected` explicit chosen pack; `personal_pack_skipped` Surprise Me; `personal_card_answered` PRIVATE warm-up step (1/2) and pack identifier; `personal_guide_completed` second private card answered; `guide_five_tabs_started`; `guide_tab_seen` (home,crew,create,vibe,profile); `guide_step_completed` *server-authoritative once-per-step reward*, not every screen-view; `guide_profile_ready` after local form Save; `guide_beta_handoff` marks awaiting_provider, NOT verified user signup. Current dashboard includes interest pack distribution and per-tab guided step counts. Analytics does NOT receive optional gender or private text picks; source-of-truth personal answers remain device-only and Crew result counts exclude them.
+
+Important denominator: not every existing legacy user experiences v2; compare v2 browser cohorts by version/date and entry channel. Event totals are not verified unique individuals. Historic events never acquire retroactive country/device information.
