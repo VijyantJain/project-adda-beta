@@ -958,3 +958,17 @@ html,body{background:
 @keyframes starterLightning{0%,100%{opacity:0}24%,35%,58%{opacity:.8}28%,65%{opacity:.12}}
 @keyframes starterFlash{to{opacity:.15;transform:scale(1.15)}}
 @media(prefers-reduced-motion:reduce){.starterTrophySplash,.starterTrophySplash img,.starterTrophySplash:before,.starterTrophySplash:after,.starterSplashRays{animation:none!important;transition:none!important}}
+
+/* v0.6.2 guided first-Crew coach marks: highlight actual controls */
+.addaGuidedLayer{position:fixed;z-index:7000;inset:0;pointer-events:none}
+.addaGuideShade{position:absolute;inset:0;background:rgba(20,9,50,.55);pointer-events:auto}
+.addaGuideSpot{position:relative!important;z-index:7001!important;isolation:isolate;box-shadow:0 0 0 5px #dfff72,0 0 25px #a17bff!important;outline:3px solid #dfff72;outline-offset:4px;border-radius:15px;pointer-events:auto!important}
+.crewStickyHeader.addaGuideSpot{z-index:7001!important}
+.addaGuideCard{position:fixed;bottom:calc(91px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);width:min(400px,calc(100vw - 26px));max-height:55dvh;overflow:auto;background:linear-gradient(145deg,#271548,#55339c);border:2px solid #a485ff;border-radius:24px;color:white;padding:19px;box-shadow:0 18px 55px rgba(19,6,48,.45);pointer-events:auto;z-index:7002}
+.addaGuideStep{font-size:10px;letter-spacing:.12em;color:#dfff72;font-weight:950;margin-bottom:10px}
+.addaGuideCard h2{font-size:23px;color:white;line-height:1.2}
+.addaGuideCard p{font-size:13px;color:#e9dcfa;line-height:1.5;margin:8px 0 15px}
+.addaGuideCard .btn{width:100%;min-height:48px}
+.addaGuideSkip{display:block;border:0;color:#ece1ff;background:transparent;margin:9px auto 0;font-size:12px;font-weight:750;padding:8px}
+@media(max-height:660px){.addaGuideCard{bottom:calc(66px + env(safe-area-inset-bottom));max-height:65dvh;padding:14px}.addaGuideCard h2{font-size:19px}}
+@media(prefers-reduced-motion:reduce){.addaGuideSpot{animation:none!important}}
