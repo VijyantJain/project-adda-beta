@@ -373,8 +373,36 @@ export default async (req: Request, context: Context) => {
         one:guideAnswerEvents.filter((e:any)=>Number(e.meta?.number)===1).length,
         two:guideAnswerEvents.filter((e:any)=>Number(e.meta?.number)===2).length
       };
+      const personalPackCounts:any={},guidedTabCounts:any={},rewardStepCounts:any={};
+      events.forEach((e:any)=>{
+        if(e.event==="personal_pack_selected"){
+          const k=String(e.meta?.interest||"unknown").slice(0,36);
+          personalPackCounts[k]=(personalPackCounts[k]||0)+1
+        }
+        if(e.event==="guide_tab_seen"){
+          const k=String(e.meta?.tab||"unknown").slice(0,36);
+          guidedTabCounts[k]=(guidedTabCounts[k]||0)+1
+        }
+        if(e.event==="guide_step_completed"){
+          const k=String(e.meta?.step||"unknown").slice(0,48);
+          rewardStepCounts[k]=(rewardStepCounts[k]||0)+1
+        }
+      });
+      const guidedPersonal={
+        started:eventCounts.personal_guide_started||0,
+        interestChosen:eventCounts.personal_pack_selected||0,
+        surpriseMe:eventCounts.personal_pack_skipped||0,
+        privateCards:eventCounts.personal_card_answered||0,
+        personalCompleted:eventCounts.personal_guide_completed||0,
+        tabsStarted:eventCounts.guide_five_tabs_started||0,
+        localProfileReady:eventCounts.guide_profile_ready||0,
+        betaHandoff:eventCounts.guide_beta_handoff||0,
+        packCounts:asRows(personalPackCounts),
+        tabs:asRows(guidedTabCounts),
+        rewards:asRows(rewardStepCounts)
+      };
       const deepDive={
-        guideAnswers,
+        guidedPersonal,guideAnswers,
         audience:{browserIdentities:visitors.length,suspectedAutomated:suspected.length,humanLike:humanLike.length,engagedHumanLike:humanLike.filter((v:any)=>v.answerCount||v.dropCreates||v.chatMessages).length,returningHumanLike:humanLike.filter((v:any)=>v.sessions>1).length,fromInvites:visitFromInvite.length,direct:visitDirect.length,provisionalMembers:memberRows.filter((m:any)=>m.provisional).length},
         retention:{d1Eligible:d1eligible.length,d1Returned:d1eligible.filter((v:any)=>hasDay(v,1)).length,d7Eligible:d7eligible.length,d7Returned:d7eligible.filter((v:any)=>hasDay(v,7)).length,multiDayHumanLike:humanLike.filter((v:any)=>((activeDates[v.participantId]?.size||0)>1)).length},
         activation:{medianFirstAnswerMs:quantile(activationTimes,.5),p95FirstAnswerMs:quantile(activationTimes,.95),medianFirstFiveMs:quantile(stepSpeed,.5),started:starterStarted.size,firstAnswer:starterFirst.size,five:starterFive.size,ten:starterTen.size,fiveToTenPct:pct(starterTen.size,starterFive.size),startedToFivePct:pct(starterFive.size,starterStarted.size),startedToTenPct:pct(starterTen.size,starterStarted.size)},
