@@ -63,3 +63,15 @@ After backend confirms five seeded Drops, show a dialog previewing a fun prefill
 
 ## D020 — Verified identity and contacts are staged, never faked
 Beta browser-local participantId does not provide a true lifetime guarantee. Actual email/phone OTP, cross-device merge, profile handle, DP, bio and contacts opt-in need M1 provider/database foundations. Permission prompts must follow the user's explicit Find Friends action.
+
+## D021 — Ten questions before first-time conversion
+Both truly new direct and invited browsers see identical initial welcome and complete First Five AND second five before cohort-specific Tenacious conversion. Five-question trophy is a milestone, not an escape to Crew. Invited path cannot redirect or finish before Tenacious.
+
+## D022 — Guided first-Crew interaction
+After the first generated Crew or first invited Crew/Drop, show opt-skippable real coach marks for Crew meaning, Drop meaning, choice/answer and one additional Drop. Store completion locally for beta; migrate to verified profile progress in M1.
+
+## D023 — Evidence-driven analytics, no automatic origin verdict
+Ashburn/USA/Linux is not independently a bot/internal marker. Track automation UA/missing browser signals separately and preserve underlying visitor records. Do not equate Netlify HTTP request totals with unique browser visitors or verified humans. See ANALYTICS_V2.md.
+
+## D024 — Profile beta versus verified identity
+A functioning browser-local name/bio/DP editor may ship now, prominently labeled device-only. Never claim working email/mobile OTP, global username availability or cross-device sync without actual configured backend/Auth/SMS/email provider and migration.
