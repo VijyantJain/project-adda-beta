@@ -110,3 +110,12 @@ Current local participantId is not a true lifetime user ID; no real email/phone 
 
 ## Latest v0.6.1 finish
 After milestone 5/10, neon trophy plays in full-viewport splash with tap-to-dismiss and reduced-motion handling, then the standard reward details. Existing-user generic Crew Create/Join pages now retain bottom nav; focused first-run Starter/name screens intentionally do not. Main production remains unmerged.
+
+## v0.6.2 (2026-09-22) — Invited welcome, Tenacious, first-Crew tour, analytics v2, local profile
+- A fresh invited Crew/Drop browser identity now sees the SAME initial "5 quick ones. Find your Vibe." welcome as a direct first visitor; the app no longer starts the first question automatically.
+- Both cohorts MUST complete all ten Starter choices; First Five trophy leads into next five (not to Crew) and Tenacious is the sole entry to Create Crew or Enter invited Crew.
+- First Crew guide: explain Crew, spotlight first Drop, guide answer and second Drop, celebrate completion; skip allowed and state stored per Crew in browser. Exact shared Drop invites start the guide on that Drop. Fixed header/bottom bars remain on post-onboarding screens.
+- Functional beta profile editor stores name/bio/locally compressed DP on device only. It is NOT a verified signup, shared avatar, global handle reservation or cross-device backup; those remain M1.
+- Private founder analytics v2 adds traffic-quality signals, D1/D7 eligible cohorts, direct/invited entry segments, First Five completion, first-answer latency, errors by message, source/paths/screens/hourly, engagement and active respondents. Analytics v2 dictionary: docs/ANALYTICS_V2.md.
+- Screenshot-only USA/Ashburn/Linux signals do not establish Netlify internals or unique US humans. These rows are retained; only explicit automation UA/missing-browser heuristics flagged for review.
+- No existing Crew/Drop/response/chat/media data reset. Current branch differs from main; PREVIEW only. Source ZIP: GitHub branch archive; see docs/TECHNOLOGY_MIGRATION_PLAN.md.
