@@ -1,6 +1,6 @@
 # Project Adda — Master Feature & Specification Register
 
-Canonical register. Updated 2026-09-22. Scope: **Project Adda only**. The name Adda is temporary; this is not the separate global broad-adult product. This is a living specification index, NOT a claim that every idea has shipped.
+Canonical register. Updated 2026-09-22 · v0.7 guided beta. Scope: **Project Adda only**. The name Adda is temporary; this is not the separate global broad-adult product. This is a living specification index, NOT a claim that every idea has shipped.
 
 Status legend:
 - [x] **BETA** = feature implemented in current field-test preview; real multi-device acceptance may still be pending.
@@ -32,8 +32,8 @@ Status legend:
 - [ ] **P-008** Globally persistent cross-device list of user's Crews — `BLOCKED`
 - [x] **P-009** Five fixed tabs Home/Crew/Create/Vibe/Profile — `BETA`
 - [x] **P-010** Onboarding explain/answer two real Crew Drops — `BETA`
-- [ ] **P-011** Five-tab left-to-right guided in-app tour — `IN_PROGRESS`
-- [ ] **P-012** Guide profile photo, bio, display name, username, interests — `IN_PROGRESS`
+- [x] **P-011** Five-tab left-to-right guided in-app tour — `BETA`
+- [x] **P-012** Guide profile photo, bio, display name, username, interests — `BETA`
 - [ ] **P-013** Guide real OTP verification before authenticated tour completion — `BLOCKED`
 - [ ] **P-014** Persistent resumable guide state across refresh and accidental exit — `IN_PROGRESS`
 - [x] **P-015** First-run conversion analytics and feedback prompts — `BETA`
@@ -59,7 +59,7 @@ Status legend:
 - [ ] **D-016** Creator templates/remix/share cards — `PLANNED`
 - [ ] **D-017** Format-specific settings matrix + re-conceptualized Drops — `SPEC`
 - [x] **D-018** Starter Crew seeds five real shared Drops — `BETA`
-- [ ] **D-019** Two private interest-led guided Drops, shared Crew remains coherent — `IN_PROGRESS`
+- [x] **D-019** Two private interest-led guided Drops, shared Crew remains coherent — `BETA`
 - [ ] **D-020** Premium original realistic photography/animation asset library — `IN_PROGRESS`
 - [ ] **D-021** Content rights/attribution/source registry and compression pipeline — `IN_PROGRESS`
 
@@ -93,9 +93,9 @@ Status legend:
 - [x] **V-004** Personal Vibe page and external/in-app Vibe profile links — `BETA`
 - [x] **V-005** Streak/badges/signature/response statistics — `BETA`
 - [x] **V-006** Profile image/name/bio *device-local* editing — `BETA`
-- [ ] **V-007** Interest packs optional gender secondary signal/other/skip — `IN_PROGRESS`
+- [x] **V-007** Interest packs optional gender secondary signal/other/skip — `BETA`
 - [ ] **V-008** Optional gender never inferred from browsing — `SPEC`
-- [ ] **V-009** Profile username local draft (not unique or verified) — `IN_PROGRESS`
+- [x] **V-009** Profile username local draft (not unique or verified) — `BETA`
 - [ ] **V-010** Verified username availability/reservation — `BLOCKED`
 - [ ] **V-011** DP global upload and public avatar display — `BLOCKED`
 - [ ] **V-012** Email OTP and mobile OTP with abuse throttles — `BLOCKED`
@@ -112,7 +112,7 @@ Status legend:
 - [x] **A-002** Visitors, screen names, geography, devices, source — `BETA`
 - [x] **A-003** D1/D7 cohorts, funnels, segmentation and latency — `BETA`
 - [x] **A-004** Explicit UA automation signal vs Ashburn/USA caveat — `BETA`
-- [ ] **A-005** Guide steps/profile content pack exposure+completion — `IN_PROGRESS`
+- [x] **A-005** Guide steps/profile content pack exposure+completion — `BETA`
 - [ ] **A-006** Retention D30 and privacy-safe verified user analytics — `BLOCKED`
 - [x] **A-007** Errors and network reliability diagnostics — `BETA`
 - [x] **A-008** Event/version schema and analytics data dictionary — `BETA`
@@ -157,3 +157,9 @@ Status legend:
 - docs/TECHNOLOGY_MIGRATION_PLAN.md (infra)
 - docs/ARCHITECTURE_VNEXT.md and docs/SUPABASE_SCHEMA_DRAFT.sql (target schema)
 - docs/CHATGPT_CONTINUITY.md and Drive Living Product Ledger (handoff)
+
+## Latest v0.7 audit notes
+- **Built in preview, not mobile-verified:** private interest selection and optional gender secondary, two private reward cards, extended five-tab coach marks, profile photo/bio/username draft prompts, v2 Starter catalog, v1 Starter compatibility, separate one-time guide point ledger. See docs/ONBOARDING_M07_SRS.md.
+- **Not complete:** original high-resolution realistic/photo starter asset pack, real OTP/email/SMS provider, globally unique username, public DP & bio synchronization, native app. Do not tick these prematurely.
+- Guided beta pauses authenticated completion at `awaiting_provider`; it must not be represented as verified signup.
+- Underlying Crew data, shared Seed Pack and in-flight v1 Starter progress retain original storage keys and formats.
