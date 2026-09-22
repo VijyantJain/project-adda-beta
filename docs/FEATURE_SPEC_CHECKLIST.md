@@ -133,7 +133,7 @@ Status legend:
 - [ ] **A-018** Automated unit/API/browser/device tests and staging — `IN_PROGRESS`
 - [x] **A-019** Source ZIP and code/asset backup from GitHub — `BETA`
 - [x] **A-020** Full SRS, current state, decision log, roadmap, migration specs — `BETA`
-- [ ] **A-021** Canonical comprehensive checkboxes with status and owner gate — `IN_PROGRESS`
+- [x] **A-021** Canonical comprehensive checkboxes with status and owner gate — `BETA`
 
 ## New feature intake rule
 1. Allocate next stable ID, source chat/date and user-facing problem.
@@ -168,3 +168,6 @@ Status legend:
 - **Not complete:** original high-resolution realistic/photo starter asset pack, real OTP/email/SMS provider, globally unique username, public DP & bio synchronization, native app. Do not tick these prematurely.
 - Guided beta pauses authenticated completion at `awaiting_provider`; it must not be represented as verified signup.
 - Underlying Crew data, shared Seed Pack and in-flight v1 Starter progress retain original storage keys and formats.
+
+### Continuation after interrupted work (2026-09-22)
+Verified repository preview head and recorded Netlify deploy success. Living Product Ledger in Google Drive appended with M0.7 specifications. Checklist itself is implemented, but this is not verification that every future feature is complete. The original high-quality realistic art and verified OTP remain explicitly open; photo source manifest is not fabricated.
