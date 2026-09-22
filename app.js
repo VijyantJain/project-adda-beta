@@ -281,7 +281,10 @@ function renderProfile(){
  <p class="sub">${crews.length} Crew${crews.length===1?'':'s'} · ${stats.response_submitted||0} Crew answers · ${stats.drop_created||0} Drops made</p>
  <div class="sp12"></div><button class="btn primary" onclick="window._editProfile()">✏️ Edit my profile & photo</button></div>
  <div class="sp18"></div>
- <div class="card"><h3>💾 Save progress across devices</h3><p class="sub" style="margin:9px 0">Your current test profile is tied to this browser. Verified email/phone signup and a globally unique @username will arrive with the account database; they are not active in this field test.</p></div>
+ <div class="card"><h3>💾 Save progress across devices</h3>
+ ${localStorage.getItem('addaGuideAuthStatus_'+pid)==='awaiting_provider'?'<span class="chip" style="margin-top:9px;background:#fff0ce;color:#73501e">GUIDED ACCOUNT STEP · WAITING FOR REAL OTP SERVICE</span>':''}
+ <p class="sub" style="margin-top:9px">Your current test profile is tied to this browser. Verified email/phone signup and a globally unique @username will arrive with the account database; they are not active in this field test.</p>
+ <p class="sub" style="margin-top:7px">You can keep playing while this final account-verification mission is pending; it is NOT marked verified.</p></div>
  <div class="sp12"></div><button class="btn ghost" onclick="window._sharePublicProfile()">Share my Vibe profile</button>
  <div class="sp12"></div><button class="btn ghost" onclick="window._newCrew()">Start another Crew</button>
  <div class="sp12"></div><button class="btn ghost" onclick="window._replayGuide()">⚡ Replay my welcome tour</button>
