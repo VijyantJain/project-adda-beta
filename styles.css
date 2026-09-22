@@ -986,3 +986,27 @@ html,body{background:
 .analyticsDeepTitle h2{color:white;font-size:25px;margin:6px 0}
 .analyticsDeepTitle p{font-size:12px;color:#eadbfc}
 .analyticsNotes{display:grid;gap:10px}.analyticsNotes p{font-size:12px;line-height:1.5;color:#665c79}
+
+/* M0.7 — private interest-led warm-up and guided navigation */
+.addaPersonalOverlay{position:fixed;inset:0;z-index:7900;display:flex;align-items:center;justify-content:center;overflow:auto;background:radial-gradient(circle at 70% 10%,#7752ce,#1b1139 77%);padding:env(safe-area-inset-top) 14px env(safe-area-inset-bottom)}
+.addaPersonalStage{width:min(580px,100%);max-height:96dvh;overflow-y:auto;box-sizing:border-box;border:1px solid #a38bee;border-radius:27px;background:linear-gradient(145deg,#fff,#f4ebff);padding:clamp(17px,4vw,26px);display:flex;flex-direction:column;gap:14px;box-shadow:0 24px 90px #160b2f88}
+.addaPersonalStage .starterKicker{color:#7840df}
+.addaPersonalStage h1{font-size:clamp(26px,7vw,39px);line-height:1.12;color:#2e1a54}
+.addaPersonalStage p{font-size:13px;line-height:1.5;color:#6a5b84}
+.addaInterestGrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.addaInterestPick{display:flex;gap:10px;align-items:center;padding:12px 9px;background:#fff;border:1.5px solid #dfcff8;border-radius:16px;text-align:left;font-size:12px;color:#452a72;min-height:62px;box-shadow:0 3px 10px #5c339b10}
+.addaInterestPick span{font-size:25px}.addaInterestPick b{overflow-wrap:anywhere}
+.addaInterestPick.selected,.addaInterestPick:active{background:#efe4ff;border-color:#7140e1}
+.addaPrivateMedia{height:min(32dvh,230px);border-radius:23px;position:relative;overflow:hidden;background:linear-gradient(135deg,#6542cc,#e363bb)}
+.addaPrivateMedia img{width:100%;height:100%;object-fit:cover}
+.addaPrivateMedia>span{position:absolute;right:9px;bottom:4px;font-size:46px;filter:drop-shadow(0 5px 13px #33184c)}
+.addaPrivateReward{display:grid;gap:13px;place-items:center;text-align:center;padding:28px 5px;font-size:62px}
+.addaPersonalStage .starterChoices{display:grid;gap:10px}.addaPersonalStage .starterChoice{width:100%;min-width:0}
+.addaPersonalStage .starterCTA{width:100%}
+.nav5:has(.addaGuideSpot){z-index:7003!important}
+.addaGuidedLayer:has(.addaGuideCard) ~ .nav5{z-index:7003!important}
+.addaGuideSpot{pointer-events:auto!important}
+.addaProfileEditor select,.addaPersonalStage select{width:100%;padding:12px;border:1px solid #d6c7f2;border-radius:12px;background:#fff;color:#35234f}
+.addaProfileEditor .field small{font-size:10px}
+@media(max-width:390px){.addaInterestPick{padding:9px 7px;gap:6px;font-size:11px}.addaPersonalStage{padding:15px}.addaPersonalStage h1{font-size:27px}}
+@media(prefers-reduced-motion:reduce){.addaPersonalOverlay *{scroll-behavior:auto!important}}
