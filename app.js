@@ -1,4 +1,5 @@
 import { createStarterController } from './starter.js';
+import { createPersonalGuide } from './personal-guide.js';
 const $=s=>document.querySelector(s);const app=document.getElementById('app');
 const API='/api';
 const qs=new URLSearchParams(location.search);let crewId=qs.get('crew')||'';let dropId=qs.get('drop')||'';let profileId=qs.get('profile')||'';const playFirstFive=qs.get('play')==='1';
@@ -455,9 +456,10 @@ window._startFirstFive=()=>{
 };
 // One-time, lightweight in-app learning: explain the Crew, guide two real answers,
 // then release navigation. Stored locally during beta; account-based sync is M1.
-let guide={active:false,step:0,answers:0,lastDrop:''};
-function guideKey(){return 'addaGuideDone_'+crewId}
-function guideActive(){return guide.active&&crewId&&localStorage.getItem(guideKey())!=='1'}
+let guide={active:false,step:0,answers:0,lastDrop:'',originCrewId:'',tour:0};
+let personalGuide=null,personalGuideActive=false;
+function guideKey(){return 'addaGuideDone_'+(guide.originCrewId||crewId)}
+function guideActive(){return guide.active&&(guide.originCrewId||crewId)&&localStorage.getItem(guideKey())!=='1'}
 function removeGuide(){document.querySelector('.addaGuidedLayer')?.remove();document.querySelectorAll('.addaGuideSpot').forEach(x=>x.classList.remove('addaGuideSpot'))}
 function guideDisplay(title,body,cta,action,selector){
  removeGuide();
@@ -473,9 +475,10 @@ function guideDisplay(title,body,cta,action,selector){
 }
 function startFirstCrewGuide(){
  if(!crewId||localStorage.getItem(guideKey())==='1'||guide.active)return;
- guide={active:true,step:0,answers:0,lastDrop:''};
+ guide={active:true,step:0,answers:0,lastDrop:'',originCrewId:crewId,tour:0};
  track('crew_guide_started',{crewId});
- setTimeout(()=>screen==='drop'?guideDrop():guideCrew(),130)
+ if(!personalGuide)personalGuide=createPersonalGuide({api,pid,esc,toast,track,getCrewId:()=>guide.originCrewId,getProfile:localProfile,saveProfile:p=>localStorage.addaLocalProfile=JSON.stringify(p),onDone:()=>{personalGuideActive=false;setTimeout(()=>screen==='drop'?guideDrop():guideCrew(),120)}});
+ personalGuideActive=true;personalGuide.start()
 }
 function guideCrew(){
  if(!guideActive()||screen!=='crew')return;
@@ -498,7 +501,7 @@ function guideAfterAnswer(){
  track('crew_guide_answered',{number:guide.answers,crewId,dropId:guide.lastDrop});
  if(guide.answers>=2){
    guide.step=3;
-   guideDisplay('You’re officially a mate! 🏆','That’s two Drops answered. Explore Chat, Vibe, Recap and the + button. Every new question makes the Crew more interesting.','Explore my Crew →',()=>{localStorage.setItem(guideKey(),'1');guide.active=false;track('crew_guide_completed',{crewId});dropId='';history.replaceState({},'',`/?crew=${crewId}`);screen='crew';render()},'.appStickyHeader');
+   guideDisplay('You’re officially a mate! 🏆','Two Drops answered. Let’s explore all five tabs and make your profile yours.','Show me around →',()=>startFiveTabTour(),'.appStickyHeader');
    return
  }
  guide.step=3;
@@ -572,7 +575,7 @@ async function renderCrew(){
   const totalResponses=drops.reduce((n,d)=>n+(d.responseCount||0),0);
   app.innerHTML=shell(`${crewStickyHeader()}${crew?.starterPack&&crew.createdBy===pid&&totalResponses<2?`<div class="starterCrewBanner"><b>🎉 Your 5 Drops are ready!</b><p>Answer one and invite your mates to compare their picks.</p><button onclick="window._shareCrew()">↗ Invite friends</button></div>`:''}<div class="crewModules"><button onclick="window._go('chat')" class="chatModule"><span class="moduleIcon">💬${hasUnreadChat()?'<i class="unreadDot"></i>':''}</span><b>Chat</b><small>${hasUnreadChat()?'New messages':'Talk here'}</small></button><button onclick="window._go('vibe')"><span>✦</span><b>Vibe</b><small>${matesLabel()}</small></button><button onclick="window._go('recap')"><span>✨</span><b>Recap</b><small>${totalResponses} answers</small></button><button onclick="window._go('crewSettings')"><span>⚙</span><b>Mates</b><small>Manage mates</small></button></div><div class="sp18"></div><div class="row between"><h2>Drops</h2><button class="chip chipBtn" onclick="window._go('create')">+ Create</button></div><div class="sp12"></div>${drops.length?drops.map(d=>`<button class="drop drop-${d.type}" style="width:100%;text-align:left" onclick="window._openDrop('${d.id}')"><div class="row between"><span class="chip">${labelType(d.type)}</span><span class="meta">${dropProgress(d)}</span></div>${d.mediaA?`<img class="dropThumb" src="${mediaUrl(d.mediaA)}" alt="">`:``}<div class="q">${esc(d.question)}</div><div class="meta">${d.type==='short'?(d.responseCount?`${d.responseCount} repl${d.responseCount===1?'y':'ies'} · live`:'Be first to reply'):d.revealed&&d.myResponse?'Result ready ✨':d.myResponse?'Waiting for friends…':'Tap to answer'}</div></button>`).join(''):`<div class="empty"><div><div style="font-size:44px">⚡</div><h2 style="margin-top:8px">No Drops yet</h2><p class="sub" style="margin-top:6px">Create one, then share it. Friends join when they answer.</p><div class="sp18"></div><button class="btn primary" onclick="window._go('create')">Create first Drop</button></div></div>`}`);
   if(!guideActive())schedulePoll('poll',()=>{if(screen==='crew')return renderCrew()},30000);
-  if(guideActive()&&!document.querySelector('.addaGuidedLayer'))setTimeout(guideCrew,120)
+  if(guideActive()&&!personalGuideActive&&guide.tour===0&&!document.querySelector('.addaGuidedLayer'))setTimeout(guideCrew,120)
 }
 window._openDrop=id=>{removeGuide();dropId=id;history.replaceState({},'',`/?crew=${crewId}&drop=${id}`);screen='drop';render()};
 function labelType(t){return ({short:'💬 Quick Answer',likely:'👀 Who’s most likely',either:'⚖️ This or That',vote:'🗳️ Vote',rate:'⭐ Rate',predict:'🔮 Predict'})[t]||'Drop'}
