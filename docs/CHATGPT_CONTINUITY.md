@@ -110,3 +110,6 @@ If every other chat disappears, these files are sufficient to restart:
 
 ## Current continuation checkpoint — v0.6.1
 Read FIRST_FIVE_VIBE_RUN.md for the actual two new-user journeys, exact screenshot trophy asset, one-action Tenacious page and seeded-Crew invite prompt. Read ONBOARDING_IDENTITY_CONTACTS.md before adding OTP/handles/avatar/contact features. Verify CURRENT_STATE against current branch and preview deploy status; do not assume production main contains preview changes. Update the Living Product Ledger when new feedback changes a flow.
+
+## Latest 2026-09-22 continuation checkpoint
+Current branch v0.5-full-experience has newer v0.6.2 preview than production main. Source ZIP can be downloaded from https://github.com/VijyantJain/project-adda-beta/archive/refs/heads/v0.5-full-experience.zip. FIRST_FIVE_VIBE_RUN.md, ANALYTICS_V2.md and TECHNOLOGY_MIGRATION_PLAN.md are canonical for recent onboarding/analytics/hosting decisions. No Supabase projects were present in connected account at last check. Existing Netlify field-test Blob store must never be cleared or renamed. Per-device DP/name/bio editor is beta only; real OTP/signup not yet shipped.
