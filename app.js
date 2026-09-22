@@ -275,7 +275,7 @@ function profileAvatarMarkup(){return ownAvatar()?`<img src="${ownAvatar()}" cla
 function renderProfile(){
  const crews=getKnownCrews(),stats=localStats(),p=localProfile();
  app.innerHTML=shell(`${top('')}<div class="profileCard"><div class="profileBig">${profileAvatarMarkup()}</div>
- <h1>${esc(p.displayName||meName||'You')}</h1>
+ <h1>${esc(p.displayName||meName||'You')}</h1>${p.handleDraft?`<p class="sub">@${esc(p.handleDraft)} <small>· local draft</small></p>`:''}
  ${p.bio?`<p class="sub">${esc(p.bio)}</p>`:''}
  <p class="sub">${crews.length} Crew${crews.length===1?'':'s'} · ${stats.response_submitted||0} Crew answers · ${stats.drop_created||0} Drops made</p>
  <div class="sp12"></div><button class="btn primary" onclick="window._editProfile()">✏️ Edit my profile & photo</button></div>
@@ -294,7 +294,10 @@ window._editProfile=()=>{
  <input id="addaPhotoFile" type="file" accept="image/*" style="position:absolute;opacity:0;width:1px;height:1px" onchange="window._localProfilePhoto(this)">
  <div class="field"><label>Display name</label><input id="addaEditName" maxlength="24" value="${esc(p.displayName||meName)}" placeholder="Your name"></div>
  <div class="field"><label>About me</label><textarea id="addaEditBio" maxlength="140" placeholder="A line your mates will recognize...">${esc(p.bio||'')}</textarea></div>
- <button class="btn primary" onclick="window._saveLocalProfile()">Save changes</button><button class="btn ghost" onclick="window._go('profile')">Cancel</button>
+ <div class="field"><label>Username draft <small>(not globally reserved yet)</small></label><input id="addaEditHandle" maxlength="20" value="${esc(p.handleDraft||'')}" placeholder="e.g. mumbo_jain"><small class="sub">Your future @handle — availability will be checked after real signup.</small></div>
+ <div class="field"><label>Your main interest</label><select id="addaEditInterest">${[['','Pick later'],['rides','Wheels & rides'],['style','Fashion & looks'],['music','Music & concerts'],['food','Food & cafés'],['travel','Travel'],['memes','Memes & chaos'],['fitness','Sports & fitness']].map(([v,l])=>`<option value="${v}" ${p.interest===v?'selected':''}>${l}</option>`).join('')}</select></div>
+ <div class="field"><label>Gender (optional, private)</label><select id="addaEditGender">${[['','Prefer not to say'],['man','Man'],['woman','Woman'],['nonbinary','Nonbinary / another identity']].map(([v,l])=>`<option value="${v}" ${p.gender===v?'selected':''}>${l}</option>`).join('')}</select></div>
+ <button class="btn primary addaProfileSave" onclick="window._saveLocalProfile()">Save changes</button><button class="btn ghost" onclick="window._skipGuidePhoto()">Continue without photo →</button><button class="btn ghost" onclick="window._go('profile')">Cancel</button>
  </main>`)
 };
 window._localProfilePhoto=async el=>{
@@ -308,14 +311,16 @@ window._localProfilePhoto=async el=>{
    g.drawImage(image,(image.naturalWidth-crop)/2,(image.naturalHeight-crop)/2,crop,crop,0,0,size,size);
    const avatar=c.toDataURL('image/jpeg',.68);URL.revokeObjectURL(url);
    const p=localProfile();p.avatar=avatar;localStorage.addaLocalProfile=JSON.stringify(p);
-   document.querySelector('.addaEditAvatar').innerHTML=profileAvatarMarkup();toast('Photo saved on this device');
+   document.querySelector('.addaEditAvatar').innerHTML=profileAvatarMarkup();toast('Photo saved on this device');if(guideActive()&&guide.tour===5&&guide.profileStage===0)setTimeout(()=>profileGuideStep(1),150);
  }catch(e){toast('Could not process photo. Try JPEG or PNG.')}
 };
+window._skipGuidePhoto=()=>{if(guideActive()&&guide.tour===5)profileGuideStep(1)};
 window._saveLocalProfile=()=>{
- const name=$('#addaEditName')?.value.trim(),bio=$('#addaEditBio')?.value.trim();
+ const name=$('#addaEditName')?.value.trim(),bio=$('#addaEditBio')?.value.trim(),handleDraft=$('#addaEditHandle')?.value.trim().replace(/^@/,'').toLowerCase();
+ if(handleDraft&&!/^[a-z][a-z0-9_.]{2,19}$/.test(handleDraft))return toast('Username draft: 3–20 letters, digits, _ or ., starting with a letter.');
  if(!name)return toast('Enter your display name');
- const p=localProfile();p.displayName=name;p.bio=bio||'';
- try{localStorage.addaLocalProfile=JSON.stringify(p);meName=name;localStorage.addaName=name;track('profile_edited',{hasBio:!!p.bio,hasAvatar:!!p.avatar});screen='profile';render();toast('Profile saved on this device')}
+ const p=localProfile();p.displayName=name;p.bio=bio||'';p.handleDraft=handleDraft||'';p.interest=$('#addaEditInterest')?.value||'';p.gender=$('#addaEditGender')?.value||'';
+ try{localStorage.addaLocalProfile=JSON.stringify(p);meName=name;localStorage.addaName=name;track('profile_edited',{hasBio:!!p.bio,hasAvatar:!!p.avatar});screen='profile';render();toast('Profile saved on this device');guideProfileSaved(p)}
  catch(e){toast('Device storage is full. Try a smaller photo.')}
 };
 
