@@ -325,7 +325,13 @@ export default async (req: Request, context: Context) => {
       const asRows=(obj:any,limit=30)=>Object.entries(obj).map(([label,count])=>({label,count:Number(count)})).sort((a,b)=>b.count-a.count).slice(0,limit);
       const rankedVisit=visitorRows.filter((v:any)=>!v.automatedSuspected).sort((a:any,b:any)=>b.answerCount-a.answerCount||b.sessions-a.sessions);
       const d1eligible=cohortEligible(1),d7eligible=cohortEligible(7);
+      const guideAnswerEvents=events.filter((e:any)=>e.event==="crew_guide_answered");
+      const guideAnswers={
+        one:guideAnswerEvents.filter((e:any)=>Number(e.meta?.number)===1).length,
+        two:guideAnswerEvents.filter((e:any)=>Number(e.meta?.number)===2).length
+      };
       const deepDive={
+        guideAnswers,
         audience:{browserIdentities:visitors.length,suspectedAutomated:suspected.length,humanLike:humanLike.length,engagedHumanLike:humanLike.filter((v:any)=>v.answerCount||v.dropCreates||v.chatMessages).length,returningHumanLike:humanLike.filter((v:any)=>v.sessions>1).length,fromInvites:visitFromInvite.length,direct:visitDirect.length,provisionalMembers:memberRows.filter((m:any)=>m.provisional).length},
         retention:{d1Eligible:d1eligible.length,d1Returned:d1eligible.filter((v:any)=>hasDay(v,1)).length,d7Eligible:d7eligible.length,d7Returned:d7eligible.filter((v:any)=>hasDay(v,7)).length,multiDayHumanLike:humanLike.filter((v:any)=>((activeDates[v.participantId]?.size||0)>1)).length},
         activation:{medianFirstAnswerMs:quantile(activationTimes,.5),p95FirstAnswerMs:quantile(activationTimes,.95),medianFirstFiveMs:quantile(stepSpeed,.5),started:starterStarted.size,firstAnswer:starterFirst.size,five:starterFive.size,ten:starterTen.size,fiveToTenPct:pct(starterTen.size,starterFive.size),startedToFivePct:pct(starterFive.size,starterStarted.size),startedToTenPct:pct(starterTen.size,starterStarted.size)},
