@@ -483,11 +483,12 @@ export default async (req: Request, context: Context) => {
     if(action==="guideStep" && req.method==="POST"){
       const participantId=clean(body.participantId,40),step=clean(body.step,48),crewId=clean(body.crewId,40);
       if(!/^p_[a-zA-Z0-9]{6,40}$/.test(participantId))return bad("Invalid participant.",400);
-      const allowed:any={personal_one:10,personal_two:15,tour_home:5,tour_crew:5,tour_create:5,tour_vibe:5,tour_profile:5,profile_bio:10,profile_photo:10,profile_handle_draft:10};
+      const allowed:any={personal_one:10,personal_two:15,tour_home:5,tour_crew:5,tour_create:5,tour_vibe:5,tour_profile:5,profile_bio:10,profile_photo:10,profile_avatar:10,profile_handle_draft:10};
       if(!Object.prototype.hasOwnProperty.call(allowed,step))return bad("Unknown guide step.");
       const key=`guide/v1/${participantId}`,state=await getJSON(store,key)||{steps:{},createdAt:now()};
       state.steps=state.steps||{};
-      const isNew=!state.steps[step];
+      const isVisual=step==='profile_avatar'||step==='profile_photo';
+      const isNew=!state.steps[step]&&!(isVisual&&(state.steps.profile_avatar||state.steps.profile_photo));
       if(isNew){
         state.steps[step]={points:allowed[step],at:now(),crewId};
         await store.setJSON(key,state);

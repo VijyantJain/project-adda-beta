@@ -1,6 +1,6 @@
 export function createStarterController(c){
   let state=null,feedback=null,busy=false,mode='play';
-  const {app,shell,top,api,pid,esc,getName,getInvite,onCrewCreated,onEnterInvite,onEnterExistingCrew,onCompleted,toast}=c;
+  const {app,shell,top,api,pid,esc,getName,getInvite,onCrewCreated,onEnterInvite,onEnterExistingCrew,onExploreSolo,onCompleted,toast}=c;
   const art={travel:'🏖️ 🏔️',denim:'👖 🔥',friends:'🫶 😂',roadtrip:'🚙 🎧',chai:'🍵 ☕',night:'🌃 🎬',food:'🍕 ✨'};
   const head=()=>top('');
   const invite=()=>getInvite?.()||null;
@@ -28,7 +28,7 @@ export function createStarterController(c){
       const v=invite();
       app.innerHTML=shell(`${head()}<section class="starterIntro">
         <span class="starterKicker">PLAY FIRST · CREW LATER</span>
-        <h1>5 quick ones.<br><em>Find your Vibe.</em></h1>
+        <h1>5 quick ones.<br><em>Find your Aura.</em></h1>
         <p>Pick, rate, guess, laugh. Earn your first trophy before inviting anyone.</p>
         <div class="starterIntroOrbs">🏖️ 👖 ☕ 🎧 🔥</div>
         <button class="btn starterCTA" onclick="window._starterBegin()">Play my First Five →</button>
@@ -42,7 +42,7 @@ export function createStarterController(c){
     app.innerHTML=shell(`${head()}<main class="starterFlow">
       <div class="starterTopline"><span>⚡ ${state.progress<5?'FIRST FIVE':'BONUS ROUND'}</span><b>${state.progress+1} / ${max}</b></div>
       <div class="starterTrack"><i style="width:${progress*20}%"></i></div>
-      <div class="starterBalance"><span>✨ ${state.points} Starter Vibe</span><span>${state.nextUnlock?state.nextUnlock.at-state.progress+' to '+esc(state.nextUnlock.name):'All trophies earned'}</span></div>
+      <div class="starterBalance"><span>✨ ${state.points} Starter Aura</span><span>${state.nextUnlock?state.nextUnlock.at-state.progress+' to '+esc(state.nextUnlock.name):'All trophies earned'}</span></div>
       <section class="starterQuestion"><span class="starterQuestionTag">${esc(q.icon)} ${esc(q.tag)}</span>
         <div class="starterArt art-${esc(q.art)}">${["travel","denim","friends","roadtrip","chai"].includes(q.art)?`<img class="starterArtImage" src="/starter-${q.art}.svg" alt="">`:`<span>${art[q.art]||'⚡'}</span>`}<i>✦</i></div>
         <h1>${esc(q.question)}</h1><p>Tap your pick 👇</p>
@@ -53,13 +53,13 @@ export function createStarterController(c){
   async function begin(){
     if(busy)return;
     busy=true;feedback=null;
-    app.innerHTML=shell(`${head()}<div class="starterLoading">⚡<h2>Getting your Vibe ready…</h2></div>`,false);
+    app.innerHTML=shell(`${head()}<div class="starterLoading">⚡<h2>Getting your Aura ready…</h2></div>`,false);
     try{
       state=await api('starterGet',{params:{participantId:pid}});
       if(state.bonusCompleted)onCompleted?.(state);
       mode=state.firstFiveCompleted?'finish':'play';render();
     }catch(e){
-      app.innerHTML=shell(`${head()}<div class="starterLoading"><h2>Couldn’t load your Vibe Run.</h2><p>${esc(e.message)}</p><button class="btn primary" onclick="window._starterBegin()">Retry</button></div>`,false);
+      app.innerHTML=shell(`${head()}<div class="starterLoading"><h2>Couldn’t load your Aura Run.</h2><p>${esc(e.message)}</p><button class="btn primary" onclick="window._starterBegin()">Retry</button></div>`,false);
     }finally{busy=false}
   }
   async function answer(i){
@@ -78,9 +78,9 @@ export function createStarterController(c){
       ${m?confetti():''}
       ${m?neonStage(major):'<div class="starterMiniSpark">⚡</div>'}
       <span class="starterUnlock">${m?'ACHIEVEMENT UNLOCKED':r.alreadyAnswered?'ALREADY COUNTED':'CHOICE SAVED'}</span>
-      <h1>${m?esc(m.icon)+' '+esc(m.name)+'!':r.alreadyAnswered?'Your Vibe is safe ✨':'Nice pick! ✨'}</h1>
+      <h1>${m?esc(m.icon)+' '+esc(m.name)+'!':r.alreadyAnswered?'Your Aura is safe ✨':'Nice pick! ✨'}</h1>
       <p>${m?esc(m.text):r.alreadyAnswered?'You already earned points for this answer.':'You’re on a roll.'}</p>
-      <div class="starterRewardPts">+${r.earnedPoints||0} <small>Vibe</small></div>
+      <div class="starterRewardPts">+${r.earnedPoints||0} <small>Aura</small></div>
       <div class="starterFact"><b>💡 A LITTLE EXTRA</b><p>${esc(r.feedback||'Your answer is saved.')}</p></div>
       <div class="starterRewardTarget"><b>${major?'Your new trophy is yours!':next?'Only '+(next.at-state.progress)+' more to '+esc(next.name):'All Starter trophies unlocked'}</b><div class="starterTrack"><i style="width:${(state.progress%5||5)*20}%"></i></div></div>
       <button class="btn starterCTA" onclick="window._starterNext()">${state.progress===5?'Claim my First Five →':state.progress===10?'See my Tenacious trophy →':'One more? Let’s go →'}</button>
@@ -97,12 +97,12 @@ export function createStarterController(c){
         <h1>${bonus?'Tenacious!':'First Five unlocked!'}</h1>
         <p>${bonus?'Ten choices. You cleared the full Starter Deck.':'Five choices. Your first Adda trophy is yours.'}</p>
       </section>
-      <section class="starterCompletionDetails"><div class="starterCompleteScore"><b>${state.points}</b><span>STARTER VIBE EARNED ⚡</span></div>
+      <section class="starterCompletionDetails"><div class="starterCompleteScore"><b>${state.points}</b><span>STARTER AURA EARNED ⚡</span></div>
         <span class="starterCollectionTitle">🏆 YOUR STARTER ACHIEVEMENTS · ${medals.length}/6</span>
         <div class="starterMedals">${medals.map(m=>`<span>${esc(m.icon)} ${esc(m.name)}</span>`).join('')}</div>
         <p class="starterFutureHint">${v?'Your next adventure is waiting inside '+esc(v.crewName)+'.':"That was the warm-up. Now discover what your own friends would choose."}</p>
-        <button class="btn starterCTA starterFinalCTA" onclick="window._starterPrimary()">${!bonus?'Play my next Five →':v?'Enter '+esc(v.crewName)+' →':hasCrew?'Enter my Crew →':'Start my own Crew →'}</button>
-        
+        <button class="btn starterCTA starterFinalCTA" onclick="window._starterPrimary()">${!bonus?'Play my next Five →':v?'Enter '+esc(v.crewName)+' →':hasCrew?'Enter my Crew →':'Explore my Aura →'}</button>
+        ${bonus&&!v&&!hasCrew?`<button class="starterTextLink addaStarterOptionalCrew" onclick="window._starterShowCrewForm()">Or start a Crew with friends →</button>`:''}
       </section>
     </main>`,false);
   }
@@ -110,6 +110,7 @@ export function createStarterController(c){
     if(!state?.bonusCompleted){mode='play';render();return;}
     if(invite())return onEnterInvite();
     if(state?.starterCrewId)return onEnterExistingCrew?.(state.starterCrewId);
+    if(onExploreSolo){onExploreSolo();return}
     return showCrewForm();
   }
   function skipBonus(){mode='play';render()}

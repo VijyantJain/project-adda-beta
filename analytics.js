@@ -10,7 +10,7 @@ function ago(ts){if(!ts)return '—';const m=Math.max(0,Math.round((Date.now()-n
 function keyLabel(k){return String(k||'').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase())}
 function screenLabel(screen){
   const map={
-    home:'Home',crew:'Crew',create:'Create Drop',vibe:'Vibe',profile:'Profile',
+    home:'Home',crew:'Crew',create:'Create Drop',vibe:'Aura',profile:'Profile',
     chat:'Crew Chat',recap:'Recap',crewSettings:'Crew Settings',crewInsights:'Field-test Insights',
     drop:'Drop',join:'Join Crew',start:'Start'
   };
@@ -201,7 +201,7 @@ function renderDashboard(){
         {label:'Created Starter Crew',count:s.starter.crews}
       ]):''}
       ${founderDeepDive()}
-      ${D.deepDive?.guidedPersonal?barList('Private Vibe & 5-tab guided mission',[
+      ${D.deepDive?.guidedPersonal?barList('Private Aura & 5-tab guided mission',[
         {label:'Personal warm-up shown',count:D.deepDive.guidedPersonal.started},
         {label:'Interest explicitly chosen',count:D.deepDive.guidedPersonal.interestChosen},
         {label:'Surprise Me selected',count:D.deepDive.guidedPersonal.surpriseMe},

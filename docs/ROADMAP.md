@@ -161,3 +161,8 @@ Real email + phone OTP (configured Supabase/email/SMS provider), verified profil
 Implemented preview: versioned ten-card Starter v2, interest-selected cards, seven private interest packs, optional gender secondary, two private guided cards, one-time guided Vibe, two real Crew replies, all five-tab tour, local photo/bio/username draft setup, tour replay/resume and activation instrumentation.
 Open before campaign freeze: photorealistic/high-quality original licensed content for ten common and fourteen pack variants, real mobile/in-app WhatsApp acceptance, ensure all guided highlight actions & forms on iOS/Android, accessibility/motion review.
 Infrastructure-blocked: real email/mobile OTP, globally unique @handle availability, public/synced DP/bio, provider-backed friend discovery. See ONBOARDING_M07_SRS, CONTENT_ASSET_REGISTRY, FEATURE_SPEC_CHECKLIST.
+
+## v0.7.1 — Founder activation and tour-fix preview
+Aura user-facing rename while preserving internal state, constrained coach marks and concise copy, local avatar/profile wizard, no-crew solo continuation after Tenacious, answered/unanswered Drop statuses, new conversion instrumentation. Exit requires real Safari/Chrome/WhatsApp-in-app device QA, retry/resume, original Avengers readback and storage-key regression checks; no main merge before owner approval.
+## v0.8 candidate — Daily Aura Deck / personal return loop
+Small finite daily interest-led cards and one real next action, streak/reward with server deduplication and reasonable caps; a Creator/Community content supply only when actual content and moderation exist. Evaluate meaningful returns and Solo→Crew conversions versus compelled invitations. Not yet deployed; no fake Arena results or imaginary social graph.

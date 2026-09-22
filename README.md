@@ -25,3 +25,6 @@ Designed for Netlify. `netlify.toml` publishes the repository root and Netlify a
 ## Full source archive
 
 [Download the complete current preview branch ZIP](https://github.com/VijyantJain/project-adda-beta/archive/refs/heads/v0.5-full-experience.zip). It includes source and bundled artwork, NOT live Netlify Blob data, Supabase data or secret environment variables. Back up datasets separately before any infrastructure cutover.
+
+## Current preview activation correction
+v0.7.1 adds user-facing Aura, non-skippable in-app guide, optional local avatars, no-Crew solo continuation and answered Drop badges. Read the updated 109-ID register and the v0.7.1 sections in CURRENT_STATE/ONBOARDING_M07_SRS. These changes require real mobile QA and are not a production main release.

@@ -88,3 +88,12 @@ Ordered Home → Crew → + Create → Vibe → Profile coach marks and real scr
 
 ## D028 — OTP is an actual deployment gate
 The user-approved end-state is guided email/mobile OTP through authenticated account creation. Current beta cannot complete that step without provider, SMS/email service and DB. Mark guide as awaiting_provider rather than falsely claiming verification; users stay able to play and return. Never silently treat localStorage as a verified identity.
+
+## D029 — Aura is the user-facing status language
+Use Aura/Aura Score/Aura page in product UI; keep legacy Vibe API keys, event names and historical documents for compatibility. This is not a storage migration or a score reset.
+## D030 — Guided tour is a controlled mission
+No midway Skip or outside-tap dismissal. Only one advertised coach-card action at a time; actual answer interaction unlocked when needed. Photo, personal bio, gender and username draft cannot become compulsory disclosure; local avatar/default are legitimate completion paths. Refresh recovery, browser/accessibility testing are acceptance gates.
+## D031 — Tenacious is a continuation, not a forced invitation
+Direct new users earn a personal Aura before they know Adda. Make Aura the next primary destination; optional Crew CTA. Invited users enter their actual shared Crew/Drop. Record solo-to-profile/social activation and do not conflate creator invitations with true personal value.
+## D032 — Cold start requires a truthful independent personal loop
+Plan a finite, interest-led Daily Aura Deck after validating current activation; no fake members, manufactured vote percentages, fabricated scarcity, manipulative notification pressure or click-for-points farming. Distinguish current Starter from future daily repeat supply.

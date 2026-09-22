@@ -93,11 +93,11 @@ function crewStickyHeader(){
     </div>
   </header><div class="crewHeaderSpacer" aria-hidden="true"></div>`
 }
-function navHtml(){const a=x=>screen===x?'active':'';return `<nav class="nav nav5"><button aria-label="Home" title="Home" class="${a('home')}" onclick="window._home()">${navIcon('home')}</button><button aria-label="Crew" title="Crew" class="${screen==='crew'?'active':''}" onclick="window._openCurrentCrew()">${navIcon('crew')}</button><button aria-label="Create" title="Create" class="create" onclick="window._createAction()">+</button><button aria-label="Vibe" title="Vibe" class="${a('vibe')}" onclick="window._go('vibe')">${navIcon('vibe')}</button><button aria-label="Profile" title="Profile" class="${a('profile')}" onclick="window._go('profile')">${navIcon('profile')}</button></nav>`}
+function navHtml(){const a=x=>screen===x?'active':'';return `<nav class="nav nav5"><button aria-label="Home" title="Home" class="${a('home')}" onclick="window._home()">${navIcon('home')}</button><button aria-label="Crew" title="Crew" class="${screen==='crew'?'active':''}" onclick="window._openCurrentCrew()">${navIcon('crew')}</button><button aria-label="Create" title="Create" class="create" onclick="window._createAction()">+</button><button aria-label="Aura" title="Aura" class="${a('vibe')}" onclick="window._go('vibe')">${navIcon('vibe')}</button><button aria-label="Profile" title="Profile" class="${a('profile')}" onclick="window._go('profile')">${navIcon('profile')}</button></nav>`}
 window._go=s=>{track('screen_view',{screen:s});screen=s;stopPolling();render()};window._tab=t=>{const next=t==='chat'?'chat':'crew';track('screen_view',{screen:next});screen=next;stopPolling();render()};
-window._home=()=>{stopPolling();if(!getKnownCrews().length){screen='starter';renderStarter();starterController?.begin();return}crewId='';dropId='';crew=null;members=[];drops=[];pendingInvite=null;history.replaceState({},'','/');screen='home';render()};
+window._home=()=>{stopPolling();if(!getKnownCrews().length&&localStorage.addaStarterFinished!=='1'){screen='starter';renderStarter();starterController?.begin();return}crewId='';dropId='';crew=null;members=[];drops=[];pendingInvite=null;history.replaceState({},'','/');screen='home';render()};
 window._openCurrentCrew=()=>{if(crewId&&crew){screen='crew';render()}else{const first=getKnownCrews()[0];if(first)window._openKnownCrew(first.id);else{screen='start';render()}}};
-window._createAction=()=>{if(crewId&&crew){screen='create';render()}else if(!getKnownCrews().length){window._home()}else{screen='start';render()}};
+window._createAction=()=>{if(crewId&&crew){screen='create';render()}else if(!getKnownCrews().length&&localStorage.addaStarterFinished!=='1'){window._home()}else{screen='start';render()}};
 window._openKnownCrew=id=>{track('crew_opened',{targetCrewId:id});crewId=id;dropId='';history.replaceState({},'',`/?crew=${id}`);screen='boot';return boot()};
 function stopPolling(){clearTimeout(pollTimer);clearTimeout(chatTimer)}
 function schedulePoll(kind,fn,ms){
@@ -206,7 +206,7 @@ window._shareDrop=(id)=>{track('drop_shared',{dropId:id});share(`${location.orig
 
 async function boot(){try{
  if(profileId){screen='publicVibe';render();return}
- if(!crewId){const noCrews=!getKnownCrews().length;screen=playFirstFive||noCrews?'starter':'home';render();if(noCrews&&localStorage.addaStarterFinished==='1')starterController?.begin();return}
+ if(!crewId){const noCrews=!getKnownCrews().length;screen=playFirstFive||(noCrews&&localStorage.addaStarterFinished!=='1')?'starter':'home';render();return}
  const c=await api('getCrew',{params:{crewId}});crew=c.crew;members=c.members;
  let member=members.find(m=>m.id===pid);
  const firstVisit=needsFirstJourney();
@@ -251,28 +251,29 @@ function renderHome(){
  const crews=getKnownCrews(),stats=localStats(),finished=localStorage.addaStarterFinished==='1';
  app.innerHTML=shell(`${homeStickyHeader()}
  <section class="homeWelcomeV2">
-  <span class="homeRailTitle" style="color:#dfff80">⚡ ${finished?'YOUR VIBE IS GROWING':'YOUR FIRST VIBE RUN'}</span>
+  <span class="homeRailTitle" style="color:#dfff80">⚡ ${finished?'YOUR AURA IS GROWING':'YOUR FIRST AURA RUN'}</span>
   <h2>${finished?'Your people. Your next story.':'Fun starts with one tap. 👀'}</h2>
-  <p>${finished?'Open a Crew, answer something unexpected, and give your Vibe another reason to grow.':'Five fast questions, tiny victories, your first trophy. No Crew required.'}</p>
-  <button onclick="${finished?"window._go('vibe')":"window._startFirstFive()"}">${finished?'🏆 See my Vibe & trophies →':'⚡ Play First Five →'}</button>
+  <p>${finished?'Open a Crew, answer something unexpected, and give your Aura another reason to grow.':'Five fast questions, tiny victories, your first trophy. No Crew required.'}</p>
+  <button onclick="${finished?"window._go('vibe')":"window._startFirstFive()"}">${finished?'🏆 See my Aura & trophies →':'⚡ Play First Five →'}</button>
  </section>
  <div class="row between"><div><div class="homeRailTitle">👥 YOUR SOCIAL SPACES</div><h2>Your Crews</h2></div><button class="chip chipBtn" onclick="window._newCrew()">+ New Crew</button></div>
  <p class="sub" style="margin:8px 0 13px">Open a Crew to see what your mates are up to.</p>
- ${crews.length?`<div class="crewGrid">${crews.map(c=>`<button class="crewTile" onclick="window._openKnownCrew('${c.id}')"><div class="crewEmoji">👥</div><b>${esc(c.name)}</b><span>Play with your mates →</span></button>`).join('')}</div>`:`<div class="card center"><h2>No Crews yet</h2><p class="sub" style="margin-top:6px">Finish your first Vibe Run and start with five ready-made Drops.</p><button class="btn primary" onclick="window._startFirstFive()">Start playing →</button></div>`}
+ ${!crews.length&&finished?`<div class="card addaSoloNext"><h2>There’s more to Adda 💜</h2><p>Explore your Aura and make your profile yours. Start a Crew whenever you like. No invites needed to continue.</p><button class="btn primary" onclick="window._editProfile()">Make my profile →</button><button class="btn ghost" onclick="window._newCrew()">Start a Crew when ready</button></div><div class="sp12"></div>`:''}
+  ${crews.length?`<div class="crewGrid">${crews.map(c=>`<button class="crewTile" onclick="window._openKnownCrew('${c.id}')"><div class="crewEmoji">👥</div><b>${esc(c.name)}</b><span>Play with your mates →</span></button>`).join('')}</div>`:`<div class="card center"><h2>No Crews yet</h2><p class="sub" style="margin-top:6px">Your Aura is already yours. When you want to play with friends, start a Crew with five ready-made Drops.</p><button class="btn primary" onclick="window._newCrew()">Start a Crew →</button></div>`}
  <div class="sp18"></div>
  <div class="homeRailTitle">✨ YOUR CORNER</div>
  <div class="homeModules">
-  <button onclick="window._go('vibe')"><span>✦</span><b>Your Vibe</b><small>Trophies, score & badges</small></button>
+  <button onclick="window._go('vibe')"><span>✦</span><b>Your Aura</b><small>Trophies, score & badges</small></button>
   <button onclick="window._go('profile')"><span>☺</span><b>Profile</b><small>Your identity & Crews</small></button>
  </div>
  <div class="card" style="margin-top:16px"><h3>🌍 What’s next for Adda?</h3><p class="sub" style="margin-top:7px">A personal Home feed will later bring together Crew activity, Moments and recommendations from Arena. For now, this is your private doorway into real Crews.</p></div>
  `)
 }
-window._newCrew=()=>{if(!getKnownCrews().length){return window._home()}crewId='';dropId='';crew=null;members=[];drops=[];history.replaceState({},'','/');screen='start';render()};
+window._newCrew=()=>{if(!getKnownCrews().length&&localStorage.addaStarterFinished!=='1'){return window._home()}crewId='';dropId='';crew=null;members=[];drops=[];history.replaceState({},'','/');screen='start';render()};
 
 function localProfile(){try{return JSON.parse(localStorage.addaLocalProfile||'{}')}catch{return {}}}
 function ownAvatar(){return localProfile().avatar||''}
-function profileAvatarMarkup(){return ownAvatar()?`<img src="${ownAvatar()}" class="addaOwnAvatar" alt="Your profile photo">`:'☺'}
+function profileAvatarMarkup(){const p=localProfile();return ownAvatar()?`<img src="${ownAvatar()}" class="addaOwnAvatar" alt="Your profile photo">`:p.avatarEmoji?`<span class="addaAvatarEmoji" role="img" aria-label="Chosen avatar">${esc(p.avatarEmoji)}</span>`:'☺'}
 function renderProfile(){
  const crews=getKnownCrews(),stats=localStats(),p=localProfile();
  app.innerHTML=shell(`${top('')}<div class="profileCard"><div class="profileBig">${profileAvatarMarkup()}</div>
@@ -285,7 +286,7 @@ function renderProfile(){
  ${localStorage.getItem('addaGuideAuthStatus_'+pid)==='awaiting_provider'?'<span class="chip" style="margin-top:9px;background:#fff0ce;color:#73501e">GUIDED ACCOUNT STEP · WAITING FOR REAL OTP SERVICE</span>':''}
  <p class="sub" style="margin-top:9px">Your current test profile is tied to this browser. Verified email/phone signup and a globally unique @username will arrive with the account database; they are not active in this field test.</p>
  <p class="sub" style="margin-top:7px">You can keep playing while this final account-verification mission is pending; it is NOT marked verified.</p></div>
- <div class="sp12"></div><button class="btn ghost" onclick="window._sharePublicProfile()">Share my Vibe profile</button>
+ <div class="sp12"></div><button class="btn ghost" onclick="window._sharePublicProfile()">Share my Aura profile</button>
  <div class="sp12"></div><button class="btn ghost" onclick="window._newCrew()">Start another Crew</button>
  <div class="sp12"></div><button class="btn ghost" onclick="window._replayGuide()">⚡ Replay my welcome tour</button>
  <div class="sp12"></div><div class="card"><h3>Your Crews</h3><div class="sp12"></div>${crews.length?crews.map(c=>`<button class="settingsRow" onclick="window._openKnownCrew('${c.id}')"><span>👥 ${esc(c.name)}</span><b>›</b></button>`).join(''):'<p class="sub">No Crews yet.</p>'}</div>`)
@@ -310,7 +311,7 @@ window._editProfile=()=>{
  <div class="field"><label>Username draft <small>(not globally reserved yet)</small></label><input id="addaEditHandle" maxlength="20" value="${esc(p.handleDraft||'')}" placeholder="e.g. mumbo_jain"><small class="sub">Your future @handle — availability will be checked after real signup.</small></div>
  <div class="field"><label>Your main interest</label><select id="addaEditInterest">${[['','Pick later'],['rides','Wheels & rides'],['style','Fashion & looks'],['music','Music & concerts'],['food','Food & cafés'],['travel','Travel'],['memes','Memes & chaos'],['fitness','Sports & fitness']].map(([v,l])=>`<option value="${v}" ${p.interest===v?'selected':''}>${l}</option>`).join('')}</select></div>
  <div class="field"><label>Gender (optional, private)</label><select id="addaEditGender">${[['','Prefer not to say'],['man','Man'],['woman','Woman'],['nonbinary','Nonbinary / another identity']].map(([v,l])=>`<option value="${v}" ${p.gender===v?'selected':''}>${l}</option>`).join('')}</select></div>
- <button class="btn primary addaProfileSave" onclick="window._saveLocalProfile()">Save changes</button><button class="btn ghost" onclick="window._skipGuidePhoto()">Continue without photo →</button><button class="btn ghost" onclick="window._go('profile')">Cancel</button>
+ <button class="btn primary addaProfileSave" onclick="window._saveLocalProfile()">Save changes</button>${guideActive()?'':'<button class="btn ghost" onclick="window._go(\'profile\')">Cancel</button>'}
  </main>`)
 };
 window._localProfilePhoto=async el=>{
@@ -323,7 +324,7 @@ window._localProfilePhoto=async el=>{
    const g=c.getContext('2d'),crop=Math.min(image.naturalWidth,image.naturalHeight);
    g.drawImage(image,(image.naturalWidth-crop)/2,(image.naturalHeight-crop)/2,crop,crop,0,0,size,size);
    const avatar=c.toDataURL('image/jpeg',.68);URL.revokeObjectURL(url);
-   const p=localProfile();p.avatar=avatar;localStorage.addaLocalProfile=JSON.stringify(p);
+   const p=localProfile();p.avatar=avatar;p.avatarEmoji='';localStorage.addaLocalProfile=JSON.stringify(p);
    document.querySelector('.addaEditAvatar').innerHTML=profileAvatarMarkup();toast('Photo saved on this device');if(guideActive()&&guide.tour===5&&guide.profileStage===0)setTimeout(()=>profileGuideStep(1),150);
  }catch(e){toast('Could not process photo. Try JPEG or PNG.')}
 };
@@ -349,14 +350,14 @@ async function renderVibe(){
   const rankSub=v.crewRank?.crewName?`in ${esc(v.crewRank.crewName)}`:'Open a Crew to rank';
   app.innerHTML=shell(`${top('')}
     <section class="vibeIdentity">
-      <div class="vibeIdentityTop"><div><span class="vibeEyebrow">YOUR VIBE</span><h1>${esc(meName||'You')}</h1></div><button class="vibeShare" onclick="window._shareVibe()">↗ Flex</button></div>
+      <div class="vibeIdentityTop"><div><span class="vibeEyebrow">YOUR AURA</span><h1>${esc(meName||'You')}</h1></div><button class="vibeShare" onclick="window._shareVibe()">↗ Flex</button></div>
       <div class="vibeLevelRow">
         <div class="vibeLevelOrb"><span>${v.level?.icon||'✨'}</span><b>${v.level?.index||1}</b></div>
-        <div class="vibeLevelCopy"><small>LEVEL ${v.level?.index||1}</small><h2>${esc(v.level?.name||'Fresh')}</h2><p><b>${v.score||0}</b> Vibe</p></div>
+        <div class="vibeLevelCopy"><small>LEVEL ${v.level?.index||1}</small><h2>${esc(v.level?.name||'Fresh')}</h2><p><b>${v.score||0}</b> Aura</p></div>
         <div class="vibeStreak"><span>🔥</span><b>${v.streak||0}</b><small>day streak</small></div>
       </div>
       <div class="vibeProgress"><i style="width:${v.progress||0}%"></i></div>
-      <div class="vibeProgressCopy">${v.nextLevel?`<span>${v.pointsToNext} Vibe to ${esc(v.nextLevel.name)}</span><b>${v.progress}%</b>`:'<span>Top level unlocked</span><b>100%</b>'}</div>
+      <div class="vibeProgressCopy">${v.nextLevel?`<span>${v.pointsToNext} Aura to ${esc(v.nextLevel.name)}</span><b>${v.progress}%</b>`:'<span>Top level unlocked</span><b>100%</b>'}</div>
     </section>
 
     <div class="vibeFlexGrid">
@@ -384,22 +385,22 @@ async function renderVibe(){
 window._shareVibe=()=>{
   const v=window._currentVibe;if(!v)return;
   const rank=v.crewRank?` · #${v.crewRank.rank} in ${v.crewRank.crewName}`:'';
-  const text=`${meName||'My'} Adda Vibe: ${v.level?.icon||'✨'} ${v.level?.name||'Fresh'} · ${v.score||0} Vibe · 🔥 ${v.streak||0}-day streak${rank}`;
+  const text=`${meName||'My'} Adda Aura: ${v.level?.icon||'✨'} ${v.level?.name||'Fresh'} · ${v.score||0} Aura · 🔥 ${v.streak||0}-day streak${rank}`;
   track('vibe_shared',{score:v.score,level:v.level?.name,streak:v.streak});
   share(`${location.origin}/?profile=${pid}&utm_source=adda&utm_medium=share&utm_campaign=vibe_profile`,text)
 };
 window._sharePublicProfile=()=>window._shareVibe();
 async function renderPublicVibe(){
   const inApp=!!(crew&&members.some(m=>m.id===pid));
-  const profileTop=inApp?`<header class="appStickyHeader hasContext"><div class="appTopRow"><button class="appBrand" onclick="window._home()">${brandLogo()}</button></div><div class="appContextRow"><button class="contextBack" onclick="window._returnFromUserProfile()">←</button><h3>Vibe profile</h3></div></header><div class="appHeaderSpacer context" aria-hidden="true"></div>`:top('');
-  let v;try{v=await api('getVibe',{params:{participantId:profileId}})}catch(e){return app.innerHTML=shell(`${profileTop}<div class="empty"><div><h1>Vibe not found</h1><p class="sub">This profile may no longer be available.</p></div></div>`,false)}
+  const profileTop=inApp?`<header class="appStickyHeader hasContext"><div class="appTopRow"><button class="appBrand" onclick="window._home()">${brandLogo()}</button></div><div class="appContextRow"><button class="contextBack" onclick="window._returnFromUserProfile()">←</button><h3>Aura profile</h3></div></header><div class="appHeaderSpacer context" aria-hidden="true"></div>`:top('');
+  let v;try{v=await api('getVibe',{params:{participantId:profileId}})}catch(e){return app.innerHTML=shell(`${profileTop}<div class="empty"><div><h1>Aura not found</h1><p class="sub">This profile may no longer be available.</p></div></div>`,false)}
   const unlocked=(v.badges||[]).filter(b=>b.unlocked),signature=v.signature?labelType(v.signature):'Still forming';
   app.innerHTML=shell(`${profileTop}
-    <section class="publicVibeIntro"><span>PUBLIC VIBE</span><h1>${esc(v.displayName||'Adda mate')}</h1><p>See the energy they have built on Adda.</p></section>
+    <section class="publicVibeIntro"><span>PUBLIC AURA</span><h1>${esc(v.displayName||'Adda mate')}</h1><p>See the energy they have built on Adda.</p></section>
     <section class="vibeIdentity public">
       <div class="vibeLevelRow">
         <div class="vibeLevelOrb"><span>${v.level?.icon||'✨'}</span><b>${v.level?.index||1}</b></div>
-        <div class="vibeLevelCopy"><small>LEVEL ${v.level?.index||1}</small><h2>${esc(v.level?.name||'Fresh')}</h2><p><b>${v.score||0}</b> Vibe</p></div>
+        <div class="vibeLevelCopy"><small>LEVEL ${v.level?.index||1}</small><h2>${esc(v.level?.name||'Fresh')}</h2><p><b>${v.score||0}</b> Aura</p></div>
         <div class="vibeStreak"><span>🔥</span><b>${v.streak||0}</b><small>day streak</small></div>
       </div>
     </section>
@@ -408,7 +409,7 @@ async function renderPublicVibe(){
       <div class="vibeFlex"><span>👥</span><small>Crews</small><b>${v.crews||0}</b><em>social circles</em></div>
     </div>
     <div class="vibeStatStrip"><div><b>${v.answers||0}</b><span>Answers</span></div><div><b>${v.dropsMade||0}</b><span>Drops made</span></div><div><b>${v.chatsSent||0}</b><span>Chats sent</span></div></div>
-    <section class="vibeBadgesCard"><div class="row between"><div><span class="vibeEyebrow trophyLabel">TROPHY CASE</span><h2>Top badges</h2></div><b class="badgeCount">${unlocked.length}</b></div><div class="vibeBadgeGrid">${unlocked.slice(0,6).map(b=>`<div class="vibeAchievement unlocked"><span>${b.icon}</span><b>${esc(b.name)}</b><small>Unlocked</small></div>`).join('')||'<p class="sub">Still building their Vibe.</p>'}</div></section>
+    <section class="vibeBadgesCard"><div class="row between"><div><span class="vibeEyebrow trophyLabel">TROPHY CASE</span><h2>Top badges</h2></div><b class="badgeCount">${unlocked.length}</b></div><div class="vibeBadgeGrid">${unlocked.slice(0,6).map(b=>`<div class="vibeAchievement unlocked"><span>${b.icon}</span><b>${esc(b.name)}</b><small>Unlocked</small></div>`).join('')||'<p class="sub">Still building their Aura.</p>'}</div></section>
     <div class="sp12"></div><button class="btn primary" onclick="location.href='/'">Open Adda</button>
   `,inApp)
 }
@@ -453,6 +454,7 @@ function renderStarter(){
    onCompleted:()=>{localStorage.addaStarterFinished='1'},
    onEnterInvite:()=>renderInvitedName(),
    onEnterExistingCrew:async id=>window._openKnownCrew(id),
+   onExploreSolo:()=>{localStorage.addaStarterFinished='1';crewId='';dropId='';crew=null;members=[];drops=[];history.replaceState({},'','/');track('starter_solo_explore',{step:10});screen='vibe';render()},
    onCrewCreated:async(j,nickname)=>{
     crewId=j.crew.id;crew=j.crew;meName=nickname;localStorage.addaName=nickname;
     localStorage.addaStarterFinished='1';rememberCrew(crew);
@@ -478,18 +480,31 @@ let guide={active:false,step:0,answers:0,lastDrop:'',originCrewId:'',tour:0};
 let personalGuide=null,personalGuideActive=false;
 function guideKey(){return 'addaGuideDone_'+(guide.originCrewId||crewId)}
 function guideActive(){return guide.active&&(guide.originCrewId||crewId)&&localStorage.getItem(guideKey())!=='1'}
+// While coached, block navigation/background taps; answer input is open only for the active real Drop.
+function guardGuideInteraction(e){
+ if(!guideActive())return;
+ const target=e.target;if(!(target instanceof Element))return;
+ const modal=document.querySelector('.addaGuidedLayer');
+ const withinGuide=target.closest('.addaGuidedLayer .addaGuideCard button,.addaGuidedLayer .addaGuideCard input,.addaGuidedLayer .addaGuideCard textarea,.addaGuidedLayer .addaGuideCard select');
+ const photoInput=guide.profileStage===0&&target.matches('#addaPhotoFile');
+ const answer=guide.mode==='answer'&&!modal&&target.closest('.choice,#submitAnswer,#shortAnswer');
+ if(withinGuide||photoInput||answer)return;
+ e.preventDefault();e.stopImmediatePropagation();
+}
+document.addEventListener('pointerdown',guardGuideInteraction,true);
+document.addEventListener('click',guardGuideInteraction,true);
+document.addEventListener('keydown',e=>{if(guideActive()&&e.key==='Escape'){e.preventDefault();e.stopImmediatePropagation()}},true);
 function removeGuide(){document.querySelector('.addaGuidedLayer')?.remove();document.querySelectorAll('.addaGuideSpot').forEach(x=>x.classList.remove('addaGuideSpot'))}
 function guideDisplay(title,body,cta,action,selector){
- removeGuide();
+ guide.mode='transition';removeGuide();
  const target=selector?document.querySelector(selector):null;
  if(target)target.classList.add('addaGuideSpot');
  const layer=document.createElement('div');layer.className='addaGuidedLayer';
  layer.innerHTML=`<div class="addaGuideShade"></div><section class="addaGuideCard" role="dialog" aria-label="Adda quick tour">
- <div class="addaGuideStep">⚡ QUICK CREW TOUR · ${guide.step+1}/4</div><h2>${esc(title)}</h2><p>${esc(body)}</p>
- <button class="btn primary" id="addaGuideAction">${esc(cta)}</button><button class="addaGuideSkip" id="addaGuideSkip">Skip guide</button></section>`;
+ <div class="addaGuideStep">⚡ YOUR ADDA TOUR</div><h2>${esc(title)}</h2><p>${esc(body)}</p>
+ <button class="btn primary" id="addaGuideAction">${esc(cta)}</button></section>`;
  document.body.appendChild(layer);
  layer.querySelector('#addaGuideAction').addEventListener('click',()=>{removeGuide();action?.()});
- layer.querySelector('#addaGuideSkip').addEventListener('click',()=>{guide.active=false;localStorage.setItem(guideKey(),'1');removeGuide();track('crew_guide_skipped',{step:guide.step})});
 }
 function startFirstCrewGuide(){
  if(!crewId||localStorage.getItem(guideKey())==='1'||guide.active)return;
@@ -506,29 +521,29 @@ function guideCrew(){
  if(!guideActive()||screen!=='crew')return;
  if(!drops.length)return;
  guide.step=0;
- guideDisplay('This is your Crew 👥','Your private place with your mates. Drops, chat, fun reveals and your shared history live here.','Show me a Drop →',()=>{
-  guide.step=1;guideDisplay('A Drop is a quick question ⚡','Everyone can answer, compare picks and discover what the gang thinks. You can create your own later.','Try the first Drop →',()=>{
+ guideDisplay('Your Crew 👥','Your private space with friends.','Show me a Drop →',()=>{
+  guide.step=1;guideDisplay('One quick Drop ⚡','Pick an answer and see what your friends choose.','Try the first Drop →',()=>{
     const first=drops.find(d=>!d.myResponse)||drops[0];if(first)window._openDrop(first.id)
   },'.drop')
  },'.crewStickyHeader')
 }
 function guideDrop(){
  if(!guideActive()||screen!=='drop')return;
- guide.step=2;
- guideDisplay('Make your pick 👀','Choose an option (or type your reply), then tap Submit. Your answer counts toward the Crew reveal.','Got it — I’ll answer →',()=>{},'#submitAnswer')
+ guide.step=2;guide.mode='transition';
+ guideDisplay('Your turn 👀','Pick or type an answer, then send it.','I’ll answer →',()=>{guide.mode='answer'},'#submitAnswer')
 }
 function guideAfterAnswer(){
- if(!guideActive())return;
+ if(!guideActive())return;guide.mode='transition';
  guide.answers++;
  localStorage.setItem('addaGuideState_'+guide.originCrewId,JSON.stringify({answers:guide.answers,lastDrop:guide.lastDrop,tour:guide.tour}));
  track('crew_guide_answered',{number:guide.answers,crewId,dropId:guide.lastDrop});
  if(guide.answers>=2){
    guide.step=3;
-   guideDisplay('You’re officially a mate! 🏆','Two Drops answered. Let’s explore all five tabs and make your profile yours.','Show me around →',()=>startFiveTabTour(),'.appStickyHeader');
+   guideDisplay('Two Drops done! 🏆','Take a quick look around Adda.','Show me around →',()=>startFiveTabTour(),'.appStickyHeader');
    return
  }
  guide.step=3;
- guideDisplay('First Drop done! 🎉','You just joined the conversation. Try one more Drop to see how the flow works.','Try another Drop →',()=>{
+ guideDisplay('First answer in! 🎉','One more Drop and you’re ready.','Try another Drop →',()=>{
    const other=drops.find(d=>d.id!==guide.lastDrop&&!d.myResponse);
    if(other)window._openDrop(other.id);
    else {dropId='';screen='crew';render();guide.step=0;setTimeout(guideCrew,300)}
@@ -538,12 +553,12 @@ function guideAfterAnswer(){
 
 function guideAward(step){
  api('guideStep',{method:'POST',body:{participantId:pid,step,crewId:guide.originCrewId}})
- .then(r=>{if(r.earnedPoints)toast('⚡ +'+r.earnedPoints+' Vibe')})
+ .then(r=>{if(r.earnedPoints)toast('⚡ +'+r.earnedPoints+' Aura')})
  .catch(e=>console.warn('guide points',e.message))
 }
 function startFiveTabTour(){guide.tour=1;track('guide_five_tabs_started',{crewId:guide.originCrewId});tourStep(0)}
 function tourStep(i){
- if(!guideActive())return;
+ if(!guideActive())return;guide.mode='transition';
  guide.tour=i+1;guide.step=4+i;
  localStorage.setItem('addaGuideState_'+guide.originCrewId,JSON.stringify({answers:guide.answers,lastDrop:guide.lastDrop,tour:guide.tour}));
  if(i===0){dropId='';window._home()}
@@ -552,11 +567,11 @@ function tourStep(i){
  if(i===3)window._go('vibe');
  if(i===4)window._go('profile');
  const steps=[
- ['Home 🏠','Your base: saved Crews, your Vibe and things waiting for you.','Open Crew →','tour_home'],
- ['Crew 👥','Your private circle: shared Drops, chat, mates and recap.','Explore Create →','tour_crew'],
- ['Create +','This is how you start new Drops. Try later—you do not need to publish during a tour.','See my Vibe →','tour_create'],
- ['Vibe ✨','Your earned level, trophies, streak and personal show-off space.','Visit Profile →','tour_vibe'],
- ['Profile ☺','Your face, name, bio, preferences and eventually your verified account.','Make it mine →','tour_profile']
+ ['Home 🏠','Your Crews and Aura, in one place.','Open Crew →','tour_home'],
+ ['Crew 👥','Drops, chat and friends live here.','Explore Create →','tour_crew'],
+ ['Create +','Make a Drop here. No need to post now.','See my Aura →','tour_create'],
+ ['Aura ✨','Your score, trophies and progress.','Visit Profile →','tour_vibe'],
+ ['Profile ☺','Choose how you show up on Adda.','Make it mine →','tour_profile']
  ];
  const show=(tries=0)=>{
   if(!guideActive()||guide.tour!==i+1)return;
@@ -572,41 +587,36 @@ function tourStep(i){
  setTimeout(()=>show(),i===1?230:110);
 }
 function profileGuideStep(i){
- if(!guideActive())return;
- guide.step=9+i;guide.profileStage=i;
+ if(!guideActive())return;guide.step=9+i;guide.profileStage=i;guide.mode='transition';
  if(i===0){
-  guideDisplay('Put a face to your Vibe 📸','Choose a profile photo if you want. We never open your camera or gallery without your tap.','Choose photo →',()=>document.getElementById('addaPhotoFile')?.click(),'.addaPhotoPick');
-  const b=document.createElement('button');b.className='addaGuideSkip';b.textContent='Skip photo for now →';
-  b.addEventListener('click',()=>{removeGuide();profileGuideStep(1)});
-  document.querySelector('.addaGuideCard')?.appendChild(b);return
+  guideDisplay('Pick your look 👀','Choose a photo, use an avatar or keep the default. Change it any time.','Choose a photo →',()=>document.getElementById('addaPhotoFile')?.click(),'.addaPhotoPick');
+  const card=document.querySelector('.addaGuideCard');if(!card)return;
+  const row=document.createElement('div');row.className='addaGuideAvatars';
+  ['😎','🦊','🐼','👾','🦄','🤠'].forEach(emoji=>{const b=document.createElement('button');b.type='button';b.className='addaGuideAvatar';b.textContent=emoji;b.setAttribute('aria-label','Use avatar '+emoji);b.addEventListener('click',()=>{const p=localProfile();p.avatar='';p.avatarEmoji=emoji;localStorage.addaLocalProfile=JSON.stringify(p);const a=document.querySelector('.addaEditAvatar');if(a)a.innerHTML=profileAvatarMarkup();track('profile_avatar_selected',{kind:'emoji'});profileGuideStep(1)});row.appendChild(b)});
+  card.appendChild(row);const next=document.createElement('button');next.type='button';next.className='addaGuideDefault';next.textContent='Keep default avatar →';next.addEventListener('click',()=>profileGuideStep(1));card.appendChild(next);return
  }
  if(i===1){
-  guideDisplay('Say a little about yourself 💬','Write a short bio in the highlighted box. It is device-local until verified profiles are launched.','Write my bio →',()=>{
-   document.getElementById('addaEditBio')?.focus();
-   if(!document.getElementById('addaBioNext')){
-    const btn=document.createElement('button');btn.className='btn ghost';btn.id='addaBioNext';btn.textContent='Continue to username →';
-    btn.addEventListener('click',()=>profileGuideStep(2));
-    document.getElementById('addaEditBio')?.insertAdjacentElement('afterend',btn);
-   }
-  },'#addaEditBio');return
+  guideDisplay('A line about you 💬','Short bio or leave blank.','Continue →',()=>{const f=document.getElementById('addaEditBio');if(f)f.value=document.getElementById('addaGuideBio')?.value||'';profileGuideStep(2)},'#addaEditBio');
+  const f=document.createElement('textarea');f.id='addaGuideBio';f.maxLength=140;f.rows=3;f.placeholder='A little about me (optional)';f.value=document.getElementById('addaEditBio')?.value||'';f.setAttribute('aria-label','Optional bio');document.querySelector('.addaGuideCard')?.insertBefore(f,document.getElementById('addaGuideAction'));return
  }
- guideDisplay('Claim your future @name 👀','Pick a username draft; global uniqueness is NOT active in the browser-only beta. Enter it then Save changes.','Let me add my name →',()=>{
-  document.getElementById('addaEditHandle')?.focus();
-  guide.step=12;
-  guideDisplay('Finish your profile 💜','After entering your username draft, tap Save. Verified OTP will be the last mission only after real Auth is connected.','I will save now →',()=>document.getElementById('addaEditHandle')?.focus(),'.addaProfileSave')
- },'#addaEditHandle')
+ if(i===2){
+  guideDisplay('Pick a future @name ✨','Optional draft. Not reserved or public yet.','Continue →',()=>{const v=document.getElementById('addaGuideHandle')?.value.trim().replace(/^@/,'').toLowerCase()||'';if(v&&!/^[a-z][a-z0-9_.]{2,19}$/.test(v)){toast('3–20 letters, digits, _ or ., starting with a letter');return}const f=document.getElementById('addaEditHandle');if(f)f.value=v;profileGuideStep(3)},'#addaEditHandle');
+  const f=document.createElement('input');f.id='addaGuideHandle';f.maxLength=20;f.placeholder='your_future_name';f.value=document.getElementById('addaEditHandle')?.value||'';f.setAttribute('aria-label','Username draft');document.querySelector('.addaGuideCard')?.insertBefore(f,document.getElementById('addaGuideAction'));return
+ }
+ guideDisplay('Make it yours 💜','Check your name. Your beta profile stays on this device.','Save my profile →',()=>{const f=document.getElementById('addaEditName');if(f)f.value=document.getElementById('addaGuideName')?.value.trim()||'';window._saveLocalProfile()},'#addaEditName');
+ const f=document.createElement('input');f.id='addaGuideName';f.maxLength=24;f.placeholder='What should we call you?';f.value=document.getElementById('addaEditName')?.value||'';f.setAttribute('aria-label','Display name');document.querySelector('.addaGuideCard')?.insertBefore(f,document.getElementById('addaGuideAction'));
 }
 function guideProfileSaved(p){
  if(!guideActive()||guide.tour!==5)return;
  if(p.bio)guideAward('profile_bio');
- if(p.avatar)guideAward('profile_photo');
+ if(p.avatar)guideAward('profile_photo');else if(p.avatarEmoji)guideAward('profile_avatar');
  if(p.handleDraft)guideAward('profile_handle_draft');
  const id=guide.originCrewId;
  guide.active=false;localStorage.setItem('addaGuideTourDone_'+pid,'1');
  localStorage.setItem('addaGuideAuthStatus_'+pid,'awaiting_provider');
  track('guide_profile_ready',{hasPhoto:!!p.avatar,hasBio:!!p.bio,hasHandleDraft:!!p.handleDraft});
  setTimeout(()=>{
-  guideDisplay('Your Vibe is taking shape 🏆','Your beta profile is saved on this device. Verified email/mobile OTP, global username and cross-device recovery need our account service. Play on in the meantime.','Explore Adda →',()=>{
+  guideDisplay('Your Aura is ready 🏆','Saved on this device. Verified account and sync are coming later.','Explore Adda →',()=>{
    localStorage.setItem('addaGuideDone_'+id,'1');removeGuide();track('guide_beta_handoff',{authStatus:'awaiting_provider'});localStorage.removeItem('addaGuideState_'+id)
   },'.profileCard')
  },160)
@@ -673,7 +683,7 @@ async function refreshDrops(){const j=await api('listDrops',{params:{crewId,part
 async function renderCrew(){
   clearTimeout(pollTimer);await refreshCrew();rememberCrew(crew);await refreshDrops();
   const totalResponses=drops.reduce((n,d)=>n+(d.responseCount||0),0);
-  app.innerHTML=shell(`${crewStickyHeader()}${crew?.starterPack&&crew.createdBy===pid&&totalResponses<2?`<div class="starterCrewBanner"><b>🎉 Your 5 Drops are ready!</b><p>Answer one and invite your mates to compare their picks.</p><button onclick="window._shareCrew()">↗ Invite friends</button></div>`:''}<div class="crewModules"><button onclick="window._go('chat')" class="chatModule"><span class="moduleIcon">💬${hasUnreadChat()?'<i class="unreadDot"></i>':''}</span><b>Chat</b><small>${hasUnreadChat()?'New messages':'Talk here'}</small></button><button onclick="window._go('vibe')"><span>✦</span><b>Vibe</b><small>${matesLabel()}</small></button><button onclick="window._go('recap')"><span>✨</span><b>Recap</b><small>${totalResponses} answers</small></button><button onclick="window._go('crewSettings')"><span>⚙</span><b>Mates</b><small>Manage mates</small></button></div><div class="sp18"></div><div class="row between"><h2>Drops</h2><button class="chip chipBtn" onclick="window._go('create')">+ Create</button></div><div class="sp12"></div>${drops.length?drops.map(d=>`<button class="drop drop-${d.type}" style="width:100%;text-align:left" onclick="window._openDrop('${d.id}')"><div class="row between"><span class="chip">${labelType(d.type)}</span><span class="meta">${dropProgress(d)}</span></div>${d.mediaA?`<img class="dropThumb" src="${mediaUrl(d.mediaA)}" alt="">`:``}<div class="q">${esc(d.question)}</div><div class="meta">${d.type==='short'?(d.responseCount?`${d.responseCount} repl${d.responseCount===1?'y':'ies'} · live`:'Be first to reply'):d.revealed&&d.myResponse?'Result ready ✨':d.myResponse?'Waiting for friends…':'Tap to answer'}</div></button>`).join(''):`<div class="empty"><div><div style="font-size:44px">⚡</div><h2 style="margin-top:8px">No Drops yet</h2><p class="sub" style="margin-top:6px">Create one, then share it. Friends join when they answer.</p><div class="sp18"></div><button class="btn primary" onclick="window._go('create')">Create first Drop</button></div></div>`}`);
+  app.innerHTML=shell(`${crewStickyHeader()}${crew?.starterPack&&crew.createdBy===pid&&totalResponses<2?`<div class="starterCrewBanner"><b>🎉 Your 5 Drops are ready!</b><p>Answer one and invite your mates to compare their picks.</p><button onclick="window._shareCrew()">↗ Invite friends</button></div>`:''}<div class="crewModules"><button onclick="window._go('chat')" class="chatModule"><span class="moduleIcon">💬${hasUnreadChat()?'<i class="unreadDot"></i>':''}</span><b>Chat</b><small>${hasUnreadChat()?'New messages':'Talk here'}</small></button><button onclick="window._go('vibe')"><span>✦</span><b>Aura</b><small>${matesLabel()}</small></button><button onclick="window._go('recap')"><span>✨</span><b>Recap</b><small>${totalResponses} answers</small></button><button onclick="window._go('crewSettings')"><span>⚙</span><b>Mates</b><small>Manage mates</small></button></div><div class="sp18"></div><div class="row between"><h2>Drops</h2><button class="chip chipBtn" onclick="window._go('create')">+ Create</button></div><div class="sp12"></div>${drops.length?drops.slice().sort((a,b)=>Number(!!a.myResponse)-Number(!!b.myResponse)).map(d=>`<button class="drop drop-${d.type} ${d.myResponse?'dropHasAnswer':'dropNeedsAnswer'}" aria-label="${d.myResponse?'Answered':'Not answered'}: ${esc(d.question)}" style="width:100%;text-align:left" onclick="window._openDrop('${d.id}')"><div class="row between"><span class="chip">${labelType(d.type)}</span><span class="dropStatus ${d.myResponse?'isAnswered':'isPending'}">${d.myResponse?d.revealed?'✨ Result ready':'✓ Answered':'○ Your turn'}</span></div>${d.mediaA?`<img class="dropThumb" src="${mediaUrl(d.mediaA)}" alt="">`:``}<div class="q">${esc(d.question)}</div><div class="meta">${d.type==='short'?(d.responseCount?`${d.responseCount} repl${d.responseCount===1?'y':'ies'} · live`:'Be first to reply'):d.revealed&&d.myResponse?'Result ready ✨':d.myResponse?'Waiting for friends…':'Tap to answer'}</div></button>`).join(''):`<div class="empty"><div><div style="font-size:44px">⚡</div><h2 style="margin-top:8px">No Drops yet</h2><p class="sub" style="margin-top:6px">Create one, then share it. Friends join when they answer.</p><div class="sp18"></div><button class="btn primary" onclick="window._go('create')">Create first Drop</button></div></div>`}`);
   if(!guideActive())schedulePoll('poll',()=>{if(screen==='crew')return renderCrew()},30000);
   if(guideActive()&&!personalGuideActive&&guide.tour===0&&!document.querySelector('.addaGuidedLayer'))setTimeout(guideCrew,120)
 }
@@ -753,7 +763,7 @@ async function renderDrop(){
   if(guideActive())setTimeout(guideDrop,80)
 }
 window._select=id=>{selected=id;document.querySelectorAll('.choice').forEach(el=>{const on=el.dataset.answer===id;el.classList.toggle('selected',on);el.setAttribute('aria-pressed',on?'true':'false')});const b=$('#submitAnswer');if(b){b.disabled=false;b.style.opacity='1'}};
-window._submitAnswer=async()=>{const answer=activeDropType==='short'?$('#shortAnswer')?.value.trim():selected;if(!answer)return toast('Add your answer');const btn=$('#submitAnswer');if(btn){btn.disabled=true;btn.textContent='Sending…'}try{await api('answerDrop',{method:'POST',body:{crewId,dropId,participantId:pid,answer}});track('response_submitted',{dropId,type:activeDropType,entry:'crew'});if(guideActive()){guide.lastDrop=dropId;removeGuide();setTimeout(guideAfterAnswer,1100)}selected=null;app.innerHTML=shell(`${top(labelType(activeDropType),'crew')}<div class="sentState"><div class="sentTick">✓</div><h1>Answer sent</h1><p class="sub">Updating the Crew…</p></div>`);setTimeout(()=>{if(screen==='drop')renderDrop()},350)}catch(e){toast(e.message);if(btn){btn.disabled=false;btn.textContent=activeDropType==='short'?'Send answer':'Submit answer'}}};
+window._submitAnswer=async()=>{const answer=activeDropType==='short'?$('#shortAnswer')?.value.trim():selected;if(!answer)return toast('Add your answer');const btn=$('#submitAnswer');if(btn){btn.disabled=true;btn.textContent='Sending…'}try{await api('answerDrop',{method:'POST',body:{crewId,dropId,participantId:pid,answer}});track('response_submitted',{dropId,type:activeDropType,entry:'crew'});if(guideActive()){guide.mode='transition';guide.lastDrop=dropId;removeGuide();setTimeout(guideAfterAnswer,1100)}selected=null;app.innerHTML=shell(`${top(labelType(activeDropType),'crew')}<div class="sentState"><div class="sentTick">✓</div><h1>Answer sent</h1><p class="sub">Updating the Crew…</p></div>`);setTimeout(()=>{if(screen==='drop')renderDrop()},350)}catch(e){toast(e.message);if(btn){btn.disabled=false;btn.textContent=activeDropType==='short'?'Send answer':'Submit answer'}}};
 function renderWaiting(d,j){
   clearTimeout(pollTimer);
   if(d.thresholdMode==='manual'){

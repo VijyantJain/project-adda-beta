@@ -1010,3 +1010,27 @@ html,body{background:
 .addaProfileEditor .field small{font-size:10px}
 @media(max-width:390px){.addaInterestPick{padding:9px 7px;gap:6px;font-size:11px}.addaPersonalStage{padding:15px}.addaPersonalStage h1{font-size:27px}}
 @media(prefers-reduced-motion:reduce){.addaPersonalOverlay *{scroll-behavior:auto!important}}
+
+/* v0.7.1: only coach-card controls accept pointer interaction during guided tour.
+   The spotlight is visual; it is never an escape hatch into regular navigation. */
+.addaGuidedLayer{pointer-events:auto}
+.addaGuideSpot{pointer-events:none!important}
+.nav5:has(.addaGuideSpot){z-index:auto!important}
+.addaGuidedLayer .addaGuideCard button:focus-visible,
+.addaGuidedLayer .addaGuideCard input:focus-visible,
+.addaGuidedLayer .addaGuideCard textarea:focus-visible{outline:3px solid #dfff72;outline-offset:3px}
+.addaGuideAvatars{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin-top:12px}
+.addaGuideAvatar{min-height:43px;border:1px solid #baa5ec;border-radius:12px;background:#fff;font-size:22px}
+.addaGuideDefault{display:block;margin:10px auto 0;padding:9px;color:#fff;background:transparent;border:0;text-decoration:underline;font-weight:700}
+.addaGuideCard textarea,.addaGuideCard input{display:block;width:100%;background:#fff;color:#25143c;border:2px solid #d6c1ff;border-radius:13px;padding:11px;margin:8px 0 13px}
+.addaAvatarEmoji{font-size:inherit;display:grid;place-items:center;width:100%;height:100%}
+.addaSoloNext{display:grid;gap:11px;margin-bottom:14px;background:linear-gradient(145deg,#f4ecff,#fff)}
+.addaSoloNext p{font-size:13px;line-height:1.45;color:#6a5b84}
+.addaSoloNext .btn.ghost{background:#fff}
+.dropStatus{font-size:11px;font-weight:900;border-radius:999px;padding:6px 9px;white-space:nowrap}
+.dropStatus.isAnswered{background:#e9f8df;color:#315c24}
+.dropStatus.isPending{background:#ece5ff;color:#56349b}
+.dropHasAnswer{border-left-color:#71af58;opacity:.91}
+.dropNeedsAnswer{border-left-color:#7142eb}
+.addaStarterOptionalCrew{display:block;text-align:center;margin:12px auto 2px;color:#e8d7ff;text-decoration:underline}
+@media(max-width:365px){.addaGuideAvatars{grid-template-columns:repeat(3,1fr)}}

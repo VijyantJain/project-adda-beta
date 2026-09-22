@@ -15,14 +15,14 @@ const key="addaPersonalGuide_"+pid,done="addaPersonalGuideDone_"+pid;
 let interest="",gender="",index=0,answers=[],busy=false,confirmed=false;
 const load=()=>{try{return JSON.parse(localStorage.getItem(key)||"{}")}catch{return {}}};
 const save=()=>localStorage.setItem(key,JSON.stringify({interest,gender,index,answers,confirmed}));
-function overlay(html){document.querySelector(".addaPersonalOverlay")?.remove();const o=document.createElement("div");o.className="addaPersonalOverlay";o.setAttribute("role","dialog");o.setAttribute("aria-label","Your personal Vibe");o.innerHTML='<main class="addaPersonalStage">'+html+"</main>";document.body.appendChild(o)}
+function overlay(html){document.querySelector(".addaPersonalOverlay")?.remove();const o=document.createElement("div");o.className="addaPersonalOverlay";o.setAttribute("role","dialog");o.setAttribute("aria-label","Your personal Aura");o.innerHTML='<main class="addaPersonalStage">'+html+"</main>";document.body.appendChild(o)}
 function finish(){
  const p=getProfile();p.interest=interest;p.gender=gender;p.privateVibePicks=answers;saveProfile(p);localStorage.setItem(done,"1");
  document.querySelector(".addaPersonalOverlay")?.remove();track("personal_guide_completed",{interest});onDone();
 }
 function render(){
  if(!confirmed){
-  overlay('<span class="starterKicker">PICK YOUR VIBE 💜</span><h1>What do YOU like?</h1><p>These next two picks are private and won’t change your Crew mates’ shared Drops.</p><div class="addaInterestGrid">'+Object.entries(packs).map(([id,p])=>'<button class="addaInterestPick '+(interest===id?'selected':'')+'" data-pack="'+id+'"><span>'+p.emoji+'</span><b>'+esc(p.name)+'</b></button>').join("")+'</div><div class="field"><label>Gender (optional and private)</label><select id="personalGender"><option value="">Prefer not to say</option><option value="man">Man</option><option value="woman">Woman</option><option value="nonbinary">Nonbinary / another identity</option></select></div><p class="sub">Interests decide the card pack. Gender never blocks an interest.</p><button class="starterTextLink" id="surpriseMe">Surprise me instead →</button>');
+  overlay('<span class="starterKicker">PICK YOUR AURA 💜</span><h1>What do YOU like?</h1><p>These next two picks are private and won’t change your Crew mates’ shared Drops.</p><div class="addaInterestGrid">'+Object.entries(packs).map(([id,p])=>'<button class="addaInterestPick '+(interest===id?'selected':'')+'" data-pack="'+id+'"><span>'+p.emoji+'</span><b>'+esc(p.name)+'</b></button>').join("")+'</div><div class="field"><label>Gender (optional and private)</label><select id="personalGender"><option value="">Prefer not to say</option><option value="man">Man</option><option value="woman">Woman</option><option value="nonbinary">Nonbinary / another identity</option></select></div><p class="sub">Interests decide the card pack. Gender never blocks an interest.</p><button class="starterTextLink" id="surpriseMe">Surprise me instead →</button>');
   document.getElementById("personalGender").value=gender;
  const go=document.createElement("button");go.id="personalStart";go.className="btn starterCTA";go.textContent="Start my private picks →";go.disabled=!interest;document.querySelector(".addaPersonalStage")?.appendChild(go);go.addEventListener("click",()=>{gender=document.getElementById("personalGender").value;confirmed=true;save();track("personal_pack_selected",{interest});render()});
   document.querySelectorAll("[data-pack]").forEach(b=>b.addEventListener("click",()=>{interest=b.dataset.pack;gender=document.getElementById("personalGender").value;save();render()}));
@@ -36,7 +36,7 @@ function render(){
   try{const r=await api("guideStep",{method:"POST",body:{participantId:pid,step:index?"personal_two":"personal_one",crewId:getCrewId()}});
    answers[index]=d[1][Number(btn.dataset.choice)];index++;save();track("personal_card_answered",{interest,step:index});
    if(index===2){finish();return}
-   overlay('<div class="addaPrivateReward">⚡<h1>+'+(r.earnedPoints||0)+' Vibe</h1><p>One more private choice. Then meet your Crew!</p><button class="btn starterCTA" id="personalNext">Next choice →</button></div>');
+   overlay('<div class="addaPrivateReward">⚡<h1>+'+(r.earnedPoints||0)+' Aura</h1><p>One more private choice. Then meet your Crew!</p><button class="btn starterCTA" id="personalNext">Next choice →</button></div>');
    document.getElementById("personalNext").addEventListener("click",render);
   }catch(e){toast(e.message);render()}finally{busy=false}
  }));

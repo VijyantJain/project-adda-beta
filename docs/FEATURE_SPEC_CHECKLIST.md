@@ -171,3 +171,13 @@ Status legend:
 
 ### Continuation after interrupted work (2026-09-22)
 Verified repository preview head and recorded Netlify deploy success. Living Product Ledger in Google Drive appended with M0.7 specifications. Checklist itself is implemented, but this is not verification that every future feature is complete. The original high-quality realistic art and verified OTP remain explicitly open; photo source manifest is not fabricated.
+
+## v0.7.1 intake — founder field-test fixes (2026-09-23)
+Preserve the historical 103 feature IDs. Six additive IDs below; register is now **109 items**. BETA means coded on preview, NOT iPhone/Android VERIFIED.
+- [x] **P-018** Rename user-visible Vibe to **Aura** (Aura Score/page/profile/tour/copy) while retaining existing getVibe, vibe event names, Blob keys and route identities for compatibility — `BETA`. Data migration expressly not performed.
+- [x] **P-019** Non-skippable modal guided Crew/tab/profile path, shortened coach text, non-target taps blocked, real Drop answer permitted in answer stage, refresh/replay preserved; optional personal disclosures remain skippable individually — `BETA`. Device/back-button/recovery QA pending.
+- [x] **P-020** Tenacious direct-user **Explore my Aura** primary action; optional Crew creation; completed solo users can use Home/Profile/Aura without Crew; invited user's exact destination preserved — `BETA`. Evaluate activation versus earlier forced-Crew cohort.
+- [x] **D-026** Unanswered-first Crew list with clear per-person Your turn / Answered / Result ready badge from existing `myResponse` — `BETA`. Do not treat answered as crew-wide reveal.
+- [x] **V-020** Optional local emoji avatar during guided profile as an alternative to real photo, plus bio/handle/name modal steps; photo/handle remain browser-local and optional, no public avatar claim; photo/avatar one visual-step reward maximum — `BETA`.
+- [x] **A-022** Tenacious personal continuation event `starter_solo_explore`; compare direct versus invite, profile edit, subsequent Crew creation and D1/D7; cannot count browser IDs as verified people — `BETA`.
+**Open M0.8:** V-015 Daily Aura Deck is PLANNED (no fabricated Arena users, fake FOMO, fake popularity, endless reward farming or mandatory friend invitations). Real photo pack D-020 remains IN_PROGRESS; authenticated account P-013 remains BLOCKED. No existing Crew/Drop/chat/media keys or persistent stores changed.
