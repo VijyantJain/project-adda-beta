@@ -265,6 +265,85 @@ export default async (req: Request, context: Context) => {
         ...[1,2,3,4,5,6,7,8,9,10].map(n=>({label:n===5?"🏆 First Five":n===10?"👑 Tenacious":"Answered "+n,value:starterStepCounts[n]?.size||0})),
         {label:"Created Starter Crew",value:starterCrews.size}];
 
+      // A browser-based visitor ID is not an authenticated unique person. Distinguish
+      // strongly suspicious automation from merely US/Linux/proxy geography.
+      const agentOf=(v:any)=>String(v.lastServer?.userAgent||"");
+      const botRule=(v:any)=>{
+        const ua=agentOf(v),browser=String(v.lastServer?.browser||""),screen=v.lastClient?.viewport||{};
+        if(/bot\b|crawler|spider|headless|lighthouse|pagespeed|pingdom|uptimerobot|wget|curl|python-requests|go-http-client|node-fetch|axios\/|scrapy|playwright|puppeteer/i.test(ua))return "Automation signature";
+        if(!Number(screen.width)&&!Number(screen.height)&&!/^(Mobile|Desktop|Tablet)$/i.test(String(v.lastServer?.deviceType||""))&&v.visitCount>1)return "Review: missing browser signals";
+        return "Unclassified browser";
+      };
+      visitorRows.forEach((v:any)=>{
+        const original=visitors.find((x:any)=>x.participantId===v.participantId);
+        v.trafficClass=original?botRule(original):"Unclassified browser";
+        v.automatedSuspected=v.trafficClass!=="Unclassified browser";
+        v.engagementClass=v.answerCount>=5?"5+ Crew answers":v.answerCount>=1?"Crew responder":v.dropCreates>0?"Creator":v.chatMessages>0?"Chatter":v.actions>0?"Exploring":"No tracked action";
+        v.daysObserved=Math.max(0,Math.floor((Date.parse(v.lastSeen)-Date.parse(v.firstSeen))/86400000))||0;
+        v.entryType=v.firstEntry?.dropId?"Shared Drop":v.firstEntry?.crewId?"Crew invite":v.firstEntry?.source?"Campaign/Referral":"Direct / unknown";
+      });
+      const suspected=visitorRows.filter((v:any)=>v.automatedSuspected);
+      const humanLike=visitorRows.filter((v:any)=>!v.automatedSuspected);
+      const visitorMap:any=Object.fromEntries(visitors.map((v:any)=>[v.participantId,v]));
+      const sessionsByPerson:any={};
+      sessions.forEach((x:any)=>{if(!x.participantId)return;(sessionsByPerson[x.participantId]??=[]).push(x)});
+      const activeDates:any={};
+      analyticsEvents.forEach((e:any)=>{if(!e.participantId)return;(activeDates[e.participantId]??=new Set()).add(String(e.createdAt).slice(0,10))});
+      const cohortRows=visitorRows.filter((v:any)=>inRange(v.firstSeen)&&!v.automatedSuspected);
+      const hasDay=(v:any,offset:number)=>{
+        const first=String(v.firstSeen||"").slice(0,10),d=Date.parse(first+"T00:00:00Z");
+        if(!Number.isFinite(d))return false;
+        return Array.from(activeDates[v.participantId]||[]).some((date:any)=>Math.round((Date.parse(String(date)+"T00:00:00Z")-d)/86400000)===offset);
+      };
+      const cohortEligible=(day:number)=>cohortRows.filter((v:any)=>Date.now()-Date.parse(v.firstSeen)>=(day+1)*86400000);
+      const firstAns:any={},firstArrival:any={},firstFiveAt:any={},tenAt:any={};
+      analyticsEvents.forEach((e:any)=>{
+        if(!e.participantId)return;
+        if(e.event==="visit_started"&&!firstArrival[e.participantId])firstArrival[e.participantId]=e.createdAt;
+        if(e.event==="starter_answered"&&Number(e.meta?.step)===1&&!firstAns[e.participantId])firstAns[e.participantId]=e.createdAt;
+        if(e.event==="starter_first_five_completed"&&!firstFiveAt[e.participantId])firstFiveAt[e.participantId]=e.createdAt;
+        if(e.event==="starter_bonus_completed"&&!tenAt[e.participantId])tenAt[e.participantId]=e.createdAt;
+      });
+      const activationTimes=Object.keys(firstAns).map((p:string)=>Date.parse(firstAns[p])-Date.parse(firstArrival[p]||visitorMap[p]?.firstSeen||"")).filter((x:number)=>Number.isFinite(x)&&x>=0&&x<86400000);
+      const stepSpeed=Object.keys(firstFiveAt).map((p:string)=>Date.parse(firstFiveAt[p])-Date.parse(firstAns[p]||"")).filter((x:number)=>Number.isFinite(x)&&x>=0&&x<86400000);
+      const quantile=(nums:number[],q:number)=>{if(!nums.length)return 0;const x=[...nums].sort((a,b)=>a-b);return Math.round(x[Math.min(x.length-1,Math.floor((x.length-1)*q))])};
+      const responsesByPerson:any={};
+      responseKeys.forEach((k:string)=>{const pid=k.split("/")[3];if(pid)(responsesByPerson[pid]??=new Set()).add(k.split("/").slice(1,3).join("/"))});
+      const measuredVisitors=visitorRows.map((v:any)=>({...v,verifiedCrewAnswers:responsesByPerson[v.participantId]?.size||0}));
+      const visitFromInvite=cohortRows.filter((v:any)=>v.entryType==="Crew invite"||v.entryType==="Shared Drop");
+      const visitDirect=cohortRows.filter((v:any)=>v.entryType!=="Crew invite"&&v.entryType!=="Shared Drop");
+      const countOf=(rows:any[],ids:Set<any>)=>rows.filter((v:any)=>ids.has(v.participantId)).length;
+      const starterByGroup=(rows:any[])=>({arrivals:rows.length,started:countOf(rows,starterStarted),five:countOf(rows,starterFive),ten:countOf(rows,starterTen),crewCreated:countOf(rows,starterCrews)});
+      const entryCohorts={direct:starterByGroup(visitDirect),invited:starterByGroup(visitFromInvite)};
+      const errorsByMessage:any={},screenByName:any={},hours:any={},paths:any={};
+      events.forEach((e:any)=>{
+        if(e.event==="client_error"){const k=String(e.meta?.message||"Unspecified client error").slice(0,130);errorsByMessage[k]=(errorsByMessage[k]||0)+1}
+        if(e.event==="screen_view"){const k=String(e.meta?.screen||"Unknown");screenByName[k]=(screenByName[k]||0)+1}
+        const h=String(e.createdAt||"").slice(11,13);if(h)hours[h]=(hours[h]||0)+1;
+        if(e.event==="visit_started"){const k=String(e.meta?.entry?.path||"/").slice(0,120);paths[k]=(paths[k]||0)+1}
+      });
+      const asRows=(obj:any,limit=30)=>Object.entries(obj).map(([label,count])=>({label,count:Number(count)})).sort((a,b)=>b.count-a.count).slice(0,limit);
+      const rankedVisit=visitorRows.filter((v:any)=>!v.automatedSuspected).sort((a:any,b:any)=>b.answerCount-a.answerCount||b.sessions-a.sessions);
+      const d1eligible=cohortEligible(1),d7eligible=cohortEligible(7);
+      const deepDive={
+        audience:{browserIdentities:visitors.length,suspectedAutomated:suspected.length,humanLike:humanLike.length,engagedHumanLike:humanLike.filter((v:any)=>v.answerCount||v.dropCreates||v.chatMessages).length,returningHumanLike:humanLike.filter((v:any)=>v.sessions>1).length,fromInvites:visitFromInvite.length,direct:visitDirect.length,provisionalMembers:memberRows.filter((m:any)=>m.provisional).length},
+        retention:{d1Eligible:d1eligible.length,d1Returned:d1eligible.filter((v:any)=>hasDay(v,1)).length,d7Eligible:d7eligible.length,d7Returned:d7eligible.filter((v:any)=>hasDay(v,7)).length,multiDayHumanLike:humanLike.filter((v:any)=>((activeDates[v.participantId]?.size||0)>1)).length},
+        activation:{medianFirstAnswerMs:quantile(activationTimes,.5),p95FirstAnswerMs:quantile(activationTimes,.95),medianFirstFiveMs:quantile(stepSpeed,.5),started:starterStarted.size,firstAnswer:starterFirst.size,five:starterFive.size,ten:starterTen.size,fiveToTenPct:pct(starterTen.size,starterFive.size),startedToFivePct:pct(starterFive.size,starterStarted.size),startedToTenPct:pct(starterTen.size,starterStarted.size)},
+        entryCohorts,screenViews:asRows(screenByName),errors:asRows(errorsByMessage),hourlyUTC:asRows(hours,24),landingPaths:asRows(paths),
+        engagement:asRows(measuredVisitors.reduce((x:any,v:any)=>{x[v.engagementClass]=(x[v.engagementClass]||0)+1;return x},{})),
+        trafficClasses:asRows(visitorRows.reduce((x:any,v:any)=>{x[v.trafficClass]=(x[v.trafficClass]||0)+1;return x},{})),
+        topResponders:rankedVisit.slice(0,20).map((v:any)=>({participantId:v.participantId,name:v.name,answers:v.answerCount,sessions:v.sessions,crewCreates:v.dropCreates,lastSeen:v.lastSeen})),
+        health:{eventRecords:events.length,legacyRecords:legacyEvents.length,trackedClientErrors:eventCounts.client_error||0,sampledEventsReturned:Math.min(events.length,250),allEventsExportAvailable:false},
+        qualityNotes:[
+          "Visitor count measures browser participant IDs, not verified unique people; clearing storage creates a new ID.",
+          "Ashburn/USA and Linux alone do not prove bot or Netlify-origin traffic. Only known user-agent automation signatures are flagged; review others manually.",
+          "IP and geolocation may describe VPN, proxies or hosting egress rather than visitor residence.",
+          "D1/D7 cohorts use UTC calendar dates for tracked app activity; require enough elapsed time and should be compared within the same traffic cohorts.",
+          "Only the most recent 250 events are returned in the event table/CSV; totals and breakdowns use full loaded dataset."
+        ]
+      };
+
+
       const ipSet=new Set(visitors.map((v:any)=>v.lastServer?.ip).filter(Boolean));
       const perf=visitors.map((v:any)=>v.lastClient?.performance).filter((x:any)=>x&&x.duration);
       const avg=(arr:number[])=>arr.length?Math.round(arr.reduce((a,b)=>a+b,0)/arr.length):0;
@@ -278,6 +357,7 @@ export default async (req: Request, context: Context) => {
         generatedAt:now(),days,analyticsStartedAt:ANALYTICS_STARTED_AT,
         summary:{
           uniqueVisitors:uniqueVisitorIds.size,newVisitors,returningVisitors,sessions:sessions.length,pageLoads:visitEvents.length,uniqueIPs:ipSet.size,
+          humanLikeVisitors:deepDive.audience.humanLike,suspectedAutomated:deepDive.audience.suspectedAutomated,
           engagedVisitors:engaged,engagementRate:pct(engaged,uniqueVisitorIds.size),dropEntryVisitors,
           joined:joined.size,answered:answered.size,answered2,answered5,creators:creators.size,sharers:sharers.size,chatters:chatters.size,
           totalAnswers:eventCounts.response_submitted||0,totalDropsCreated:eventCounts.drop_created||0,totalChats:eventCounts.chat_message_sent||0,totalShares:(eventCounts.drop_shared||0)+(eventCounts.crew_shared||0)+(eventCounts.share_attempted||0),
@@ -310,7 +390,7 @@ export default async (req: Request, context: Context) => {
         crews:Object.values(crewAgg).sort((a:any,b:any)=>b.responses-a.responses),
         dropPerformance:dropPerformance.slice(0,500),dropTypes:Object.values(typeMap).sort((a:any,b:any)=>b.responses-a.responses),
         visitors:visitorRows.slice(0,1000),
-        recentEvents,eventCounts
+        deepDive,recentEvents,eventCounts
       });
     }
 
