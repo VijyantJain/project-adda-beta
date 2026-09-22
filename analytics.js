@@ -124,13 +124,60 @@ window.exportEvents=()=>exportCSV(`adda-events-${new Date().toISOString().slice(
 window.exportCrews=()=>exportCSV(`adda-crews-${new Date().toISOString().slice(0,10)}.csv`,D?.crews||[]);
 window.exportDrops=()=>exportCSV(`adda-drops-${new Date().toISOString().slice(0,10)}.csv`,D?.dropPerformance||[]);
 
+
+function founderDeepDive(){
+ const d=D.deepDive;if(!d)return '<div class="analyticsPanel wide"><p>No extended cohort data for this range.</p></div>';
+ const au=d.audience,rt=d.retention,ac=d.activation,health=d.health;
+ const val=(n,d)=>d?((n/d)*100).toFixed(1)+'%':'Not enough data';
+ const kpi=(title,value,detail)=>'<div class="analyticsStat"><span>'+esc(title)+'</span><b>'+esc(value)+'</b><small>'+esc(detail)+'</small></div>';
+ const cohort=(title,c)=>'<div class="analyticsPanel"><h3>'+esc(title)+'</h3><div class="detailGrid">'
+   +kpi('Arrived',n(c.arrivals),'Browser IDs, not verified people')
+   +kpi('Started First Five',n(c.started),val(c.started,c.arrivals))
+   +kpi('First Five done',n(c.five),val(c.five,c.started))
+   +kpi('Tenacious done',n(c.ten),val(c.ten,c.started))
+   +kpi('Starter Crews made',n(c.crewCreated),val(c.crewCreated,c.ten))+'</div></div>';
+ const retention=(label,num,den)=>kpi(label,den?n(num)+' / '+n(den):'N/A',den?val(num,den):'Not yet eligible');
+ return '<section class="analyticsDeepTitle"><span class="tiny">FOUNDER DECISION ROOM · v2</span><h2>People, conversion, retention & quality</h2><p>Extended metrics use the existing field-test data; no new third-party tracker or invasive permission prompt.</p></section>'
+ +'<div class="analyticsStats">'
+ +kpi('Browser identities',n(au.browserIdentities),'Cannot prove unique people')
+ +kpi('Human-like identities',n(au.humanLike),'Heuristic only')
+ +kpi('Review / automation',n(au.suspectedAutomated),'Not automatically removed')
+ +kpi('Engaged browsers',n(au.engagedHumanLike),'Human-like + real actions')
+ +kpi('Provisional mates',n(au.provisionalMembers),'Invite joined, name pending')
+ +kpi('Returning browsers',n(au.returningHumanLike),'More than one tracked session')
+ +kpi('Starter → First Five',val(ac.five,ac.started),n(ac.five)+' / '+n(ac.started))
+ +kpi('First Five → Tenacious',val(ac.ten,ac.five),n(ac.ten)+' / '+n(ac.five))
+ +kpi('Median first action',n(ac.medianFirstAnswerMs/1000)+' s','Visit to first Starter answer')
+ +kpi('P95 first action',n(ac.p95FirstAnswerMs/1000)+' s','Long-tail slowness')
+ +kpi('Median 1 → 5',n(ac.medianFirstFiveMs/1000)+' s','Measured, not target')
+ +kpi('Tracked client errors',n(health.trackedClientErrors),'Investigate by message below')
+ +'</div><section class="analyticsGrid">'
+ +'<div class="analyticsPanel wide"><h3>Retention · tracked browser cohort</h3><p class="analyticsNotice">UTC calendar day, not rolling 24-hour sessions. Only eligible first-seen browsers count; device resets & missing events reduce accuracy.</p><div class="analyticsStats">'
+ +retention('Next-day (D1)',rt.d1Returned,rt.d1Eligible)
+ +retention('Day-seven (D7)',rt.d7Returned,rt.d7Eligible)
+ +kpi('More than one active day',n(rt.multiDayHumanLike),'Human-like browser IDs')
+ +'</div></div>'
+ +cohort('Direct arrivals',d.entryCohorts.direct)+cohort('Crew/Drop invited arrivals',d.entryCohorts.invited)
+ +barList('Actual screens opened',d.screenViews)
+ +barList('First landing paths',d.landingPaths)
+ +barList('People by engagement',d.engagement)
+ +barList('Traffic classification',d.trafficClasses)
+ +barList('Client errors by message',d.errors)
+ +barList('Activity by UTC hour',d.hourlyUTC)
+ +'<div class="analyticsPanel wide"><h3>Most active respondents</h3><div class="tableWrap"><table><thead><tr><th>Visitor</th><th>Crew answers</th><th>Sessions</th><th>Drops made</th><th>Last seen</th></tr></thead><tbody>'
+ +(d.topResponders||[]).map(v=>'<tr><td><b>'+esc(v.name||v.participantId)+'</b><small>'+esc(v.participantId)+'</small></td><td>'+n(v.answers)+'</td><td>'+n(v.sessions)+'</td><td>'+n(v.crewCreates)+'</td><td>'+fmt(v.lastSeen)+'</td></tr>').join('')
+ +'</tbody></table></div></div>'
+ +'<div class="analyticsPanel wide"><h3>Data-quality and attribution notes</h3><div class="analyticsNotes">'+(d.qualityNotes||[]).map(x=>'<p>• '+esc(x)+'</p>').join('')+'</div></div>'
+ +'</section>';
+}
+
 function renderDashboard(){
   const s=D.summary,b=D.breakdowns;
   const rangeLabel=days?`Last ${days} days`:'All time';
   A.innerHTML=`<div class="analyticsShell">
     <header class="analyticsTop"><div><div class="analyticsBrand">Adda</div><span>Private Analytics</span></div><div class="analyticsTopActions"><span class="analyticsLive">● LIVE FIELD TEST</span><button onclick="refreshAnalytics()">↻ Refresh</button><button onclick="logoutAnalytics()">Lock</button></div></header>
     <div class="analyticsFilters"><div class="rangeButtons">${[1,7,30,0].map(d=>`<button class="${days===d?'on':''}" onclick="setDays(${d})">${d===0?'All time':d===1?'24 hours':`${d} days`}</button>`).join('')}</div><span>Generated ${fmt(D.generatedAt)} · ${rangeLabel}</span></div>
-    <div class="analyticsNotice"><b>Analytics v1:</b> IP/device/location visitor profiles start from this dashboard deployment. Earlier Adda action events are preserved as <b>legacy events</b>, but they cannot be retroactively assigned IP/location data.</div>
+    <div class="analyticsNotice"><b>Analytics v2:</b> Historical events remain preserved. IP/device/location only exist from original collection date. A browser ID is not proof of a person. US/Linux/Ashburn may be datacenter, VPN, cloud preview, or a real remote browser; never auto-label them Netlify employees.</div>
 
     <section class="analyticsStats">
       ${statCard('Unique visitors',n(s.uniqueVisitors),`${n(s.newVisitors)} new · ${n(s.returningVisitors)} returning`,'purple')}
@@ -141,6 +188,7 @@ function renderDashboard(){
       ${statCard('Creators',n(s.creators),`${n(s.totalDropsCreated)} Drops created`)}
       ${statCard('Sharers',n(s.sharers),`${n(s.totalShares)} share actions`)}
       ${statCard('Unique IPs',n(s.uniqueIPs),`${n(s.clientErrors)} client errors`)}
+      ${statCard('Likely browser visitors',n(s.humanLikeVisitors),'Automation heuristic · inspect quality notes','green')}
     </section>
 
     <section class="analyticsGrid">
@@ -152,6 +200,7 @@ function renderDashboard(){
         {label:'👑 Bonus Ten',count:s.starter.completedTen},
         {label:'Created Starter Crew',count:s.starter.crews}
       ]):''}
+      ${founderDeepDive()}
       ${funnelHtml(s.funnel)}
       ${dailyHtml(D.daily)}
       ${barList('Top cities',b.cities)}
