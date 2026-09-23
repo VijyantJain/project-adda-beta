@@ -167,3 +167,6 @@ Seven-day rolling hybrid real-activity + unique-mates Crew Pulse selected; exact
 
 ## 2026-09-24 D049 Daily Charge decision
 Founder chose CHOOSE YOUR DAILY MISSION with +10 Aura one-time daily completion, and personal Charge completely Crew-INDEPENDENT. Do NOT propose or implement a Social Spark/Creator Mode mission requiring ordinary Crew answer/Drop creation to fill personal Charge; earlier illustrative social routes superseded. Offer solo-only mission choices; up to two genuine social Daily Aura extras still separate and contribute real Crew Pulse but zero personal Charge. Completion thresholds/per-card Aura/timezone unresolved. D040–D048 retained, no code/deploy, A→B→C after discussion.
+
+## 2026-09-24 D050 selected personal mission structure and Aura rate
+Founder chooses THREE DIFFERENT SOLO Daily Charge completion missions, +10 per genuine unique PERSONAL Daily Aura card, switching chosen mission allowed only BEFORE Charge completion. +10 one-time daily Charge bonus remains separate (max 3×10 +10=40 personal+Charge Aura/day with three guaranteed personal cards); 0–2 real Crew extras don't fill Charge and use legitimate Crew reward independently. Exact mission names/types/required counts and switching carryover still OPEN. No coding, release or user-data mutation. D040–D049 unchanged, A→B→C after scope discussion.
