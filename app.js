@@ -364,7 +364,7 @@ async function renderVibe(){
  try{
   if(!getKnownCrews().length||journey?.phase==='aura')v=await api('getAuraStarter',{params:{participantId:pid,crewId:journey?.crewId||''}});
   else try{v=await api('getVibe',{params:{participantId:pid,crewId:crewId||''}})}
-  catch(fullError){partial=true;v=await api('getAuraStarter',{params:{participantId:pid}});track('aura_full_fallback',{reason:String(fullError.message||'').slice(0,90)})}
+  catch(fullError){partial=true;v=await api('getAuraStarter',{params:{participantId:pid,crewId:crewId||journey?.crewId||getKnownCrews()[0]?.id||''}});track('aura_full_fallback',{reason:String(fullError.message||'').slice(0,90)})}
   if(v.starter?.bonusCompleted&&v.score<180)throw Error('Your Starter Aura is still syncing. Retry to load your earned points.');
  }catch(e){
   app.innerHTML=shell(`${top('')}<section class="card addaAuraError"><h1>Your Aura is still loading ⚡</h1><p>${esc(e.message||'Could not load saved Aura. Try again.')}</p><button class="btn primary" onclick="window._go('vibe')">Retry my Aura →</button></section>`);
@@ -732,6 +732,18 @@ function resumeJourney(){
 }
 function journeyCrewWelcome(){
  if(!journey||!guideActive())return;
+ if(journey.kind==='crew_invite'&&(!meName||meName.startsWith('New mate '))&&!localStorage.getItem('addaCrewInviteNameReady_'+pid+'_'+crewId)){
+  let draft=localProfile().displayName||'';
+  guideDisplay('What should your new mates call you? 👋','A quick name for your real answers. You will set up your full profile after Tenacious.','Continue Crew tour →',async()=>{
+   const nickname=draft.trim();if(!nickname){toast('Add your name');journeyCrewWelcome();return}
+   try{
+    await api('joinCrew',{method:'POST',body:{crewId,participantId:pid,nickname,provisional:false}});
+    meName=nickname;localStorage.addaName=nickname;localStorage.setItem('addaCrewInviteNameReady_'+pid+'_'+crewId,'1');
+    await refreshCrew();journeyCrewWelcome();
+   }catch(e){toast(e.message);journeyCrewWelcome()}
+  },'.crewStickyName');
+  const input=document.createElement('input');input.maxLength=24;input.placeholder='Your name';input.setAttribute('aria-label','Display name');input.value=draft;input.addEventListener('input',()=>{draft=input.value});document.querySelector('.addaGuideCard')?.insertBefore(input,document.getElementById('addaGuideAction'));return;
+ }
  const creator=journey.kind==='creator';
  const steps=[
   [creator?'Your first Crew is LIVE! 👥':'Welcome to '+crew.name+'! 👥',creator?'Your very own gang now has a place on Adda. Your real Crew membership adds Aura.':'You are in the real Crew your friend invited you to. Let us show you around.','.crewStickyName'],
