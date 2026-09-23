@@ -105,3 +105,27 @@ Founder explicitly **DID NOT APPROVE** any previously proposed Explorer or The R
 - Gems remain silently ledger-tracked only when award amounts are explicitly approved. First v0.8 must not show spendable Gems before catalog/redeem is functioning. No code or production deployment authorised by D043.
 
 D043 supersedes D042's statement that Aura achievement bonus AMOUNTS are unapproved; all other D040/D041/D042 constraints stay.
+
+
+## D044 — Founder locks Explorer and The Regular targets; naming and level-label redesign OPEN (2026-09-24)
+
+Founder-confirmed v0.8 milestone curves:
+- **Explorer (distinct genuine Crew Drop answers ONLY)**: Star I = **5**, Star II = **300**, Star III = **3,000**. Real unique (Crew ID, Drop ID, participant ID) answer existence; answer edits/replays do NOT add; Daily Aura personal cards do NOT count. Keep ordinary answer base Aura independent from one-time Star bonuses.
+- **Sparkmaker** remains D042: Star I = 1 actual user-authored published Drop; Star II = 20 actual authored Drops AND 30 distinct legitimate responses FROM OTHER PEOPLE to own Drops; Star III = 200 authored Drops AND 1,000 legitimate peer responses. Exclude seeded Drops/self replies/double edits.
+- **The Regular (cumulative genuine active days + actual Daily Charge completion dates)**: Star I = **5 genuinely active days** (no historical Charge dependency); Star II = **120 active days AND 60 genuinely completed Daily Charge days**; Star III = **730 active days AND 365 genuine Charge completion days**. Cumulative active days are NOT a consecutive streak; optional streak sub-milestones may exist within Regular only, not as a fourth live achievement path. Daily Charge launches in first v0.8; do not backfill fictitious prelaunch Charge completions. Define unambiguous calendar timezone and qualifying genuine action before implementation; old beta timestamps may prove historical active days and Star I but not Charge achievements.
+- **ALL THREE paths** grant approved milestone bonuses **+50 / +300 / +1,500 Aura per earned star**, once; historical participants earn retroactive star bonuses where actual records prove eligibility. Gem rewards are hidden until usable cosmetic redemption, values still unapproved.
+- **Founder chose to compare THREE COMPLETE achievement/title/Aura-level NAMING SYSTEMS before final naming**. No achievement path title, earned-Star label or redesigned Aura-level display name is locked by this decision. Star I/II/III identity + earned title remain D043 confirmed.
+- **Founder chose to reconsider ALL user-visible Aura level NAMES while PRESERVING every recorded earned Aura score**. This is a DISPLAY/label design decision, NOT permission to recompute users' past actions, modify historic score events, silently reset level thresholds, change internal API/blob keys or rename the six existing Starter milestone IDs. Existing level thresholds are 0/10/25/45/60/100/150/300/600/1000/2000; whether they should be rebalanced (and new levels above 2,000) remains open until sample score distribution is audited. Present the change clearly to existing beta users if names/ranks change. New level name must be distinct from an individual achievement earned title when possible.
+
+### Calculation implications
+Completing the first 3-star achievements yields 3 * (50+300+1500) = **5,550** cumulative EXTRA achievement Aura, after 3,000 distinct Crew replies already qualifying for at least **30,000 base answer Aura** at legacy +10/answer, and 200 authored Drops yielding at least **6,000 base creation Aura** at +30 if unchanged. Creator does not gain peers' own +10 response Aura. The Regular's third star takes at least 730 distinct genuinely active days AND 365 post-launch Charge completion days, potentially substantially longer than two calendar years for irregular users. A future level curve ending at 2,000 or even at 60,000 cannot be approved without actual expected activity/bonus modelling. Never quietly turn pre-existing 180 Starter points into a new Starter reward.
+
+### Unresolved, DISCUSS BEFORE CODING
+1. Select ONE three-system naming direction: (A) playful Hinglish/local Adda; (B) premium luminous/futurist Aura; (C) hybrid social-warmth + elegant mastery. Develop matching 3 path names, 9 earned-star titles, and 11 existing + multiple future level labels; avoid colliding with existing six Starter trophy titles.
+2. Are first 11 current Aura level THRESHOLDS retained or rebalanced? All earned Aura scores preserved regardless; no backwards loss of earned Star/Aura rewards.
+3. Agree future level thresholds based on non-sensitive aggregate beta score distribution and plausible earning rates (answer +10, created +30, initial Starter 180, achievements up to +5,550), no fabricated activity.
+4. Define Daily Charge target, earn cap/day, user timezone, exact active day qualification, one-time reward and late joiner fairness.
+5. Publish achievement backfill with source provenance; separate lifetime active days vs streak current/best; optional streak sub-milestone levels to decide, never a fourth working path.
+6. Founder-approved visual/icon naming map and accessibility/performance fallback before implementation.
+
+Status: DECIDED TARGETS / NAMING-DISCUSSION ONLY. No v0.8 code change or deployment authorisation. Supersedes all E1/E3, R1/R2 and earlier E2/R3 target alternatives without deleting their historical consideration.

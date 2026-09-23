@@ -149,3 +149,6 @@ Founder selected three live paths Explorer (distinct genuine Crew answers only, 
 
 ## 2026-09-24 D043 founder achievement reward decision
 +50/+300/+1500 achievement Aura for each of three paths, payable ONCE on earned Star I/II/III, including provable retroactive historic stars (up to 5,550 across full three paths). Show both earned stars and achievement-specific earned title; wording still pending. Explorer and The Regular numerical targets explicitly rejected as final; Sparkmaker 1 / (20+30 genuine peer responses) / (200+1000 peer responses) stays approved. Current Aura level curve ends at 2,000; discuss extension before implementation. No v0.8 code permission, main and Blob stores protected. D043 appended in founder decisions.
+
+## 2026-09-24 D044 targets and naming checkpoint
+Founder chose E2 Explorer 5/300/3000 distinct genuine Crew answers and R3 Regular 5 active days; 120 active+60 actual Charge-completion days; 730 active+365 actual Charge-completion days. Sparkmaker locked structure unchanged. Per path +50/+300/+1500 Aura including idempotent historical eligibility. Wants THREE complete naming systems (3 paths, nine star earned titles, all Aura level labels) and rethinks visible Aura level names with recorded scores preserved; thresholds/extension not yet approved. v0.8 code and main untouched; proceed scope discussion then Option A/B/C.
