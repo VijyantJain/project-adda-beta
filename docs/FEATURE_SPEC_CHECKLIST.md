@@ -219,3 +219,18 @@ See docs/CREW_AND_DROP_ONBOARDING_V073_SRS.md and docs/CREW_ONBOARDING_FLOWCHART
 
 ## Founder-confirmed D038, 2026-09-23 — MANDATORY onboarding after first two Crew-link answers
 For a first-time beta visitor opening a Crew invitation with at least two real unanswered Drops, the required order is: enter exact Crew → member guide → two real answers → Starter 10/Tenacious → Aura/Profile guided setup → exact original Crew → full first custom +/Create Drop tutorial → one real Drop published into same Crew → exact Drop invitation offer → normal usage. Already earned Crew points and response records are retained; Starter's 180 points count once. Preserve the original crewId across refresh. No new Crew creation, duplicate seed, duplicate answer or forced invitation. If fewer than two unanswered Drops remain, answer any genuine available Drop and proceed with a clearly described fallback without trapping the visitor. This decision supersedes any earlier “optional”, “deferred” or “pending” text about this specific cohort. New DROP-link entrants still answer the exact invited Drop FIRST before Starter. Existing visitors do not repeat Starter. DECIDED / SPEC, NOT IMPLEMENTED.
+
+## D052 — v0.8 phased intake (SPEC ONLY, not BETA, existing 128 stable IDs retained)
+New stable IDs are additive after the proposed 128 previous entries; do not mark these checked until code + acceptance.
+- [ ] **V-024** Three guaranteed daily personal Aura cards, up to two genuine Crew extras; finite, personalised, reward-once, skip/resume — SPEC / first v0.8.
+- [ ] **V-025** Three solo mission-aware Daily Charge routes, safe pre-completion switching, +10/card capped 3, +10/day completed Charge — SPEC / first v0.8.
+- [ ] **V-026** Three real long-horizon 3-star achievement paths, genuine historic source backfill, 8 approved earned titles + final Sparkmaker title pending — SPEC / first v0.8.
+- [ ] **V-027** Permanent CENTRAL evolving actual-Aura Orb and master master-orb brand/app icon/favicon/PWA visual assets, static/motion fallback — SPEC / first v0.8; heavier 3D later.
+- [ ] **V-028** User-owned earned title collection: one featured title and independent selected title per achievement path — SPEC / first v0.8.
+- [ ] **V-029** Rebalanced 25+ first published Aura levels with named expandable chapters and preserved ALL earned Aura/badges — SPEC / first v0.8.
+- [ ] **V-030** Hidden earned-Gems versioned ledger, no visible balance until working cosmetic redemption — SPEC / first v0.8 internal; usable catalogue later.
+- [ ] **C-026** Minimal truthful ROLLING seven-day hybrid Crew Pulse from genuine action + unique contributing mates, first factual payoff pending — SPEC / first v0.8; full Reveal Chain later.
+- [ ] **D-029** Curated, format-safe creator prompt templates and real share/reveal visual cards; opt-in paid AI Copilot after first Create stability — SPEC first v0.8 curated, AI later.
+- [ ] **A-026** New daily/card/achievement/Pulse event+reward idempotence, solo/social analytics, historical backfill audit, no false cross-device ID claims — SPEC / first v0.8.
+- [ ] **P-028** Map first-v0.8 social-purple + futuristic Orb identity consistently across Home/Aura/Profile/Crew/Drop/Reveal, static low-end fallback — SPEC / first v0.8.
+Canonical release family and changes: docs/2026-09-24_V08_RELEASE_SCOPE_LEDGER.md; D052. Historical V-015 and C-012 combine personal Deck/Capsules and Crew Pulse/full Reveal; FIRST v0.8 only the subset approved under new additive IDs; no silent deletion of later responsibilities.

@@ -33,3 +33,6 @@ Screenshots in archive: 07 Aura partial warning, 08 Home highlighted-tab dot, 09
 
 ## Design system plan
 Adda tokens: primary purple, deep plum, lime emphasis, rose/lilac, near-white surface; neon only for high-value Aura/Reveal/Achievement. Typography hierarchy and body legibility > visual novelty. Avatar chain 26–34px circular overlapping, genuine count label, keyboard/aria. Crew Drop cards differentiated by REAL type; placeholder image opt-in and meaningful alt text. A11y 44px hit targets and contrast, 320–430px QA, 60fps animations optional, performance budgets. Do NOT rewrite critical Crew or answer flows for a cosmetic refactor.
+
+## D052 updated founder Orb requirement — supersedes section E phase estimate
+Founder approved permanent/core evolving Orb in FIRST v0.8, not an optional v0.8.x research toy. Original magenta/cyan sphere is reference/inspiration, must author an owned brand-safe asset and create master Orb-derived app icon, favicon and profile/mini variants. Actual Orb stage derived from VERIFIED earned Aura/display level; central Aura hero, recognizable on Home/Profile, original Adda wordmark/social human design preserved. CSS/static and reduced-motion are REQUIRED accessibility/performance implementations of the Orb, not substitutes for abandoning it. Heavy WebGL/many skins v0.8.x+. See docs/2026-09-24_V08_RELEASE_SCOPE_LEDGER.md.

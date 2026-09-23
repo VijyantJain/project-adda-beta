@@ -1,4 +1,4 @@
-# Adda v0.8 — Founder-confirmed five product decisions and reconciliation
+# Adda v0.8 — Founder decisions D040–D052 and reconciliation
 
 Date: 2026-09-24. Status: FOUNDER DECISIONS recorded / DESIGN DISCUSSION OPEN / NO v0.8 CODE APPROVED.
 Authoritative superseding decisions for ambiguous v0.8 proposal language in docs/2026-09-24_V08_DESIGN_BRIEF.md. Keep all previous historical roadmaps and originals unchanged, including docs/archive/2026-09-24-pre-cleanup/. Canonical index docs/START_HERE.md.
@@ -233,3 +233,16 @@ FOUNDER CONFIRMED, DISCUSSION/SPEC ONLY; NOT APP CODE AUTHORISATION:
 6. No fabricated historical Daily Charge completion; no Crew Drop answer/creation/peer participation fills Charge; Capsules v0.8.x and hidden Gems until usable catalogue remain.
 
 UNRESOLVED BEFORE CODING: exact mission-aware content pool and taxonomy (including guaranteed curiosity/creative eligibility), card allocation if an answered card is irrelevant after switching and remaining slots cannot fulfil the new route, prevent selecting impossible mission or offer honest fallback without deleting saved cards; switch-before-completion semantics where already saved responses immediately satisfy a newly selected route; minimum objective creative response criterion/accessibility; card skip and edit handling; precise user-day timezone/travel policy; reward concurrency and authoritative idempotent ledger; copy/visual treatment; actual score distribution for 25+ Aura levels; rolling Crew Pulse event/unique mate targets and factual first payoff. Decision priority D051 supersedes any old illustrative daily Charge proposals that require Crew, count 2 curiosity cards, or restart progress on switch.
+
+
+## D052 — Founder selects eight Star titles; Orb promoted to core brand + v0.8; requests clean phased scope (2026-09-24)
+
+FOUNDER CONFIRMED 8 of 9 earned Star titles, in first/second/third order:
+- Explorer: Pathfinder / Opinion Magnet / Infinite Explorer.
+- Sparkmaker: First Mover / Scene Architect / [RENAME THIRD: Legendary Catalyst NOT accepted].
+- The Regular: Familiar Face / Constant Star / Here to Stay.
+Path names Explorer/Sparkmaker/The Regular remain working labels; do not silently substitute earlier brainstormed names. Star III Sparkmaker title is OPEN.
+
+Founder insists EVOLVING AURA ORB is PERMANENT CENTRAL Adda/Aura visual and app icon concept; include visual Orb and earned-progress evolution in FIRST v0.8. App icon uses master/highest designed Orb LOOK as static brand symbol even though actual user Orb appearance evolves with genuine earned Aura and level and future chapters remain open-ended. First-release lightweight performant/core Orb MUST NOT be wholly deferred to v0.8.x. Rich interactive 3D/WebGL or expanded skins remain later conditional on battery/performance; reduced-motion and static fallback still show core Orb. This supersedes D040/older visual atlas optional-orb phase assignment only, not safety/privacy/performance requirements.
+
+Founder requests clean release ledger v0.8 / v0.8.x / v0.9 / beyond, what was earlier expected in 0.8 and moved/replaced, and readiness to move A/B/C. Canonical current status/lineage document: docs/2026-09-24_V08_RELEASE_SCOPE_LEDGER.md. Scope is product discussion, NOT v0.8 code, domain purchase, live data alteration or production deployment approval. Eight Star title names are chosen; all level titles/thresholds and Sparkmaker Star III remain pending. All old Aura earned points/badges and Crews preserved.

@@ -47,3 +47,6 @@ D040: variable 3–5 Daily Aura cards based on interests and genuine activity; D
 
 ## D041 updated founder mechanics — supersedes optional model choices (2026-09-24)
 Daily deck = 3 guaranteed PERSONAL cards plus up to 2 genuinely available activity extras; Charge = one-time actual Aura completion bonus + progress toward long-term achievement (Capsules v0.8.x); three launch achievement paths but labels/thresholds remain open; distinct cumulative active-day and consecutive-streak measurement (no fourth path implicitly approved); Gems earned silently in ledger and only stars/Aura shown until working cosmetic store; SMALL Crew Pulse must combine meaningful genuine actions and unique real mate participation. No v0.8 code permission, amounts/windows/phase still review. See D041 and docs/2026-09-24_V08_FOUNDER_DECISIONS.md.
+
+## D052 superseding central Orb release cut
+Founder decided core evolving Orb must be permanent and CENTRAL on first v0.8 Aura/brand/app icon, with real score-linked visual stage, static/reduced-motion/performance fallbacks. Deferral in this older brief applies ONLY to advanced/heavy interactive WebGL and richer skins; cannot move the core Orb to v0.8.x. Three achievement path earned titles selected except Sparkmaker Star III. Complete release scope and replacement matrix: docs/2026-09-24_V08_RELEASE_SCOPE_LEDGER.md. NO CODE APPROVAL.

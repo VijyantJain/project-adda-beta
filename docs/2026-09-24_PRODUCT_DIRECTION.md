@@ -31,3 +31,6 @@ Current = v0.7.3 field test + date-stamped acceptance patch; NEXT = v0.8 only af
 
 ## Founder-confirmed first v0.8 direction update, 2026-09-24
 See docs/2026-09-24_V08_FOUNDER_DECISIONS.md (D040). Daily Aura varies 3–5 by interests/activity; Daily Charge launches but Capsules wait until v0.8.x; three live three-star achievement paths plus two Coming Soon; Gems tracked but hidden until actual cosmetic redemption; a small factual Crew Pulse experiment joins first v0.8. This corrects historical text that placed ALL Crew Pulse after the personal loop. The full Reveal Chain, expensive visual layers and public Arena remain later. No v0.8 implementation approved; field-test hardening / domain / final spec still precede coding.
+
+## D052 CURRENT PHASE OVERRIDE (2026-09-24)
+This older summary's v0.8.x optional Aura Orb wording is superseded: core evolving Aura Orb, prominent Aura/Home/profile visual and master-Orb brand/app icon motif are FIRST-v0.8 scope, with static/reduced-motion/performance-safe first render. v0.8.x covers expanded effects/skins/optional WebGL only. Other current phase corrections and renamed/deferred historical features in docs/2026-09-24_V08_RELEASE_SCOPE_LEDGER.md. Keep status DISCUSSION NOT IMPLEMENTED.
