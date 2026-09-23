@@ -66,3 +66,18 @@ Open Adda → three available personalised mini cards even if solo → zero-to-t
 - One owner/admin or one person spamming messages cannot fill a social Pulse designed for genuine group participation.
 
 See D040 for the five initial v0.8 decisions; D041 adds the founder's detailed mechanics and supersedes contradictory wording about fixed card count, Capsule dependency, all Crew Pulse being later, or using “Still Here” interchangeably with consecutive streaks.
+
+
+## D042 — Founder-selected three-path achievement architecture (2026-09-24; DESIGN, NOT CODING)
+
+**Locked by founder** after D040/D041:
+- Exactly THREE working three-star paths: Explorer + Sparkmaker + The Regular. Two other paths can remain visible as Coming Soon, not a surprise fourth active achievement.
+- Explorer qualifies by distinct genuine saved **Crew Drop answers ONLY**; personal Daily Aura answers are separately measured/rewarded and never counted as Crew answers. Genuine seeded Crew Drop responses qualify; re-answering same Drop doesn't increase unique count.
+- Sparkmaker combines **original user-authored Drop creation AND real peer responses**: approved requirement structure Star I=1 original Drop, Star II=20 original Drops AND 30 valid responses by other members, Star III=200 original Drops AND 1000 valid peer responses. System-seeded Drops are not user authored. Count distinct real (Drop, respondent) records, exclude creator, prevent reciprocal farming/duplicate events; exact abuse caps pending.
+- The Regular is a **hybrid of distinct genuinely active days AND Daily Charge completions**. Cumulative active days and consecutive streaks are separate statistics; streaks are optional SUB-milestones within The Regular, not a fourth standalone working path. Streak break must not remove past Aura, earned stars or cumulative days. Active-day requirements, Charge thresholds, streak sub-milestone cosmetics and daily time zone remain subject to founder confirmation.
+- Existing verified-by-record beta participants must receive **earned historical stars AND one-time retroactive achievement Aura**, with per-participant/path/star unique reward provenance and a dry-run/backfill audit. Historical Daily Charge completions did not exist before launch: NEVER invent them or silently equate historical answers to completed Charge. Choose founder-approved fair legacy eligibility (e.g. Star I eligible on cumulative active-day threshold alone; future Star II/III require actual Charge completions after feature launch), and backfill only milestones proven from timestamps. Do not retro-award base +10/+30 participation scores a second time.
+- Exact names, Explorer thresholds, Regular targets, streak sub-targets, tier Aura bonus sizes, Gem grants, existing level curve extension and historical-data trust rules remain open. Earlier names/targets and +20/+150/+2000 or +25/+200/+2000 schedules are **illustrations, not approvals**.
+
+**Current review candidates, NOT decisions:** Explorer 5/150/2000 distinct Crew answers; Regular 3 active days for Star I, 45 active +20 real Charge completion days for Star II, 365 active +180 Charge completion days for Star III. Streak optional 3/7/30 days cosmetic-only unless a separate award is explicitly approved. Sparkmaker Star I requires one actual authored Drop; a separate high-star peer-uniqueness/fraud threshold is an implementation/ethics gate, not a hidden post-hoc failure requirement.
+
+Source: docs/2026-09-24_V08_FOUNDER_DECISIONS.md. This decision does NOT authorize code/deployment or alter preexisting Crew, Drop, starter, guide or Aura records.
