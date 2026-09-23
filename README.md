@@ -1,3 +1,7 @@
+## Current product navigation
+
+**Start with [canonical docs index](docs/START_HERE.md).** Original 22 docs byte-for-byte archived under [2026-09-24-pre-cleanup](docs/archive/2026-09-24-pre-cleanup/README.md) and original field-test baseline remains on backup branch `backup/v073-before-sept24-feedback`. Current Sept 24 defects, domain move, v0.8 concepts, image atlas and AI brainstorm have separate dated specs. Do not treat historical append-only phase labels or image mockups as implemented features.
+
 # Project Adda — Living Beta (v0.7.1 preview)
 
 Functional multi-user validation build for Project Adda. The current `v0.5-full-experience` branch holds the newer v0.7 guided onboarding and product architecture. `main` is the separate production line; do not assume it includes preview features.
