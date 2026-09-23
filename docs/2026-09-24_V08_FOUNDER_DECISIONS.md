@@ -81,3 +81,27 @@ See D040 for the five initial v0.8 decisions; D041 adds the founder's detailed m
 **Current review candidates, NOT decisions:** Explorer 5/150/2000 distinct Crew answers; Regular 3 active days for Star I, 45 active +20 real Charge completion days for Star II, 365 active +180 Charge completion days for Star III. Streak optional 3/7/30 days cosmetic-only unless a separate award is explicitly approved. Sparkmaker Star I requires one actual authored Drop; a separate high-star peer-uniqueness/fraud threshold is an implementation/ethics gate, not a hidden post-hoc failure requirement.
 
 Source: docs/2026-09-24_V08_FOUNDER_DECISIONS.md. This decision does NOT authorize code/deployment or alter preexisting Crew, Drop, starter, guide or Aura records.
+
+
+## D043 — Founder selects generous achievement rewards and two-layer star/title identity (2026-09-24)
+
+Founder **APPROVED** bonus Aura per achievement path per milestone: Star I **+50**, Star II **+300**, Star III **+1,500**. This means **+1,850 per fully completed path** and a maximum of **+5,550** across the three FIRST v0.8 three-star paths, **subject to actual qualifying activity and unique once-only award records**. These are milestone bonuses on top of already earned base Aura, not repeated for every answer/publish or a per-day farming mechanism. Historical qualifying Stars + Aura are retroactively awarded ONCE under founder decision D042. Pre-v0.8 Daily Charge cannot be fabricated. Gem award quantities, catalog and balance display remain unapproved; internal hidden ledger approach D040/D041 remains.
+
+Founder also **APPROVED** showing BOTH (i) Star I/II/III in each achievement path and (ii) a per-achievement *earned title*. The exact display titles, iconography, hue, whether one/two/three earned titles persist as collectible aliases, and path names are still under discussion. Distinguish achievement titles from Aura LEVEL names; avoid reusing existing one-time Starter badge First Spark as if a new achievement is the identical item.
+
+Founder explicitly **DID NOT APPROVE** any previously proposed Explorer or The Regular target curve. Their numerical thresholds remain open; do not treat earlier 5/150/2,000 Crew answers or 3/45+20/365+180 active/Charge as decisions. Sparkmaker requirement structure remains locked (1 authored; 20 authored AND 30 genuine peer responses; 200 authored AND 1,000 genuine peer responses). Three working paths only, streaks optional submilestones, and two Coming Soon pathways remain unchanged.
+
+### New TARGET DISCUSSION OPTIONS (NOT FOUNDER-LOCKED)
+- Explorer distinct Crew answers: Accessible 5/200/2,000; Long-range 5/300/3,000; Steeper entry 10/250/2,500. Requires calibration against genuine existing Crew data and actual expected answer supply. No fake inflation of Daily Aura card answers to reach Crew milestones.
+- The Regular cumulative genuine active days AND separately recorded post-launch completed Charge days: Balanced 3 days / (90 active AND 45 Charge) / (730 active AND 365 Charge); faster 3 / (60 AND 30) / (365 AND 180); long-horizon 5 / (120 AND 60) / (730 AND 365). Distinct active days are NOT necessarily consecutive; streaks optional separate submilestones. Timezone/day cutoff and trusted historical timestamp requirements still under review.
+- Display-name concept: functional path names Explorer, Sparkmaker, The Regular or renamed later; individual Star earned titles should be distinct (e.g., Explorer: Curious One / Opinion Magnet / Master Explorer) and mapped to genuine state. These suggestions are NOT approved labels.
+- Extended Aura levels above existing 2,000 Legend are NECESSARY TO DISCUSS before releasing the generous bonuses. Candidate additional thresholds 3,500 / 5,500 / 8,500 / 12,500 / 18,000 / 26,000 / 40,000 / 60,000; labels and target spacing NOT approved. Keep prior 0–2,000 level labels and earned score, do not migrate/reset storage or confuse a Legend achievement title with the existing Aura Legend level.
+
+### Economy/math and migration guardrails
+- Three paths all completed: 3 × (50+300+1500) = 5,550 achievement bonus Aura, once. Sparkmaker 200 authored Drops already imply **at least 6,000 base Aura** at legacy +30 each before other actions/achievement bonuses, if every qualifying author action receives that unchanged base reward.
+- A real peer response qualifies creator's Sparkmaker count, but DOES NOT automatically grant creator the +10 response Aura credited to the mate who answered. No extra hidden participation payout without later approval.
+- Unique reward row/key by participant+achievement-definition version+milestone with source IDs, exactly-once reconciliation, ledger-linked score read and idempotent backfill. Avoid “award on every Aura page render”, double counting creator replies, deleted/undone records, and speculative retrospective daily Charge completions.
+- Before threshold approval, inspect a privacy-safe distribution of genuine historical answers, created Drops and active days without relying on the heavy all-Crew getVibe scan; report legacy coverage limitations. An old user may deserve multiple earned stars immediately, with retroactive +50/+300/+1500 exactly once if genuinely qualified.
+- Gems remain silently ledger-tracked only when award amounts are explicitly approved. First v0.8 must not show spendable Gems before catalog/redeem is functioning. No code or production deployment authorised by D043.
+
+D043 supersedes D042's statement that Aura achievement bonus AMOUNTS are unapproved; all other D040/D041/D042 constraints stay.
