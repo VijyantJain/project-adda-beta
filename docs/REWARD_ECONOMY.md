@@ -87,3 +87,6 @@ Founder selected full Aura threshold/name rebalance with an EXPLORATION OF 25+ l
 
 ## D047 open-ended Aura chapter architecture (design, not shipped)
 Levels may be expanded in versioned, published chapter updates without a hard 25/33/40-level lifetime ceiling. Every published finite Aura threshold must be monotonic, inspectable and resolved from real earned scores; above top published level keep accumulating points and label the current published cap truthfully. Founder intends both social and luminous/futuristic language in every chapter; all legacy earned Aura and badges retained while displayed levels are rebalanced and renamed. No final thresholds, future cadence, AI/Orb implementation or score migrations approved.
+
+## D048 pending Charge rule and rolling-seven-day Pulse
+Founder confirms seven-day ROLLING factual Crew Pulse, real actions plus unique participating mates; exact weights/payoff and small-Crew fairness open. Daily Charge completion rule NOT approved; a truthful capped daily completion bonus and The Regular completed-Charge-day ledger remain the intent. First Aura release to include 25+ defined levels, count/thresholds after real score and rate analysis. Existing earned Aura and Starter badges preserved, retro star bonuses granted only once on verified eligibility. No implementation permission.

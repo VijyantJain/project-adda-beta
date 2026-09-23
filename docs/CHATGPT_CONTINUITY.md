@@ -161,3 +161,6 @@ Expand exploratory new Aura progression to 25+ levels, full visible name/thresho
 
 ## 2026-09-24 D047 founder open-ended Aura decision
 Do not assume the 33-level concept is approved: Aura progression is open-ended, with named chapters and periodic finite level releases; all stage names interleave playful-social and futuristic-luminous language. Versioned actual thresholds, keep genuine Aura accruing beyond highest published level, no fabricated next threshold. Preserve all scores/badges, replace old visible labels, maintain independently chosen featured/per-path achievement titles. v0.8 code NOT authorised; founder still discussing Daily Charge, Crew Pulse, exact names and launch-level curve before A/B/C.
+
+## 2026-09-24 D048 founder checkpoint
+Seven-day rolling hybrid real-activity + unique-mates Crew Pulse selected; exact score and payoff open. Launch 25+ Aura levels with count/thresholds after economy modelling, future named chapters open-ended. Daily Charge completion rule intentionally NOT chosen from earlier options; do not assume 3/3 personal card completion. Founder discussion before A stabilisation, B domain, C final spec; no app code/main change.

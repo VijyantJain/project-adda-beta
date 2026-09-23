@@ -172,3 +172,16 @@ FOUNDER DECIDED (PRODUCT DESIGN ONLY; NOT IMPLEMENTATION):
 5. No v0.8 code, data migration, DB/store mutation, deploy or production merge. Complete discussion first; Option A field-test stabilisation then B domain & safe web setup then C final v0.8 SRS and roadmap, then explicit implementation permission.
 
 OPEN for founder discussion: choose practical LAUNCH CHAPTER count/levels and flexible threshold curve calibrated from valid actual scores; daily Charge threshold/base card rewards/streak qualification/caps; tangible minimal hybrid Crew Pulse payoff and honest privacy/counter rules; names/titles; optional Orb visual and AI timing; exact future chapter publishing criteria. An open-ended system still needs a functioning top published level and truthful progress UI at every time.
+
+
+## D048 — Founder rolling seven-day Crew Pulse, launch 25+ levels after modelling, Daily Charge rule OPEN (2026-09-24)
+
+**CONFIRMED DESIGN CHOICES, NOT CODING APPROVAL:**
+1. Small factual hybrid Crew Pulse uses ROLLING SEVEN-DAY CREW ACTIVITY (real meaningful actions PLUS distinct REAL participating mates), not calendar-week resets or all-time counts. Window and numerator/denominator truthful. Define action weights, distinct mate contribution, fair small-Crew thresholds, privacy, event time boundaries and factual payoff in discussion; do not invent participation, imply lasting achievement vanished when the seven-day window moves, or count shares as successful invites.
+2. First v0.8 publishes 25+ real defined Aura levels, final count and thresholds only AFTER modelling actual earned score distribution and projected earning economy. D047 open-ended named future chapters stands. Historic score, events, earned badges and retro star Aura preserved, even if displayed level title/number changes. Earlier illustrative 28/33-level curves do not become accepted by choosing 25+.
+3. Founder selected DISCUSS A DIFFERENT DAILY CHARGE COMPLETION RULE: no all-three, two-of-three, or any-three rule approved. Keep three guaranteed personal Daily Aura cards and zero-to-two genuine social extras; a once-per-day modest Aura completion bonus and progress toward The Regular; Capsules delayed to v0.8.x. Must decide solo equality, whether any personal anchor is mandatory, skips/substitutions, charge meter/credit weights/cap, when rewards grant, local calendar-day/reset/timezone, anti-farming and one-time reward amount. Never infer historic prelaunch Charge completion.
+4. Do not implement v0.8, change app code, touch Blob stores or main. Finish discussion, Option A stabilisation, B domain/web, C final roadmap/SRS, then explicit go-ahead.
+
+**Unresolved Crew Pulse mechanics:** rolling exact 168-hour window vs recent seven declared calendar dates; genuine Drop answers/created Drops, unique mate counts, minimum 2-mate fallback, disproportionate one-member farming, score weights and concrete honest milestone payoff. Existing original all-time Recap remains distinct.
+
+**Unresolved Aura economics:** new personal card base Aura and Charge bonus; +10 per unique Crew answer, +30 per actual authored Drop, up to 180 Starter, +50/+300/+1500 achievement Star bonuses and retro backfill; trustworthy analytics distribution before choosing long-horizon thresholds.
