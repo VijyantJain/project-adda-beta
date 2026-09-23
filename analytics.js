@@ -23,14 +23,14 @@ function eventLabel(e){
 
 async function adminApi(action,params={}){
   const q=new URLSearchParams({action,...params});
-  const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),15000);
+  const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),55000);
   try{
     const r=await fetch(`/api?${q}`,{headers:{'x-adda-admin-key':adminKey},signal:ctl.signal});
     const j=await r.json().catch(()=>({}));
     if(r.status===401)throw Object.assign(new Error('Not authorized.'),{unauthorized:true});
     if(!r.ok)throw new Error(j.error||'Could not load analytics.');
     return j
-  }finally{clearTimeout(timer)}
+  }catch(e){if(e?.name==='AbortError')throw new Error('The full analytics scan exceeded 55 seconds. Your events are saved; the backend needs an indexed summary. Retry a shorter date range.');throw e}finally{clearTimeout(timer)}
 }
 function renderLogin(msg=''){
   A.innerHTML=`<section class="analyticsLogin"><div class="analyticsBrand">Adda</div><div class="analyticsLoginCard"><div class="tiny">PRIVATE BACKEND</div><h1>Adda Analytics</h1><p>Founder-only field-test dashboard.</p>${msg?`<div class="analyticsError">${esc(msg)}</div>`:''}<label>Admin key</label><input id="analyticsKey" type="password" autocomplete="current-password" placeholder="Enter private analytics key"><button class="btn primary" onclick="loginAnalytics()">Open dashboard</button><small>Key stays in this browser tab only.</small></div></section>`;
@@ -43,7 +43,7 @@ window.loginAnalytics=async()=>{
 window.logoutAnalytics=()=>{adminKey='';sessionStorage.removeItem('addaAnalyticsKey');D=null;renderLogin()};
 
 async function loadDashboard(){
-  A.innerHTML=`<div class="analyticsLoading"><div class="analyticsSpinner"></div><b>Loading analytics…</b><span>Aggregating field-test activity</span></div>`;
+  A.innerHTML=`<div class="analyticsLoading"><div class="analyticsSpinner"></div><b>Loading analytics…</b><span>Aggregating field-test activity. First view can take longer; repeat views are briefly cached.</span></div>`;
   try{D=await adminApi('analyticsDashboard',{days:String(days)});renderDashboard()}
   catch(e){if(e.unauthorized){adminKey='';sessionStorage.removeItem('addaAnalyticsKey');renderLogin('Admin key required.')}else{A.innerHTML=`<div class="analyticsLoading"><b>Couldn’t load analytics</b><span>${esc(e.message)}</span><button class="btn primary" onclick="loadDashboard()">Retry</button></div>`}}
 }
