@@ -17,10 +17,16 @@ flowchart TD
  I --> J{Actual unanswered Drops?}
  J -->|Two or more| K[Coach TWO real Crew answers]
  K --> L[Required Starter 10 → Tenacious → Aura/Profile]
+ L --> N[Return to EXACT linked Crew]
  J -->|Zero| M[Starter 10 + Aura/Profile guide]
- M --> N[Return EXACT invited Crew → guided first custom Drop]
- J -->|One| O[Coach real available answer → honest next-step fallback]
+ M --> N
+ J -->|One| O[Coach available real answer → no fake second answer]
  O --> L
+ N --> NC[Now create first Drop in this Crew]
+ NC --> ND[Full guided + / Create Drop tour]
+ ND --> NE[Publish ONE real Drop in original Crew]
+ NE --> NF[Offer exact Drop invite via native share / fallback]
+ NF --> NG[Normal Crew and Adda usage]
  B -->|Drop invite| P{Recognized returning beta user?}
  P -->|Yes| Q[Exact Drop → answer or real waiting/result → normal]
  P -->|No| R[Explain exact linked Drop → real answer FIRST]
@@ -92,11 +98,11 @@ flowchart TD
 
 ## Entry-order invariants
 - Direct: Starter BEFORE Aura and optional Crew.
-- New Crew invite with Drops: exact Crew and real answers FIRST. Starter 10/Tenacious/Aura/Profile is REQUIRED after two Crew answers; return to same Crew.
+- New Crew invite with Drops: exact Crew → two real answers FIRST → REQUIRED Starter 10/Tenacious/Aura/Profile → SAME linked Crew → mandatory first-custom-Drop guided + tutorial/publish in THAT Crew → offer exact Drop share → normal use. If only one/zero genuine unanswered Drops exist, never invent an answer.
 - New Drop invite: exact invited Drop and real answer BEFORE Starter, then Aura/Profile, then Crew/other answers or create.
 - Returning linked users: exact Crew/Drop without forced Starter replay.
 - A participant cannot be classified as an authenticated registered human across devices until real auth exists.
 
 
 ## Founder-confirmed D038, 2026-09-23 — MANDATORY onboarding after first two Crew-link answers
-For a first-time beta visitor opening a Crew invitation with at least two real unanswered Drops, the required order is: enter the EXACT linked Crew → member-specific Crew welcome/tour → answer TWO REAL unanswered Crew Drops → play all TEN Starter questions → unlock Tenacious → complete guided Aura/Home/Crew/Create/Profile setup → return to the SAME original Crew and resume normal usage. Already earned Crew points and response records are retained; Starter's 180 points count once. Preserve the original crewId across refresh. No new Crew creation, duplicate seed, duplicate answer or forced invitation. If fewer than two unanswered Drops remain, answer any genuine available Drop and proceed with a clearly described fallback without trapping the visitor. This decision supersedes any earlier “optional”, “deferred” or “pending” text about this specific cohort. New DROP-link entrants still answer the exact invited Drop FIRST before Starter. Existing visitors do not repeat Starter. DECIDED / SPEC, NOT IMPLEMENTED.
+For a first-time beta visitor opening a Crew invitation with at least two real unanswered Drops, the required order is: enter EXACT linked Crew → member tour → two REAL Crew answers → Starter 10 → Tenacious → Aura/Home/Crew/Create/Profile guide → original Crew → prompt to create FIRST custom Drop in [crew name] → complete + guided creation → publish the real Drop in the SAME Crew → offer share of exact Drop → normal use. Already earned Crew points and response records are retained; Starter's 180 points count once. Preserve the original crewId across refresh. No new Crew creation, duplicate seed, duplicate answer or forced invitation. If fewer than two unanswered Drops remain, answer any genuine available Drop and proceed with a clearly described fallback without trapping the visitor. This decision supersedes any earlier “optional”, “deferred” or “pending” text about this specific cohort. New DROP-link entrants still answer the exact invited Drop FIRST before Starter. Existing visitors do not repeat Starter. DECIDED / SPEC, NOT IMPLEMENTED.
