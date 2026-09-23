@@ -108,3 +108,19 @@ Add getAuraStarter per-participant server read (Starter+guide), shared level cur
 New Starter v3 questions and 24 real bundled WebPs; original v1/v2 answer-option catalogs and records preserved. Photo source/photographer/release/high-resolution acceptance D-020/D-021 remain unverified for wide distribution.
 ## D036 — Explicit, factual Aura economy
 Present actual per-action scores, note recorded shares ≠ delivered invitations, keep legacy key/event/score history, plan anti-farming without silent reset.
+
+
+## PROPOSED D033 — First-ever created Crew has its own guided activation
+Differentiate CREATED vs JOINED; reuse existing profile name; spotlight real Crew functions; choose two explicit interests, server-seed 5 distinct shared eligible Drop formats idempotently, coach 2 real interest answers and offer a genuine Crew share action. Do not repeat after second created Crew. Status SPEC pending founder flow review.
+
+## PROPOSED D034 — Crew IA separates member list from admin settings
+Crew Chat, Recap and Mates are social modules; personal Aura remains in global navigation; admin-only Crew Settings is a distinct gear. Retain non-admin Leave Crew. Recap currently aggregates real all-time Crew activity, not fictional AI or weekly highlights. Status SPEC.
+
+## PROPOSED D035 — Deep-link priority before generic onboarding
+New Drop invite must answer exact Drop first; new Crew invite enters actual Crew first; direct journey stays frozen. Existing beta user skips compulsory Starter; local browser identity is not verified auth. Crew-invite existing-Drops follow-on Starter rule awaits founder decision. Status SPEC.
+
+## PROPOSED D036 — First custom Drop tutorial / no invented share success
+Explain six formats, prohibit one-mate Most Likely, guide type-specific fields/settings, commit once, then offer actual Drop deep link via OS share/fallback. Share sheet opening does not confirm delivery; cancelled share has safe recovery. Status SPEC.
+
+## PROPOSED D037 — Seed and reward safety
+Only first ordinary-created Crew's opted-in seed flow writes five real shared Drops, 5 different allowed types, backend idempotency and partial-write recovery. Do not modify original seeded five or award a fabricated second reward. Status SPEC.

@@ -169,3 +169,7 @@ Small finite daily interest-led cards and one real next action, streak/reward wi
 
 ## v0.7.2 release priority (before v0.8)
 Preview patch: Tenacious→server real Aura→automatic non-skippable solo guide→Home→Crew info→Create + info→profile with avatar/default. Preserve invited first-Crew tutorial and v1/v2 state; introduce v3 content and 24 app-local photographic images with SVG failover. QA: score=180 plus actual guide credits, six Starter badges, no fictitious 100% top level, refresh card 6–9 and tour, iPhone Safari, WhatsApp in-app, Android Chrome, old Avengers and persistent Netlify data. No main merge until founder approval. Broader 720px photo licensing/release audit and authenticated OTP remain separate gates; Daily Aura Deck remains v0.8 only.
+
+
+## Proposed v0.7.3 — Crew and first custom Drop activation (DESIGN, not deployed)
+Founder review of docs/CREW_AND_DROP_ONBOARDING_V073_SRS.md + flowcharts first; freeze v0.7.2. Implement distinct invite-entry state machines, first creator-interest seeding, truthful Crew home permissions/Recap, first custom Drop guide/share, then run direct/invited/current-user/legacy regression and actual mobile QA. Preserve main and Blob stores. Hold v0.8 Daily Aura and domain work until v0.7.3 accepted.

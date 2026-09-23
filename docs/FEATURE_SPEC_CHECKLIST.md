@@ -195,3 +195,23 @@ Six additive IDs; canonical register = **115 items**; BETA ≠ device VERIFIED.
 - [x] **D-027** Starter v3 new-arrivals-only lively 10-card/14 interest variants; 24 app-bundled actual photograph WebPs with SVG fallback, no rewrite of v1/v2 answers — `BETA`. D-020/D-021 premium 720px masters/source/release audit remain IN_PROGRESS.
 - [x] **A-023** Regression validation/analytics for solo guide, Aura hydration, assets, and direct/invited cohort continuity — `BETA`. iPhone, Android and in-app E2E still required for VERIFIED.
 **Hold main:** test correct 180 points, next-level progress, guide refresh and optional avatar, q6–9 resume, original invite target, all six Drop formats, Avengers/Blob records and low-connectivity retry. No OTP or cross-device claims.
+
+
+## v0.7.3 Crew, first custom Drop and invite router — founder flow intake (SPEC only)
+Separate DESIGN branch; 115 existing IDs retained and 13 additive SPEC IDs below. Canonical proposed register: **128 feature IDs**. No preview implementation/deployment implied.
+- [ ] **P-023** Three-entry direct/Crew-link/Drop-link cohort router, preserve exact Crew/Drop and local returning status, no fake cross-device authentication — SPEC.
+- [ ] **P-024** First-ever CREATED Crew onboarding: name reuse, genuine Aura welcome, Crew element tour → 2 interests → 5 shared seed Drops → 2 genuine answers → Crew invitation — SPEC.
+- [ ] **P-025** New Crew-link arrival member-specific guide; handle real available Drops vs empty Crew, Starter/Aura continuation pending founder cohort decision — SPEC.
+- [ ] **P-026** New Drop-link arrival: explain/answer exact linked Drop FIRST, then Starter/Aura/Profile, exact Crew tour and real next activity — SPEC.
+- [ ] **P-027** Returning/second-Crew cohorts bypass compulsory tutorials, get contextual invite/create CTAs; beta identity recognition is browser-local — SPEC.
+- [ ] **C-022** Crew homepage information architecture: remove redundant Aura card, separate Mates from admin Settings, real Chat/Recap modules — SPEC.
+- [ ] **C-023** Dedicated Mates view and admin-only Settings controls, non-admin can still Leave Crew, server 403 enforced — SPEC.
+- [ ] **C-024** Truthful Recap purpose/empty state, explain factual all-time current metrics; weekly time-filtered Recap remains PLANNED — SPEC.
+- [ ] **C-025** Idempotent five Drop seed for first ordinary-created Crew: top-two interest prompts + three curated, 5 unique eligible types; never alter old Crews — SPEC.
+- [ ] **D-028** First CUSTOM Drop guided six-format education, type settings, validation, single publish and deep-link sharing; seeded Drops don't count as authored — SPEC.
+- [ ] **A-024** Distinct resumable scoped creator/guest/drop guides, pending deep-link and API-success transitions, no repeated points/seeding — SPEC.
+- [ ] **A-025** Native Crew/Drop share with editable Hinglish invite, cancellation/fallback, truthful opened vs delivered instrumentation — SPEC.
+- [ ] **V-023** Display backend-confirmed creator/answer Aura, no duplicate +10 or invented rewards and preserve 180-point Starter — SPEC.
+
+Open product decision: new Crew-link entrant who answers two existing Drops — should Starter 10/Aura/Profile become required afterward, optional, or deferred to a later return? No change to deployed old flow until confirmed. New Drop-link entrant explicitly answers invited Drop before Starter as founder requested.
+See docs/CREW_AND_DROP_ONBOARDING_V073_SRS.md and docs/CREW_ONBOARDING_FLOWCHARTS_V073.md.

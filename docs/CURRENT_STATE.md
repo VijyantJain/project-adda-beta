@@ -150,3 +150,7 @@ The prior direct Tenacious route rendered Aura but did not activate the Crew-sco
 - Invited fresh QA Crew `c_7daf823ca7` and Drop `d_sp1_7daf823ca7` (created only for testing) retained exact invite link after ten answers, reached real private interest guide; no exceptions. Existing Avengers not used or modified by test.
 - All 24 local WebP routes responded HTTP 200 with image/webp. Netlify status success for base v0.7.2 commit; this follow-up copy/analytics correction needs a new preview check.
 - These are browser automation/source checks, not a claim of passing real iPhone Safari, Android Chrome, WhatsApp browser or commercial photo-rights review.
+
+
+## v0.7.3 Crew onboarding — design only / v0.7.2 FROZEN
+Founder observed no default Drops or Crew-specific tour after first ordinary-created Crew. Exact source reason: starterCreateCrew seeds, ordinary createCrew does not, and existing guide primarily enters from older Starter-create/invited paths. Proposed 3-entry direct/Crew-link/Drop-link rework, Creator first-Crew guide and first custom Drop guide are SPEC on separate design branch. These are not yet deployed; working v0.7.2 preview, both Blob store identities and production main remain unchanged. See the new v0.7.3 SRS/flowcharts and pending Crew-link existing-drops Starter order decision.
