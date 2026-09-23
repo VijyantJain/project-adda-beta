@@ -84,3 +84,6 @@ Intention approved to recalibrate the entire visible Aura level-threshold curve 
 
 ## D046 pending 25+ level curve and featured title rules — NOT SHIPPED
 Founder selected full Aura threshold/name rebalance with an EXPLORATION OF 25+ levels, not the earlier 20-level sample. Preserve all scored events, earned Aura totals, earned badges and legitimate path titles; old user-visible level names are replaced, not kept as mandatory collectibles. Separately select one featured earned profile title and a chosen genuinely unlocked title in each of the three achievements. Aura level naming/thresholds, gem amounts, weekly/daily rewards still unapproved. No direct mutation of score or backfill without source audit and signoff.
+
+## D047 open-ended Aura chapter architecture (design, not shipped)
+Levels may be expanded in versioned, published chapter updates without a hard 25/33/40-level lifetime ceiling. Every published finite Aura threshold must be monotonic, inspectable and resolved from real earned scores; above top published level keep accumulating points and label the current published cap truthfully. Founder intends both social and luminous/futuristic language in every chapter; all legacy earned Aura and badges retained while displayed levels are rebalanced and renamed. No final thresholds, future cadence, AI/Orb implementation or score migrations approved.

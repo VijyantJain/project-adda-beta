@@ -158,3 +158,6 @@ Hybrid Social Mastery naming + futuristic but performant Aura visuals. Founder w
 
 ## 2026-09-24 D046 founder design checkpoint
 Expand exploratory new Aura progression to 25+ levels, full visible name/threshold rebalance and more playful/futuristic achievement titles; keep every earned Aura point and badge but do not preserve old visible Aura level names as collectible by default. Featured user-selected earned profile title AND individual earned titles per path. None of the exact level/name/threshold suggestions are accepted yet. No v0.8 coding; Option A/B/C sequence intact. See D046 founder decisions.
+
+## 2026-09-24 D047 founder open-ended Aura decision
+Do not assume the 33-level concept is approved: Aura progression is open-ended, with named chapters and periodic finite level releases; all stage names interleave playful-social and futuristic-luminous language. Versioned actual thresholds, keep genuine Aura accruing beyond highest published level, no fabricated next threshold. Preserve all scores/badges, replace old visible labels, maintain independently chosen featured/per-path achievement titles. v0.8 code NOT authorised; founder still discussing Daily Charge, Crew Pulse, exact names and launch-level curve before A/B/C.
