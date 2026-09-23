@@ -823,9 +823,18 @@ function journeyCreateCTA(){
  if(!journey||journey.phase!=='create_required'||!guideActive())return;
  guideDisplay('Now create YOUR first Drop ⚡','Time to add your own question inside '+(crew?.name||'your Crew')+'. We will guide every step.','Let’s create a Drop →',()=>{screen='create';render();startCustomDropGuide()},'.nav5 button:nth-child(3)');
 }
+function waitForShareSheet(done){
+ const overlay=document.querySelector('.shareOverlay');
+ if(!overlay){done();return}
+ removeGuide();guide.mode='share';
+ const observer=new MutationObserver(()=>{
+  if(!document.querySelector('.shareOverlay')){observer.disconnect();done()}
+ });
+ observer.observe(document.body,{childList:true,subtree:true});
+}
 function journeyInviteCrew(){
  guideDisplay('You answered your first TWO! 🏆','More real mates mean more real answers. Invite your friends to '+crew.name+'!','Invite my gang ↗',()=>{
-  guide.mode='share';window._shareCrew();setTimeout(()=>{guideDisplay('Your Crew is ready 💜','Your link is available any time. Opening the sharing menu does not confirm a message was delivered.','Finish Crew tour →',()=>{localStorage.setItem('addaFirstCreatedCrewGuideDone_'+pid,'1');journeyFinish('Your Crew is ready!')},'.invitePill');guide.mode='share'},150)
+  guide.mode='share';Promise.resolve(window._shareCrew()).finally(()=>waitForShareSheet(()=>guideDisplay('Your Crew is ready 💜','Your link is available any time. Opening the sharing menu does not confirm a message was delivered.','Finish Crew tour →',()=>{localStorage.setItem('addaFirstCreatedCrewGuideDone_'+pid,'1');journeyFinish('Your Crew is ready!')},'.invitePill')))
  },'.invitePill');
 }
 function journeyFinish(message){
@@ -890,13 +899,12 @@ function customDropPublished(id){
  guideDisplay('Your first Drop is LIVE! 🔥','You published this real question inside '+crew.name+'. Now invite your friends to answer THIS Drop.','Invite friends to this Drop ↗',()=>{
   guide.mode='share';
   const promise=window._shareDrop(id);
-  Promise.resolve(promise).finally(()=>{
+  Promise.resolve(promise).finally(()=>waitForShareSheet(()=>{
    if(!journey||journey.phase!=='create_tour')return;
    guideDisplay('Your Drop is safe 💜','The link is yours to share again any time. A share sheet opening does not confirm delivery.','Finish tutorial →',()=>{
     localStorage.setItem('addaCustomDropGuideDone_'+pid,'1');track('first_custom_drop_guide_completed',{crewId,dropId:id});journeyFinish('Your first custom Drop is live!')
    },'.appStickyHeader');
-   guide.mode='share';
-  });
+  }));
  },'.appStickyHeader');
 }
 
