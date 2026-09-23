@@ -93,10 +93,10 @@ function crewStickyHeader(){
     </div>
   </header><div class="crewHeaderSpacer" aria-hidden="true"></div>`
 }
-function navHtml(){const a=x=>screen===x?'active':'';return `<nav class="nav nav5"><button aria-label="Home" title="Home" class="${a('home')}" onclick="window._home()">${navIcon('home')}</button><button aria-label="Crew" title="Crew" class="${screen==='crew'?'active':''}" onclick="window._openCurrentCrew()">${navIcon('crew')}</button><button aria-label="Create" title="Create" class="create" onclick="window._createAction()">+</button><button aria-label="Aura" title="Aura" class="${a('vibe')}" onclick="window._go('vibe')">${navIcon('vibe')}</button><button aria-label="Profile" title="Profile" class="${a('profile')}" onclick="window._go('profile')">${navIcon('profile')}</button></nav>`}
+function navHtml(){const a=x=>screen===x?'active':'';return `<nav class="nav nav5"><button aria-label="Home" title="Home" class="${a('home')}" onclick="window._home()">${navIcon('home')}</button><button aria-label="Crew" title="Crew" class="${screen==='crew'||screen==='soloCrewTour'?'active':''}" onclick="window._openCurrentCrew()">${navIcon('crew')}</button><button aria-label="Create" title="Create" class="create" onclick="window._createAction()">+</button><button aria-label="Aura" title="Aura" class="${a('vibe')}" onclick="window._go('vibe')">${navIcon('vibe')}</button><button aria-label="Profile" title="Profile" class="${a('profile')}" onclick="window._go('profile')">${navIcon('profile')}</button></nav>`}
 window._go=s=>{track('screen_view',{screen:s});screen=s;stopPolling();render()};window._tab=t=>{const next=t==='chat'?'chat':'crew';track('screen_view',{screen:next});screen=next;stopPolling();render()};
 window._home=()=>{stopPolling();if(!getKnownCrews().length&&localStorage.addaStarterFinished!=='1'){screen='starter';renderStarter();starterController?.begin();return}crewId='';dropId='';crew=null;members=[];drops=[];pendingInvite=null;history.replaceState({},'','/');screen='home';render()};
-window._openCurrentCrew=()=>{if(crewId&&crew){screen='crew';render()}else{const first=getKnownCrews()[0];if(first)window._openKnownCrew(first.id);else{screen='start';render()}}};
+window._openCurrentCrew=()=>{if(crewId&&crew){screen='crew';render()}else{const first=getKnownCrews()[0];if(first)window._openKnownCrew(first.id);else{screen='soloCrewTour';render()}}};
 window._createAction=()=>{if(crewId&&crew){screen='create';render()}else if(!getKnownCrews().length&&localStorage.addaStarterFinished!=='1'){window._home()}else{screen='start';render()}};
 window._openKnownCrew=id=>{track('crew_opened',{targetCrewId:id});crewId=id;dropId='';history.replaceState({},'',`/?crew=${id}`);screen='boot';return boot()};
 function stopPolling(){clearTimeout(pollTimer);clearTimeout(chatTimer)}
@@ -206,7 +206,7 @@ window._shareDrop=(id)=>{track('drop_shared',{dropId:id});share(`${location.orig
 
 async function boot(){try{
  if(profileId){screen='publicVibe';render();return}
- if(!crewId){const noCrews=!getKnownCrews().length;screen=playFirstFive||(noCrews&&localStorage.addaStarterFinished!=='1')?'starter':'home';render();return}
+ if(!crewId){const noCrews=!getKnownCrews().length,soloPending=localStorage.getItem('addaSoloGuidePending_'+pid)==='1'&&localStorage.getItem('addaSoloGuideDone_'+pid)!=='1',legacySolo=noCrews&&localStorage.addaStarterFinished==='1'&&localStorage.getItem('addaSoloGuideDone_'+pid)!=='1'&&localStorage.getItem('addaGuideTourDone_'+pid)!=='1';screen=playFirstFive?'starter':soloPending||legacySolo?'vibe':noCrews&&localStorage.addaStarterFinished!=='1'?'starter':'home';render();return}
  const c=await api('getCrew',{params:{crewId}});crew=c.crew;members=c.members;
  let member=members.find(m=>m.id===pid);
  const firstVisit=needsFirstJourney();
@@ -231,6 +231,8 @@ async function boot(){try{
 
 function render(err=''){stopPolling();
  if(screen==='home')return renderHome();
+ if(screen==='soloCrewTour')return renderSoloCrewTour();
+ if(screen==='soloCreateTour')return renderSoloCreateTour();
  if(screen==='profile')return renderProfile();
  if(screen==='vibe')return renderVibe();
  if(screen==='publicVibe')return renderPublicVibe();
@@ -247,6 +249,8 @@ function render(err=''){stopPolling();
  if(screen==='create')return renderCreate();
  if(screen==='drop')return renderDrop();
 }
+function renderSoloCrewTour(){app.innerHTML=shell(`${top('Crew')}<section class="card addaSoloTeach"><span class="soloTeachEyebrow">👥 YOUR PEOPLE</span><h1>Your Crew is your private circle.</h1><p>A Crew brings friends into one place. Everyone sees the same Drops; real answers unlock shared results and conversations.</p><div class="addaSoloDiagram"><span>YOU</span><b>＋</b><span>MATES</span><b>→</b><span>DROPS</span></div><p>Starting one is optional. Explore first, invite when there's a question you genuinely want answered.</p><button class="btn primary" onclick="window._newCrew()">Create my first Crew →</button><button class="btn ghost" onclick="window._home()">Not now — Home →</button></section>`)}
+function renderSoloCreateTour(){app.innerHTML=shell(`${top('Create +')}<section class="card addaSoloTeach"><span class="soloTeachEyebrow">⚡ YOUR NEXT IDEA</span><h1>Turn any question into a Drop.</h1><p>Pick a format, add a question, share in a Crew when you're ready. No need to publish anything during this tour.</p><div class="addaFormatsPreview"><span>⚖️ This or That</span><span>🗳️ Vote</span><span>⭐ Rate</span><span>🔮 Predict</span><span>💬 Quick Answer</span><span>👀 Most Likely</span></div><button class="btn primary" onclick="window._newCrew()">Create a Crew when ready →</button></section>`)}
 function renderHome(){
  const crews=getKnownCrews(),stats=localStats(),finished=localStorage.addaStarterFinished==='1';
  app.innerHTML=shell(`${homeStickyHeader()}
@@ -341,13 +345,19 @@ window._saveLocalProfile=()=>{
 };
 
 async function renderVibe(){
-  let v;
-  try{v=await api('getVibe',{params:{participantId:pid,crewId:crewId||''}})}
-  catch(e){
-    const st=localStats();v={score:(st.response_submitted||0)*10+(st.drop_created||0)*30+(st.chat_message_sent||0)*4,level:{name:'Spark',icon:'⚡',index:1},progress:0,pointsToNext:0,streak:0,answers:st.response_submitted||0,dropsMade:st.drop_created||0,chatsSent:st.chat_message_sent||0,shares:0,crews:getKnownCrews().length,badges:[],signature:'',nextUnlock:null,crewRank:null}
-  }
+ app.innerHTML=shell(`${top('')}<section class="card addaAuraError" aria-live="polite"><h2>⚡ Loading your earned Aura…</h2><p>Checking your saved points and trophies.</p></section>`);
+ let v,partial=false;
+ try{
+  if(!getKnownCrews().length)v=await api('getAuraStarter',{params:{participantId:pid}});
+  else try{v=await api('getVibe',{params:{participantId:pid,crewId:crewId||''}})}
+  catch(fullError){partial=true;v=await api('getAuraStarter',{params:{participantId:pid}});track('aura_full_fallback',{reason:String(fullError.message||'').slice(0,90)})}
+  if(v.starter?.bonusCompleted&&v.score<180)throw Error('Your Starter Aura is still syncing. Retry to load your earned points.');
+ }catch(e){
+  app.innerHTML=shell(`${top('')}<section class="card addaAuraError"><h1>Your Aura is still loading ⚡</h1><p>${esc(e.message||'Could not load saved Aura. Try again.')}</p><button class="btn primary" onclick="window._go('vibe')">Retry my Aura →</button></section>`);
+  track('aura_load_error',{reason:String(e.message||'').slice(0,120)});return
+ }
   const unlocked=(v.badges||[]).filter(b=>b.unlocked);
-  const signature=v.signature?labelType(v.signature):'Still forming';
+  const signature=v.signature?labelType(v.signature):v.starterAnswers?'Your picks are in':'Still forming';
   const rank=v.crewRank?`#${v.crewRank.rank} of ${v.crewRank.total}`:'—';
   const rankSub=v.crewRank?.crewName?`in ${esc(v.crewRank.crewName)}`:'Open a Crew to rank';
   app.innerHTML=shell(`${top('')}
@@ -361,6 +371,14 @@ async function renderVibe(){
       <div class="vibeProgress"><i style="width:${v.progress||0}%"></i></div>
       <div class="vibeProgressCopy">${v.nextLevel?`<span>${v.pointsToNext} Aura to ${esc(v.nextLevel.name)}</span><b>${v.progress}%</b>`:'<span>Top level unlocked</span><b>100%</b>'}</div>
     </section>
+    <section class="card addaAuraBreakdown"><div class="row between"><h2>Your earned Aura</h2><b>⚡ ${v.score} total</b></div>
+      <p>Your Starter picks already count. No Crew needed to get started.</p>
+      <div class="addaAuraSplit"><span>Starter choices & trophies</span><strong>${v.starter?.points||0}</strong><span>Guided milestones</span><strong>${v.guided?.points||0}</strong></div>
+      ${partial?'<small class="addaAuraWarning">Crew activity is temporarily unavailable. Starter points are shown; retry for the full total.</small>':''}</section>
+    <section class="card addaAuraHow"><div class="soloTeachEyebrow">MAKE IT YOURS</div><h2>Build it. Earn it. Flex it. ✨</h2>
+      <p>Aura grows from real participation, not scrolling. Unlock badges and levels through choices, shared Drops and meaningful activity. Start solo; build with friends when you are ready.</p>
+      <div class="addaAuraActions"><span>⚡ Starter answer</span><b>+10</b><span>🏆 First Five completion</span><b>+30</b><span>👑 Tenacious completion</span><b>+50</b><span>🗳️ Crew Drop answer</span><b>+10</b><span>✍️ Create a Drop</span><b>+30</b><span>💬 Crew chat message</span><b>+4</b><span>👥 Join or create Crew</span><b>+10</b><span>↗ Recorded share action</span><b>+20*</b><span>🔥 Active-day streak</span><b>+5/day†</b></div>
+      <small>* Recorded share actions are not confirmed friend joins; beta anti-farming limits remain under review. † Up to ten streak days contribute to the score. Starter and guided rewards award once.</small></section>
     ${!getKnownCrews().length?`<section class="card addaSoloNext"><h2>Your Aura starts here 💜</h2><p>You’ve earned your first trophies. Make your profile yours — no Crew needed.</p><button class="btn primary" onclick="window._editProfile()">Personalize my Aura →</button><button class="btn ghost" onclick="window._home()">Explore Adda →</button></section>`:''}
 
     <div class="vibeFlexGrid">
@@ -384,6 +402,8 @@ async function renderVibe(){
     </section>
   `)
   window._currentVibe=v;
+  if(!getKnownCrews().length&&v.starter?.bonusCompleted&&localStorage.getItem('addaSoloGuideDone_'+pid)!=='1'&&localStorage.getItem('addaGuideTourDone_'+pid)!=='1'&&!soloGuidePending())localStorage.setItem('addaSoloGuidePending_'+pid,'1');
+  if(soloGuidePending()&&!guide.active)setTimeout(startSoloGuide,130);
 }
 window._shareVibe=()=>{
   const v=window._currentVibe;if(!v)return;
@@ -457,7 +477,7 @@ function renderStarter(){
    onCompleted:()=>{localStorage.addaStarterFinished='1'},
    onEnterInvite:()=>renderInvitedName(),
    onEnterExistingCrew:async id=>window._openKnownCrew(id),
-   onExploreSolo:()=>{localStorage.addaStarterFinished='1';crewId='';dropId='';crew=null;members=[];drops=[];history.replaceState({},'','/');track('starter_solo_explore',{step:10});screen='vibe';render()},
+   onExploreSolo:()=>{localStorage.addaStarterFinished='1';localStorage.setItem('addaSoloGuidePending_'+pid,'1');crewId='';dropId='';crew=null;members=[];drops=[];history.replaceState({},'','/');track('starter_solo_explore',{step:10});screen='vibe';render()},
    onCrewCreated:async(j,nickname)=>{
     crewId=j.crew.id;crew=j.crew;meName=nickname;localStorage.addaName=nickname;
     localStorage.addaStarterFinished='1';rememberCrew(crew);
@@ -482,6 +502,28 @@ window._startFirstFive=()=>{
 let guide={active:false,step:0,answers:0,lastDrop:'',originCrewId:'',tour:0};
 let personalGuide=null,personalGuideActive=false;
 function guideKey(){return 'addaGuideDone_'+(guide.originCrewId||crewId)}
+function soloGuideKey(){return 'addaSoloGuideState_'+pid}
+function soloGuidePending(){return localStorage.getItem('addaSoloGuidePending_'+pid)==='1'&&localStorage.getItem('addaSoloGuideDone_'+pid)!=='1'}
+function startSoloGuide(){
+ if(!soloGuidePending()||guide.active)return;
+ let saved={};try{saved=JSON.parse(localStorage.getItem(soloGuideKey())||'{}')}catch(e){}
+ guide={active:true,solo:true,mode:'transition',step:0,answers:0,lastDrop:'',originCrewId:'solo_'+pid,tour:Number(saved.tour)||0,profileStage:-1};
+ track('solo_aura_guide_started',{resume:!!saved.tour,step:guide.tour});
+ tourStep(Math.max(0,Math.min(4,guide.tour?guide.tour-1:0)))
+}
+function showAuraIntro(part){
+ if(!guideActive()||screen!=='vibe')return;
+ const blocks=[
+ ['Your Aura begins here ✨','Your personal Adda progress. Ten Starter picks earned real Aura already, even without friends here.','Show my points →','.vibeIdentity'],
+ ['Build it with real moves ⚡','Starter choices, trophies, real Crew answers, Drops and chats add points. Your Aura grows from what you DO, not what you scroll.','Show my milestones →','.addaAuraBreakdown'],
+ ['Earn it. Flex it. 🏆','See your levels, earned badges and next unlock. This is your progress to build over time.','Take me to Home →','.vibeBadgesCard']
+ ];
+ guide.tour=1;guide.step=part;guide.mode='transition';
+ localStorage.setItem(soloGuideKey(),JSON.stringify({tour:1,auraPart:part}));
+ const [title,body,cta,target]=blocks[part];
+ guideDisplay(title,body,cta,()=>{if(part<2)showAuraIntro(part+1);else{guideAward('tour_vibe');tourStep(1)}},target)
+}
+
 function guideActive(){return guide.active&&(guide.originCrewId||crewId)&&localStorage.getItem(guideKey())!=='1'}
 // While coached, block navigation/background taps; answer input is open only for the active real Drop.
 function guardGuideInteraction(e){
@@ -496,7 +538,8 @@ function guardGuideInteraction(e){
  const withinGuide=target.closest('.addaGuidedLayer .addaGuideCard button,.addaGuidedLayer .addaGuideCard input,.addaGuidedLayer .addaGuideCard textarea,.addaGuidedLayer .addaGuideCard select');
  const photoInput=guide.profileStage===0&&target.matches('#addaPhotoFile');
  const answer=guide.mode==='answer'&&!modal&&target.closest('.choice,#submitAnswer,#shortAnswer');
- if(withinGuide||photoInput||answer)return;
+ const retry=screen==='vibe'&&target.closest('.addaAuraError button');
+ if(withinGuide||photoInput||answer||retry)return;
  e.preventDefault();e.stopImmediatePropagation();
 }
 document.addEventListener('pointerdown',guardGuideInteraction,true);
@@ -520,9 +563,9 @@ function guideDisplay(title,body,cta,action,selector){
  });
 }
 function startFirstCrewGuide(){
- if(!crewId||localStorage.getItem(guideKey())==='1'||guide.active)return;
+ if(!crewId||localStorage.getItem('addaGuideDone_'+crewId)==='1'||guide.active)return;
  const saved=JSON.parse(localStorage.getItem('addaGuideState_'+crewId)||'{}');
- guide={active:true,step:0,answers:Number(saved.answers)||0,lastDrop:saved.lastDrop||'',originCrewId:crewId,tour:Number(saved.tour)||0};
+ guide={active:true,solo:false,mode:'transition',step:0,answers:Number(saved.answers)||0,lastDrop:saved.lastDrop||'',originCrewId:crewId,tour:Number(saved.tour)||0,profileStage:-1};
  localStorage.setItem('addaGuideStarted_'+crewId,'1');
  track('crew_guide_started',{crewId,resume:!!saved.answers||!!saved.tour});
  if(!personalGuide)personalGuide=createPersonalGuide({api,pid,esc,toast,track,getCrewId:()=>guide.originCrewId,getProfile:localProfile,saveProfile:p=>localStorage.addaLocalProfile=JSON.stringify(p),onDone:()=>{personalGuideActive=false;
@@ -574,35 +617,40 @@ function guideAward(step){
  .then(r=>{if(r.earnedPoints)toast('⚡ +'+r.earnedPoints+' Aura')})
  .catch(e=>console.warn('guide points',e.message))
 }
-function startFiveTabTour(){guide.tour=1;track('guide_five_tabs_started',{crewId:guide.originCrewId});tourStep(0)}
+function startFiveTabTour(){guide.tour=1;track('guide_five_tabs_started',{crewId:guide.solo?'':guide.originCrewId});tourStep(0)}
 function tourStep(i){
- if(!guideActive())return;guide.mode='transition';
- guide.tour=i+1;guide.step=4+i;
- localStorage.setItem('addaGuideState_'+guide.originCrewId,JSON.stringify({answers:guide.answers,lastDrop:guide.lastDrop,tour:guide.tour}));
- if(i===0){dropId='';window._home()}
- if(i===1)window._openKnownCrew(guide.originCrewId);
- if(i===2)window._createAction();
- if(i===3)window._go('vibe');
+ if(!guideActive())return;guide.mode='transition';guide.tour=i+1;guide.step=4+i;guide.profileStage=-1;
+ const previous={answers:guide.answers,lastDrop:guide.lastDrop,tour:guide.tour};
+ if(guide.solo){let old={};try{old=JSON.parse(localStorage.getItem(soloGuideKey())||'{}')}catch(e){}if(i===0)previous.auraPart=Number(old.auraPart)||0;localStorage.setItem(soloGuideKey(),JSON.stringify(previous))}
+ else localStorage.setItem('addaGuideState_'+guide.originCrewId,JSON.stringify(previous));
+ if(i===0)window._go('vibe');
+ if(i===1){dropId='';window._home()}
+ if(i===2){if(guide.solo){screen='soloCrewTour';render()}else window._openKnownCrew(guide.originCrewId)}
+ if(i===3){if(guide.solo){screen='soloCreateTour';render()}else window._createAction()}
  if(i===4)window._go('profile');
  const steps=[
- ['Home 🏠','Your Crews and Aura, in one place.','Open Crew →','tour_home'],
- ['Crew 👥','Drops, chat and friends live here.','Explore Create →','tour_crew'],
- ['Create +','Make a Drop here. No need to post now.','See my Aura →','tour_create'],
- ['Aura ✨','Your score, trophies and progress.','Visit Profile →','tour_vibe'],
- ['Profile ☺','Choose how you show up on Adda.','Make it mine →','tour_profile']
+ ['Aura ✨','Your personal progress and earned trophies.','Open Home →','tour_vibe',4],
+ ['Home 🏠','Your starting point: Aura, Crews and what to do next.','Explore Crew →','tour_home',0],
+ ['Crew 👥','Shared Drops, friends, chats and results. No need to create one now.','Show Create + →','tour_crew',1],
+ ['Create +','Turn a fun question into a shared Drop when you have a Crew.','Set up Profile →','tour_create',2],
+ ['Profile ☺','Give your Aura a name and a look. Real photos are optional.','Make it mine →','tour_profile',4]
  ];
  const show=(tries=0)=>{
   if(!guideActive()||guide.tour!==i+1)return;
-  if(i===1&&screen!=='crew'){if(tries<60){setTimeout(()=>show(tries+1),250);return}guideDisplay('Crew is taking a moment…','Your tour and earlier answers are saved. Retry the Crew screen when your connection is ready.','Retry Crew →',()=>tourStep(1),'.nav5 button:nth-child(2)');return}
-  const [title,body,cta,step]=steps[i];
-  track('guide_tab_seen',{tab:step.slice(5),step:i+1});
+  const expected=['vibe','home',guide.solo?'soloCrewTour':'crew',guide.solo?'soloCreateTour':'create','profile'][i];
+  if(screen!==expected||(i===0&&!document.querySelector('.vibeIdentity'))){
+   if(tries<60){setTimeout(()=>show(tries+1),250);return}
+   guideDisplay('Still loading…','Your tour is saved. Check the connection and retry.','Retry →',()=>tourStep(i),'.appStickyHeader');return
+  }
+  if(i===0&&guide.solo){let saved={};try{saved=JSON.parse(localStorage.getItem(soloGuideKey())||'{}')}catch(e){}showAuraIntro(Math.min(2,Math.max(0,Number(saved.auraPart)||0)));return}
+  const [title,body,cta,step,navIndex]=steps[i];track('guide_tab_seen',{tab:step.slice(5),step:i+1,entry:guide.solo?'solo':'crew'});
   guideDisplay(title,body,cta,()=>{
    guideAward(step);
    if(i===4){window._editProfile();setTimeout(()=>profileGuideStep(0),180)}
    else tourStep(i+1)
-  },'.nav5 button:nth-child('+(i+1)+')');
+  },'.nav5 button:nth-child('+(navIndex+1)+')');
  };
- setTimeout(()=>show(),i===1?230:110);
+ setTimeout(()=>show(),i===2&&!guide.solo?230:120)
 }
 function profileGuideStep(i){
  if(!guideActive())return;guide.step=9+i;guide.profileStage=i;guide.mode='transition';
@@ -635,7 +683,10 @@ function guideProfileSaved(p){
  track('guide_profile_ready',{hasPhoto:!!p.avatar,hasBio:!!p.bio,hasHandleDraft:!!p.handleDraft});
  setTimeout(()=>{
   guideDisplay('Your Aura is ready 🏆','Saved on this device. Verified account and sync are coming later.','Explore Adda →',()=>{
-   guide.active=false;localStorage.setItem('addaGuideDone_'+id,'1');removeGuide();track('guide_beta_handoff',{authStatus:'awaiting_provider'});localStorage.removeItem('addaGuideState_'+id)
+   guide.active=false;localStorage.setItem('addaGuideDone_'+id,'1');removeGuide();
+   if(guide.solo){localStorage.setItem('addaSoloGuideDone_'+pid,'1');localStorage.removeItem('addaSoloGuidePending_'+pid);localStorage.removeItem(soloGuideKey())}
+   else localStorage.removeItem('addaGuideState_'+id);
+   track('guide_beta_handoff',{authStatus:'awaiting_provider',entry:guide.solo?'solo':'crew'});window._home()
   },'.profileCard')
  },160)
 }

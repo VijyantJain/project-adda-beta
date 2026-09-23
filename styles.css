@@ -1039,3 +1039,37 @@ html,body{background:
 .addaProfileAvatarChoices{display:grid;gap:7px;text-align:center}
 .addaAvatarTray{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
 .addaAvatarTray button{min-width:0;min-height:43px;border:1px solid #d8c6f5;background:#f9f3ff;border-radius:12px;font-size:23px}
+
+/* M0.7.2: solo Aura tour, factual reward breakdown and real local Starter photos. */
+.starterArt:has(.starterPhoto){background:#24163e;box-shadow:0 13px 27px rgba(40,23,65,.15)}
+.starterPhoto{width:100%;height:100%;object-fit:cover;filter:saturate(1.09) contrast(1.04);animation:addaPhotoEnter .55s ease-out both}
+@keyframes addaPhotoEnter{from{opacity:.45;transform:scale(1.04)}to{opacity:1;transform:scale(1)}}
+.starterArt:has(.starterPhoto):before,.starterArt:has(.starterPhoto):after{display:none}
+.starterArt:has(.starterPhoto)>i{pointer-events:none;text-shadow:0 3px 8px #24143d}
+.addaAuraBreakdown,.addaAuraHow,.addaSoloTeach{margin:13px 0;padding:17px;border-color:#ded1fa}
+.addaAuraBreakdown{background:linear-gradient(130deg,#f3edff,#fff);display:grid;gap:10px}
+.addaAuraBreakdown .row{align-items:flex-start}
+.addaAuraBreakdown h2{font-size:19px}
+.addaAuraBreakdown .row>b{color:#5331b2;font-size:14px;white-space:nowrap}
+.addaAuraBreakdown p,.addaAuraHow p,.addaSoloTeach p{font-size:13px;line-height:1.55;color:#625576}
+.addaAuraSplit,.addaAuraActions{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 12px;align-items:baseline}
+.addaAuraSplit{background:white;padding:12px;border-radius:14px;font-size:13px;color:#4f3c75}
+.addaAuraSplit strong,.addaAuraActions b{color:#6540d1;text-align:right}
+.addaAuraWarning{background:#fff2d6;color:#674511;padding:8px;border-radius:9px;font-size:11px}
+.addaAuraHow{display:grid;gap:11px;background:linear-gradient(145deg,#fff,#f7f1ff)}
+.addaAuraHow h2{font-size:25px;color:#241540;letter-spacing:-.04em}
+.addaAuraHow .addaAuraActions{background:#fff;border:1px solid #e8dcfa;border-radius:15px;padding:13px;font-size:12px}
+.addaAuraHow small{font-size:10px;color:#706582;line-height:1.45}
+.addaAuraError{display:grid;gap:14px;margin-top:18px}
+.addaAuraError h1{font-size:26px}
+.addaAuraError p{font-size:13px;line-height:1.4}
+.addaSoloTeach{display:grid;gap:16px;background:linear-gradient(160deg,#f5ecff,#fff)}
+.addaSoloTeach h1{font-size:29px;line-height:1.06;color:#25143f}
+.soloTeachEyebrow{font-size:10px;letter-spacing:.13em;font-weight:950;color:#7043cd}
+.addaSoloDiagram{display:flex;align-items:center;gap:6px;justify-content:space-around;flex-wrap:wrap;padding:16px 8px;background:#eae1ff;border-radius:16px}
+.addaSoloDiagram span{border-radius:999px;background:white;padding:9px;color:#56339c;font-weight:900;font-size:10px}
+.addaSoloDiagram b{color:#7243e6}
+.addaFormatsPreview{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.addaFormatsPreview span{padding:13px 9px;border:1px solid #e4d8f7;border-radius:13px;background:white;font-size:12px;font-weight:800}
+@media(max-width:365px){.addaAuraBreakdown .row{flex-wrap:wrap}.addaAuraHow h2{font-size:22px}}
+@media(prefers-reduced-motion:reduce){.starterPhoto{animation:none!important}}

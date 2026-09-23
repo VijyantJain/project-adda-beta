@@ -59,7 +59,7 @@ const STARTER_V2_COMMON=[
  {id:"s3",type:"vote",tag:"NOBODY IS INNOCENT",icon:"📱",art:"friends",question:"Phone at 2%. Cab arriving in 5 min. Your move?",options:["Screenshot the OTP","Charge for 30 seconds","Ask the gang to call","Manifest battery 🔋"],fact:"Planning under pressure feels different for every person. There is no right answer to your Aura."},
  {id:"s4",type:"either",tag:"TOO REAL",icon:"🍕",art:"chai",question:"Your mates say ‘Let's split the bill equally’ but you ordered...",options:["One chai. JUST ONE. 😭","The entire menu 😌"],fact:"The bill-splitting dilemma gets funnier when friends have wildly different orders."},
  {id:"s5",type:"vote",tag:"DANGEROUS WORDS",icon:"👀",art:"roadtrip",question:"Which group-chat message is the BIGGEST red flag?",options:["‘On my way’ 🚿","‘We should plan something’","‘Quick question…’","‘I have news’ 🫢"],fact:"Tiny phrases can become giant inside jokes; the best Crew Drops often start with one."},
- {id:"s6",type:"vote",tag:"MAKE IT YOURS",icon:"⚡",art:"friends",question:"Your next two Drops should match YOUR vibe. Pick one:",options:["Wheels & rides 🏍️","Fashion & looks ✨","Music & concerts 🎧","Food & cafés 🍕","Travel & escapes 🏖️","Memes & chaos 😂","Sports & fitness 🏏"],fact:"Your choice tunes only your private warm-up. Shared Crew Drops remain the same for everyone."}
+ {id:"s6",type:"vote",tag:"MAKE IT YOURS",icon:"⚡",art:"friends",question:"Your next two Drops should match YOUR Aura. Pick one:",options:["Wheels & rides 🏍️","Fashion & looks ✨","Music & concerts 🎧","Food & cafés 🍕","Travel & escapes 🏖️","Memes & chaos 😂","Sports & fitness 🏏"],fact:"Your choice tunes only your private warm-up. Shared Crew Drops remain the same for everyone."}
 ];
 const STARTER_V2_INTERESTS:any={
  "Wheels & rides 🏍️":[
@@ -88,7 +88,18 @@ const STARTER_V2_TAIL=[
  {id:"s9",type:"vote",tag:"SELF-EXPOSE",icon:"🫣",art:"friends",question:"When the whole Crew finally makes a plan, YOU are the one who...",options:["Shows up early somehow","Calls to cancel","Brings three extra people","Asks ‘where are we going?’"],fact:"Your private answers help you pick which Crew jokes to start with."},
  {id:"s10",type:"either",tag:"ONE LAST THING",icon:"🏆",art:"friends",question:"Your dream friend-group superpower?",options:["Every plan ACTUALLY happens ✅","Nobody EVER leaves the chat on read 👀"],fact:"Ten honest picks down. The real fun is seeing what your friends choose."}
 ];
+// New-user only curated v3: v1/v2 progress and exact answer keys remain unchanged.
+const STARTER_V3_COMMON=STARTER_V2_COMMON.map((q:any)=>({...q,...({"s1":{"question":"Your friend says 'bas 5 minutes' while you're waiting outside. Your move? 😂","options":["Send a dramatic 'I'm leaving' selfie 📸","Order food. We've got TIME 🍟"],"fact":"The perfect first Crew Drop: find out who is always late and who pretends not to mind."},"s2":{"question":"A 9-MINUTE voice note arrives at 1 AM. What do you do? 🎤","options":["😬 Muted forever","😕 Listen tomorrow","🙂 2× speed","😍 Full headphones","🔥 Reply with a 12-minute note"],"fact":"Your answers can inspire a real voice-note challenge with your friends."},"s3":{"question":"Phone on 2%. Cab says 'arriving in 2 min.' What's the panic move? 🔋","options":["Screenshot everything IMMEDIATELY","Ask a stranger for a charger","Call the gang: SEND HELP","Trust the universe 💀"],"fact":"Your survival plan is now a private pick, not a prediction about anyone else."},"s4":{"question":"The gang wants to split the bill equally. You only had a CHAI. Your reaction? ☕","options":["Open the calculator like a CA 📊","Pay and remember this forever 😭"],"fact":"Food and money decisions make surprisingly easy conversation starters."},"s5":{"question":"Which message is the biggest group-chat LIE? 👀","options":["'Just reached' (still at home)","'Let's plan Goa' (again)","'Will call in 2 minutes'","'I'm not taking screenshots'"],"fact":"Ask the gang this question together once there's a Crew — their real votes will count."},"s6":{"question":"Enough about the gang. What's YOUR actual obsession? Pick your lane 🔥","fact":"You just chose your own private interest path. Nobody else's Crew questions change."},"s9":{"question":"Your group FINALLY agrees on a plan. What happens next? 🍿","options":["I book it before anyone changes their mind","Someone ghosts and we start again","The plan becomes 47 reels","I'm already at the location 😎"],"fact":"The best group stories usually start when somebody actually follows through."},"s10":{"question":"Choose ONE power for your future Crew. What's the dream? 👑","options":["Plans magically happen every weekend ✨","The group chat never leaves anyone on read 👀"],"fact":"Ten Starter choices done. Your Aura is yours — friends can join the story later."}} as any)[q.id],art:q.id}));
+const STARTER_V3_TAIL=STARTER_V2_TAIL.map((q:any)=>({...q,...({"s1":{"question":"Your friend says 'bas 5 minutes' while you're waiting outside. Your move? 😂","options":["Send a dramatic 'I'm leaving' selfie 📸","Order food. We've got TIME 🍟"],"fact":"The perfect first Crew Drop: find out who is always late and who pretends not to mind."},"s2":{"question":"A 9-MINUTE voice note arrives at 1 AM. What do you do? 🎤","options":["😬 Muted forever","😕 Listen tomorrow","🙂 2× speed","😍 Full headphones","🔥 Reply with a 12-minute note"],"fact":"Your answers can inspire a real voice-note challenge with your friends."},"s3":{"question":"Phone on 2%. Cab says 'arriving in 2 min.' What's the panic move? 🔋","options":["Screenshot everything IMMEDIATELY","Ask a stranger for a charger","Call the gang: SEND HELP","Trust the universe 💀"],"fact":"Your survival plan is now a private pick, not a prediction about anyone else."},"s4":{"question":"The gang wants to split the bill equally. You only had a CHAI. Your reaction? ☕","options":["Open the calculator like a CA 📊","Pay and remember this forever 😭"],"fact":"Food and money decisions make surprisingly easy conversation starters."},"s5":{"question":"Which message is the biggest group-chat LIE? 👀","options":["'Just reached' (still at home)","'Let's plan Goa' (again)","'Will call in 2 minutes'","'I'm not taking screenshots'"],"fact":"Ask the gang this question together once there's a Crew — their real votes will count."},"s6":{"question":"Enough about the gang. What's YOUR actual obsession? Pick your lane 🔥","fact":"You just chose your own private interest path. Nobody else's Crew questions change."},"s9":{"question":"Your group FINALLY agrees on a plan. What happens next? 🍿","options":["I book it before anyone changes their mind","Someone ghosts and we start again","The plan becomes 47 reels","I'm already at the location 😎"],"fact":"The best group stories usually start when somebody actually follows through."},"s10":{"question":"Choose ONE power for your future Crew. What's the dream? 👑","options":["Plans magically happen every weekend ✨","The group chat never leaves anyone on read 👀"],"fact":"Ten Starter choices done. Your Aura is yours — friends can join the story later."}} as any)[q.id],art:q.id}));
+const STARTER_V3_INTERESTS:any=Object.fromEntries(Object.entries(STARTER_V2_INTERESTS).map(([key,pack]:any)=>{
+ const names:any={"Wheels & rides 🏍️":"rides","Fashion & looks ✨":"style","Music & concerts 🎧":"music","Food & cafés 🍕":"food","Travel & escapes 🏖️":"travel","Memes & chaos 😂":"memes","Sports & fitness 🏏":"fitness"};
+ const variants:any={"Wheels & rides 🏍️":[{"question":"A free dream ride for one day. Which keys are you grabbing? 🏍️","options":["Track-ready sportbike ⚡","Sunset highway cruiser 🌅"],"fact":"Your private pick becomes part of your own interests, not a public Crew vote."},{"question":"Road trip tomorrow. Your unofficial title? 🚗","options":["AUX dictator 🎧","Snack operations lead 🍟","Wrong-turn legend 📍","The one still packing 👕"],"fact":"A Crew road-trip Drop could reveal everyone's real role."}],"Fashion & looks ✨":[{"question":"Big entrance tonight. Which look feels like YOU? ✨","options":["Statement pieces, extra drama 💎","Clean tailoring, effortless energy 🖤"],"fact":"Style is personal; the same outfit can spark totally different reactions."},{"question":"Outfit planned for a 15-minute coffee stop. Rate the commitment. ☕","options":["😬 Too much","😕 Maybe not","🙂 Fair play","😍 Respect","🔥 It's a runway"],"fact":"Your friends could rate the very same idea differently."}],"Music & concerts 🎧":[{"question":"ONE free concert pass. What kind of night are you taking? 🎶","options":["Scream every word in the front row 🔥","Tiny rooftop gig, main-character moment 🌃"],"fact":"Different music settings bring very different memories."},{"question":"Which AUX crime are you guilty of? 👀","options":["Replay my song nine times","Skip other people's requests","Only sad songs at parties","I actually make playlists"],"fact":"A real shared Crew Drop could settle your music arguments."}],"Food & cafés 🍕":[{"question":"It's 12:45 AM and everyone's hungry. What's the mission? 🌮","options":["Street-food crawl with the gang 🌯","Dessert café and three hours of gossip 🍰"],"fact":"Food preferences are a quick way to plan something together."},{"question":"Your mate takes the LAST bite from your plate. How big is the crime? 🍟","options":["😬 Unfriend","😕 I'm annoyed","🙂 Fine, one","😍 Take it","🔥 I'll buy more"],"fact":"This is the kind of tiny inside joke that makes a Crew feel real."}],"Travel & escapes 🏖️":[{"question":"A surprise 48-hour escape. No itinerary. Pick your scene. 🌊","options":["Mountain mist and hoodie weather 🏔️","Beach sunset and music 🎶"],"fact":"Choosing is fun; actually taking the trip makes the memory."},{"question":"Group trip unlocked. What's your assignment? 🧳","options":["The bookings spreadsheet","The chronic late packer","Photographer of EVERYTHING","I just find food"],"fact":"Shared Crew plans could turn these roles into actual outcomes."}],"Memes & chaos 😂":[{"question":"The group chat goes DEAD serious. Your first reaction? 💀","options":["Drop a cursed meme","Disappear quietly","Voice note that never ends","Actually give real advice"],"fact":"Inside jokes have context — real friends know why a meme hits."},{"question":"Which betrayal hurts the most? 😭","options":["Left on read for THREE days","They sent MY reel to the entire internet"],"fact":"One person's joke is another person's entire group-chat history."}],"Sports & fitness 🏏":[{"question":"Dream Saturday — which one are you booking? 🏏","options":["Stadium, live crowd, full noise 🏟️","Playing the match yourself ⚡"],"fact":"Watching and playing can be equally memorable in very different ways."},{"question":"Rate 'gym tomorrow pakka' from your most unreliable mate 💪","options":["😬 Who?","😕 Always cancels","🙂 Sometimes","😍 Consistent","🔥 Drags me out of bed"],"fact":"The funniest Crew ratings come from real shared history."}]};
+ return [key,pack.map((q:any,i:number)=>({...q,...variants[key][i],art:names[key]+(i+7)}))];
+}));
+const AURA_LEVELS=[{min:0,name:"Fresh",icon:"✨"},{min:10,name:"First Spark",icon:"⚡"},{min:25,name:"Warming Up",icon:"🌟"},{min:45,name:"On a Roll",icon:"🔥"},{min:60,name:"Spark",icon:"💜"},{min:100,name:"Glow Up",icon:"🌈"},{min:150,name:"Buzz",icon:"⚡"},{min:300,name:"Main Character",icon:"😎"},{min:600,name:"Aura Magnet",icon:"🧲"},{min:1000,name:"Adda Icon",icon:"👑"},{min:2000,name:"Legend",icon:"🏆"}];
+function auraTier(score:number){let pos=0;while(pos+1<AURA_LEVELS.length&&score>=AURA_LEVELS[pos+1].min)pos++;const next=AURA_LEVELS[pos+1]||null,level=AURA_LEVELS[pos];return {level:{...level,index:pos+1},nextLevel:next,pointsToNext:next?next.min-score:0,progress:next?Math.max(0,Math.min(100,Math.round((score-level.min)/(next.min-level.min)*100))):100}}
 function activeStarterDeck(state:any){
+ if(state?.deckVersion==="v3"){const chosen=state.answers?.s6;return [...STARTER_V3_COMMON,...(STARTER_V3_INTERESTS[chosen]||STARTER_V3_INTERESTS["Memes & chaos 😂"]),...STARTER_V3_TAIL]}
  if(state?.deckVersion!=="v2")return STARTER_DECK;
  const choice=state.answers?.s6;
  const pack=STARTER_V2_INTERESTS[choice]||STARTER_V2_INTERESTS["Memes & chaos 😂"];
@@ -473,6 +484,19 @@ export default async (req: Request, context: Context) => {
 
 
 
+    // Fast first-session Aura: never scan every Crew/Chat/Drop for a person with no Crew.
+    // Both stores are server-authoritative, so Tenacious always carries its real 180 points.
+    if(action==="getAuraStarter" && req.method==="GET"){
+      const participantId=clean(url.searchParams.get("participantId"),40);
+      if(!/^p_[a-zA-Z0-9]{6,40}$/.test(participantId))return bad("Invalid participant.");
+      const starter=starterPayload(await getJSON(store,`starter/v1/${participantId}`));
+      const guide=await getJSON(store,`guide/v1/${participantId}`)||{steps:{}};
+      const guidePoints=Object.values(guide.steps||{}).reduce((sum:number,row:any)=>sum+Number(row?.points||0),0);
+      const score=starter.points+guidePoints,tier=auraTier(score);
+      const badges=STARTER_MILESTONES.map((m:any)=>({id:"starter_"+m.at,name:m.name,icon:m.icon,desc:m.text,current:starter.progress,target:m.at,unlocked:starter.progress>=m.at,progress:Math.min(100,Math.round(starter.progress/m.at*100))}));
+      const nextUnlock=badges.find((b:any)=>!b.unlocked)||null;
+      return ok({score,...tier,streak:0,answers:starter.progress,starterAnswers:starter.progress,dropsMade:0,chatsSent:0,shares:0,crews:0,badges,nextUnlock,crewRank:null,signature:"",starter:{progress:starter.progress,points:starter.points,firstFiveCompleted:starter.firstFiveCompleted,bonusCompleted:starter.bonusCompleted,earned:starter.earned},guided:{points:guidePoints,steps:guide.steps||{}},scoreMode:"solo_starter"});
+    }
     // Separate private guided steps from shared Crew Drops. Never invent votes/results.
     if(action==="guideGet" && req.method==="GET"){
       const participantId=clean(url.searchParams.get("participantId"),40);
@@ -502,7 +526,7 @@ export default async (req: Request, context: Context) => {
       const participantId=clean(url.searchParams.get("participantId"),40);
       if(!/^p_[a-zA-Z0-9]{6,40}$/.test(participantId))return bad("Invalid participant.",400);
       const key=`starter/v1/${participantId}`;
-      const state=await getJSON(store,key)||{answers:{},deckVersion:'v2',createdAt:now()};
+      const state=await getJSON(store,key)||{answers:{},deckVersion:'v3',createdAt:now()};
       if(!state.startedAt){
         state.startedAt=now();
         await store.setJSON(key,state);
@@ -513,7 +537,7 @@ export default async (req: Request, context: Context) => {
     if(action==="starterAnswer" && req.method==="POST"){
       const participantId=clean(body.participantId,40),questionId=clean(body.questionId,15),answer=clean(body.answer,100);
       if(!/^p_[a-zA-Z0-9]{6,40}$/.test(participantId))return bad("Invalid participant.",400);
-      const key=`starter/v1/${participantId}`,state=await getJSON(store,key)||{answers:{},deckVersion:"v2",createdAt:now()};
+      const key=`starter/v1/${participantId}`,state=await getJSON(store,key)||{answers:{},deckVersion:"v3",createdAt:now()};
       if(!state.answers||typeof state.answers!=="object")state.answers={};
       const deck=activeStarterDeck(state),q=deck.find((x:any)=>x.id===questionId);if(!q)return bad("Question not found.",404);
       if(!q.options.includes(answer))return bad("Choose one of the shown answers.");
@@ -878,19 +902,7 @@ export default async (req: Request, context: Context) => {
       const answers=myResponses.length,dropsMade=myDrops.length,chatsSent=myChats.length,crews=memberships.length;
       const totalAnswers=answers+starter.progress;
       const score=answers*10+dropsMade*30+chatsSent*4+shares*20+crews*10+Math.min(streak,10)*5+starter.points+guidePoints;
-      const levels=[
-        {min:0,name:"Fresh",icon:"✨"},
-        {min:10,name:"First Spark",icon:"⚡"},
-        {min:25,name:"Warming Up",icon:"🌟"},
-        {min:45,name:"On a Roll",icon:"🔥"},
-        {min:60,name:"Spark",icon:"💜"},
-        {min:100,name:"Glow Up",icon:"🌈"},
-        {min:150,name:"Buzz",icon:"⚡"},
-        {min:300,name:"Main Character",icon:"😎"},
-        {min:600,name:"Aura Magnet",icon:"🧲"},
-        {min:1000,name:"Adda Icon",icon:"👑"},
-        {min:2000,name:"Legend",icon:"🏆"}
-      ];
+      const levels=AURA_LEVELS;
       let level=levels[0],next:any=null;
       for(let i=0;i<levels.length;i++){if(score>=levels[i].min)level=levels[i];else{next=levels[i];break}}
       const levelIndex=levels.indexOf(level),levelFloor=level.min,nextTarget=next?.min||level.min;

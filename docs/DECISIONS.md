@@ -99,3 +99,12 @@ Direct new users earn a personal Aura before they know Adda. Make Aura the next 
 Plan a finite, interest-led Daily Aura Deck after validating current activation; no fake members, manufactured vote percentages, fabricated scarcity, manipulative notification pressure or click-for-points farming. Distinguish current Starter from future daily repeat supply.
 
 **D029 implementation note:** Server-supplied historical Starter feedback, level names and badge display labels must use Aura too; numeric scores and stable old record identifiers are intentionally not migrated or reset.
+
+## D033 — Direct tour must be Crew-independent
+Separate persisted solo participant journey automatically begins on real Aura after Tenacious, preceding Home→Crew informational view→Create informational view→guided Profile. Rescue v0.7.1 missed-guidance users. No Crew creation/invites required to complete intro. Invited journey keeps exact Crew/Drop.
+## D034 — Never hide server-earned score behind fabricated fallback
+Add getAuraStarter per-participant server read (Starter+guide), shared level curve; show 180 on 10 confirmed Starter answers. Full Crew getVibe remains backward-compatible; label partial/retry on aggregation failure instead of 0 and 0/0 trophies.
+## D035 — Visual and content versioning
+New Starter v3 questions and 24 real bundled WebPs; original v1/v2 answer-option catalogs and records preserved. Photo source/photographer/release/high-resolution acceptance D-020/D-021 remain unverified for wide distribution.
+## D036 — Explicit, factual Aura economy
+Present actual per-action scores, note recorded shares ≠ delivered invitations, keep legacy key/event/score history, plan anti-farming without silent reset.

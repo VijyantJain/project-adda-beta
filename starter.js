@@ -44,7 +44,7 @@ export function createStarterController(c){
       <div class="starterTrack"><i style="width:${progress*20}%"></i></div>
       <div class="starterBalance"><span>✨ ${state.points} Starter Aura</span><span>${state.nextUnlock?state.nextUnlock.at-state.progress+' to '+esc(state.nextUnlock.name):'All trophies earned'}</span></div>
       <section class="starterQuestion"><span class="starterQuestionTag">${esc(q.icon)} ${esc(q.tag)}</span>
-        <div class="starterArt art-${esc(q.art)}">${["travel","denim","friends","roadtrip","chai"].includes(q.art)?`<img class="starterArtImage" src="/starter-${q.art}.svg" alt="">`:`<span>${art[q.art]||'⚡'}</span>`}<i>✦</i></div>
+        <div class="starterArt art-${esc(q.art)}"><img class="starterArtImage starterPhoto" src="/assets/starter/v3/${esc((/^(?:s(?:[1-9]|10)|(?:rides|style|music|food|travel|memes|fitness)[78])$/.test(q.art)?q.art:(state.deckVersion!=="v3"&&["s7","s8"].includes(q.id)&&localStorage.getItem("addaStarterInterest")?localStorage.getItem("addaStarterInterest")+(q.id==="s7"?7:8):q.id)))}.webp" loading="eager" decoding="async" alt="${esc(q.tag)} lifestyle photo" onerror="this.onerror=null;this.src='/starter-${["travel","denim","friends","roadtrip","chai"].includes(q.art)?q.art:"friends"}.svg'"><i>✦</i></div>
         <h1>${esc(q.question)}</h1><p>Tap your pick 👇</p>
         <div class="starterChoices">${q.options.map((o,i)=>`<button class="starterChoice" onclick="window._starterAnswer(${i})" type="button"><span class="choiceIndex">${i+1}</span><b>${esc(o)}</b><span>↗</span></button>`).join('')}</div>
         <div id="starterSaving" class="starterSaving" aria-live="polite"></div>
@@ -57,7 +57,7 @@ export function createStarterController(c){
     try{
       state=await api('starterGet',{params:{participantId:pid}});
       if(state.bonusCompleted)onCompleted?.(state);
-      mode=state.firstFiveCompleted?'finish':'play';render();
+      mode=state.bonusCompleted||state.progress===5?'finish':'play';render();
     }catch(e){
       app.innerHTML=shell(`${head()}<div class="starterLoading"><h2>Couldn’t load your Aura Run.</h2><p>${esc(e.message)}</p><button class="btn primary" onclick="window._starterBegin()">Retry</button></div>`,false);
     }finally{busy=false}
@@ -69,7 +69,7 @@ export function createStarterController(c){
     const label=document.getElementById('starterSaving');if(label)label.textContent='Saving your choice…';
     try{
       const r=await api('starterAnswer',{method:'POST',body:{participantId:pid,questionId:q.id,answer}});
-      state=r;feedback=r;if(q.id==='s6'&&r.deckVersion==='v2'){const ix=q.options.indexOf(answer);localStorage.setItem('addaStarterInterest',['rides','style','music','food','travel','memes','fitness'][ix]||'memes')}if(state.bonusCompleted)onCompleted?.(state);showFeedback();
+      state=r;feedback=r;if(q.id==='s6'&&['v2','v3'].includes(r.deckVersion)){const ix=q.options.indexOf(answer);localStorage.setItem('addaStarterInterest',['rides','style','music','food','travel','memes','fitness'][ix]||'memes')}if(state.bonusCompleted)onCompleted?.(state);showFeedback();
     }catch(e){toast(e.message);render()}finally{busy=false}
   }
   function showFeedback(){
@@ -100,7 +100,7 @@ export function createStarterController(c){
       <section class="starterCompletionDetails"><div class="starterCompleteScore"><b>${state.points}</b><span>STARTER AURA EARNED ⚡</span></div>
         <span class="starterCollectionTitle">🏆 YOUR STARTER ACHIEVEMENTS · ${medals.length}/6</span>
         <div class="starterMedals">${medals.map(m=>`<span>${esc(m.icon)} ${esc(m.name)}</span>`).join('')}</div>
-        <p class="starterFutureHint">${v?'Your next adventure is waiting inside '+esc(v.crewName)+'.':"That was the warm-up. Now discover what your own friends would choose."}</p>
+        <p class="starterFutureHint">${v?'Your next adventure is waiting inside '+esc(v.crewName)+'.':"Your warm-up is complete. Now explore your earned Aura — no Crew needed yet."}</p>
         <button class="btn starterCTA starterFinalCTA" onclick="window._starterPrimary()">${!bonus?'Play my next Five →':v?'Enter '+esc(v.crewName)+' →':hasCrew?'Enter my Crew →':'Explore my Aura →'}</button>
         ${bonus&&!v&&!hasCrew?`<button class="starterTextLink addaStarterOptionalCrew" onclick="window._starterShowCrewForm()">Or start a Crew with friends →</button>`:''}
       </section>

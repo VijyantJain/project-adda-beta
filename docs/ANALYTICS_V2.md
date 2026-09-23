@@ -54,3 +54,6 @@ Important denominator: not every existing legacy user experiences v2; compare v2
 
 ## v0.7.1 measurement
 New `starter_solo_explore` marks direct Tenacious user choosing Aura rather than forced Crew; compare Starter-10→Aura→profile-edit→optional new Crew and real second member/answer. Historical forced-Crew users must be separated by build/event date and entry channel. Track `profile_avatar_selected` kind=emoji without raw avatar or private profile text. Guided no-skip changes can improve apparent completion but also increase exits: inspect refresh, drop-off per stage, actual meaningful second-session activity and support complaints, not only raw completion rate.
+
+## v0.7.2 targeted funnel/error events
+New `solo_aura_guide_started` {resume,step}, `aura_load_error` {reason}, `aura_full_fallback` {reason}. Existing `starter_solo_explore` and `guide_tab_seen` with entry solo/crew; `guide_beta_handoff` adds entry. Compare Tenacious 180→Aura real payload→three Aura coach pages→Home→Crew info→Create info→Profile→returning meaningful action; separate invited and historic 0.7.1 cohorts. Never treat analytics silence as proof of zero earned points: a displayed 0 after Tenacious was a software fallback defect. Recorded sharing is not confirmed invite acceptance.

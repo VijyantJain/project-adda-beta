@@ -185,3 +185,13 @@ Preserve the historical 103 feature IDs. Six additive IDs below; register is now
 **v0.7.1 regression QA note:** P-019 must preserve interaction with its own private interest-led overlay and support guide replay when a Crew has 0 or 1 unanswered Drops. D-026 badges supplement, not erase, Crew response-progress indicators. These conditions remain BETA pending actual device evidence.
 
 **v0.7.1 final interaction review:** Profile guide values are collected before modal replacement; canceling the native photo picker leaves avatar/default options active; strict interaction guard persists until the final Explore Adda action. Aura itself gives zero-Crew users a Personalize my Aura action. Emoji avatar can be changed later in the normal profile editor. Solo Aura opens have a founder dashboard count. Mobile E2E still pending.
+
+## v0.7.2 — screenshot-driven regression repair (2026-09-23)
+Six additive IDs; canonical register = **115 items**; BETA ≠ device VERIFIED.
+- [x] **P-021** Tenacious→earned Aura→automatic independent resumable unskippable solo guide, Aura×3 → Home → Crew explanation → Create + explanation → guided Profile. Rescue v0.7.1 browser that missed tour — `BETA`.
+- [x] **P-022** Solo user sees truthful Crew/+ informational screens; no forced invitation, phantom mates/votes or publication — `BETA`.
+- [x] **V-021** Server-authoritative fast `getAuraStarter` loads Starter+guide ledger; Tenacious first Aura >=180 and six true milestones; no fabricated zero fallback; honest retry on API failure — `BETA`.
+- [x] **V-022** Aura card explains how score, level and trophy work with actual points per action, transparent beta share limitations — `BETA`.
+- [x] **D-027** Starter v3 new-arrivals-only lively 10-card/14 interest variants; 24 app-bundled actual photograph WebPs with SVG fallback, no rewrite of v1/v2 answers — `BETA`. D-020/D-021 premium 720px masters/source/release audit remain IN_PROGRESS.
+- [x] **A-023** Regression validation/analytics for solo guide, Aura hydration, assets, and direct/invited cohort continuity — `BETA`. iPhone, Android and in-app E2E still required for VERIFIED.
+**Hold main:** test correct 180 points, next-level progress, guide refresh and optional avatar, q6–9 resume, original invite target, all six Drop formats, Avengers/Blob records and low-connectivity retry. No OTP or cross-device claims.

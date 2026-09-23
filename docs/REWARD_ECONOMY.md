@@ -53,3 +53,19 @@ Gift points both sides: HYPOTHESIS requiring abuse and economic design.
 
 ## v0.7.1 visible Aura vocabulary
 The same earned numerical progression is now displayed as Aura Score, with milestone label Aura Builder and level label Aura Magnet. Preserve historical event and internal API names for compatibility. An Aura title is factual participation/game progression, not an inferred personality/mental-state verdict. No rewards may be manufactured from anonymous screen taps.
+
+## v0.7.2 — in-product Aura earning table (actual beta calculation)
+| Stored action | Aura | Qualification |
+| Distinct Starter answer | +10 | each question ID once; 10 answers =100 |
+| First Five trophy | +30 | five distinct answers once |
+| Tenacious trophy | +50 | ten distinct answers once |
+| Private guide questions | +10, +15 | server-ledger one-time |
+| Each guided tab | +5 | Aura/Home/Crew/Create/Profile, once/participant |
+| Bio, photo OR emoji avatar, username draft | +10 each | one-time step, visual alternatives mutually exclusive; local beta identity only |
+| Crew Drop answer | +10 | stored real response |
+| Created Drop | +30 | stored createdBy |
+| Crew chat | +4 | stored message |
+| Crew membership | +10 | stored member record |
+| Recorded share action | +20 | legacy beta counts action/attempt, NOT verified invitation or friend join; anti-farming limits pending |
+| Active day streak | +5/day | up to 10 days counted |
+Solo getAuraStarter score = starter.points + guide ledger; complete Tenacious=180 before more activity. Full getVibe includes Crew, chat, share and streak records with same level curve. No screen-visit points. Maintain historical score/key compatibility; share scoring hardening must be versioned and tested before launch.

@@ -29,14 +29,14 @@ function render(){
   document.getElementById("surpriseMe").addEventListener("click",()=>{interest="memes";gender="";confirmed=true;save();track("personal_pack_skipped",{});render()});return;
  }
  const p=packs[interest],d=interest==="style"&&index===0&&styleVariant[gender]?styleVariant[gender]:p.q[index];
- overlay('<span class="starterKicker">JUST FOR YOU · '+(index+1)+'/2</span><div class="addaPrivateMedia"><img src="/starter-'+p.art+'.svg" alt=""><span>'+p.emoji+'</span></div><h1>'+esc(d[0])+'</h1><p>Your personal picks stay outside shared Crew results.</p><div class="starterChoices">'+d[1].map((x,i)=>'<button class="starterChoice" data-choice="'+i+'"><span class="choiceIndex">'+(i+1)+'</span><b>'+esc(x)+'</b><span>↗</span></button>').join("")+'</div><div id="personalStatus" aria-live="polite"></div>');
+ overlay('<span class="starterKicker">JUST FOR YOU · '+(index+1)+'/2</span><div class="addaPrivateMedia"><img src="/assets/starter/v3/'+interest+(index+7)+'.webp" alt="'+esc(p.name)+' photo" onerror="this.onerror=null;this.src=\'/starter-'+p.art+'.svg\'"><span>'+p.emoji+'</span></div><h1>'+esc(d[0])+'</h1><p>Your personal picks stay outside shared Crew results.</p><div class="starterChoices">'+d[1].map((x,i)=>'<button class="starterChoice" data-choice="'+i+'"><span class="choiceIndex">'+(i+1)+'</span><b>'+esc(x)+'</b><span>↗</span></button>').join("")+'</div><div id="personalStatus" aria-live="polite"></div>');
  document.querySelectorAll("[data-choice]").forEach(btn=>btn.addEventListener("click",async()=>{
   if(busy)return;busy=true;btn.classList.add("picked");document.querySelectorAll("[data-choice]").forEach(b=>b.disabled=true);
   document.getElementById("personalStatus").textContent="Saving your choice…";
   try{const r=await api("guideStep",{method:"POST",body:{participantId:pid,step:index?"personal_two":"personal_one",crewId:getCrewId()}});
    answers[index]=d[1][Number(btn.dataset.choice)];index++;save();track("personal_card_answered",{interest,step:index});
    if(index===2){finish();return}
-   overlay('<div class="addaPrivateReward">⚡<h1>+'+(r.earnedPoints||0)+' Aura</h1><p>One more private choice. Then meet your Crew!</p><button class="btn starterCTA" id="personalNext">Next choice →</button></div>');
+   overlay('<div class="addaPrivateReward">⚡<h1>+'+(r.earnedPoints||0)+' Aura</h1><p>One more private choice. Then explore your Crew!</p><button class="btn starterCTA" id="personalNext">Next choice →</button></div>');
    document.getElementById("personalNext").addEventListener("click",render);
   }catch(e){toast(e.message);render()}finally{busy=false}
  }));

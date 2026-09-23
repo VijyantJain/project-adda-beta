@@ -28,3 +28,8 @@ Designed for Netlify. `netlify.toml` publishes the repository root and Netlify a
 
 ## Current preview activation correction
 v0.7.1 adds user-facing Aura, non-skippable in-app guide, optional local avatars, no-Crew solo continuation and answered Drop badges. Read the updated 109-ID register and the v0.7.1 sections in CURRENT_STATE/ONBOARDING_M07_SRS. These changes require real mobile QA and are not a production main release.
+
+## v0.7.2 — Aura-first screenshot fix / field-test preview
+Direct Tenacious automatically launches real-scored Aura and a resumable Aura→Home→Crew-explainer→+ explainer→guided Profile mission. getAuraStarter returns first-session points/badges without scanning every Crew. New users see Starter v3, bundled 24 real-photo scenes with original local SVG fallback; v1/v2 Starter progress and original Crew/Drop/chat/media persist unchanged. Preview only; high-resolution asset/license audit, mobile E2E and verified accounts are separate gates. See [release protocol](docs/RELEASE_v0.7.2.md), [115-feature checklist](docs/FEATURE_SPEC_CHECKLIST.md), and [photo registry](docs/CONTENT_ASSET_REGISTRY.md).
+
+Static regression suite: `npm test`. It is NOT a substitute for real iPhone/Android end-to-end testing. Production main is not merged.

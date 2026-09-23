@@ -41,3 +41,35 @@ Unsplash license permits broad usage of eligible Free images, but photographers'
 - https://unsplash.com/photos/friends-chat-and-enjoy-coffee-at-a-cafe-BlCgKHTRkFI (group social reference, free)
 - https://unsplash.com/photos/a-cozy-illuminated-cafe-glows-in-the-night-ZNSPMjZlrQ4 (India cafe reference, free)
 - https://unsplash.com/photos/motorcyclist-on-a-black-racing-bike-approaches-finish-line-8mkagiJEC54 (rides reference, free; inspect trademarks)
+
+## v0.7.2 bundled real-photo field-test pack
+24 local files at `assets/starter/v3/<key>.webp` are actual photographs/one motorcycle comparison composite, not SVG silhouettes; each Startup image onerror falls back to the old local SVG. New v3 common cards s1–s6/s9–s10 and seven packs×two each use semantic photos; s7/s8 generic pictures remain for legacy v1/v2. Images resized/compressed for low-bandwidth beta; high-resolution 720px+ crops and external launch rights/recognizable-person review are still IN_PROGRESS. Origin images retrieved from the Unsplash photo CDN; **individual photographer profile links, Unsplash free-versus-Plus license confirmation and identifiable-people releases have NOT been independently audited**, so do not mark D-020/D-021 VERIFIED or use the pack in paid commercial promotion before source clearance. Original CDN identifiers are for traceability only, not proof of commercial rights.
+
+| Local scene | Photo CDN ID(s) | Intent |
+|---|---|---|
+| `s1.webp` | `1529156069898-49953e39b3ac` | friends together |
+| `s2.webp` | `1516280440614-37939bbacd81` | microphone |
+| `s3.webp` | `1512499617640-c74ae3a79d37` | smartphone |
+| `s4.webp` | `1414235077428-338989a2e8c0` | dinner table |
+| `s5.webp` | `1522202176988-66273c2fd55f` | friends talking |
+| `s6.webp` | `1529333166437-7750a6dd5a70` | friends celebrating |
+| `s7.webp` | `1517841905240-472988babdf9` | personal style |
+| `s8.webp` | `1550547660-d9450f859349` | pizza |
+| `s9.webp` | `1517248135467-4c7edcad34c4` | restaurant |
+| `s10.webp` | `1520694478166-daaaaec95b69` | friends leaping |
+| `rides7.webp` | `1547549082-6bc09f2049ae + 1558981806-ec527fa84c39` | sportbike/cruiser composite |
+| `rides8.webp` | `1500530855697-b586d89ba3ee` | open-road trip |
+| `style7.webp` | `1515372039744-b8f02a3ae446` | tailored look |
+| `style8.webp` | `1490481651871-ab68de25d43d` | clothes/wardrobe |
+| `music7.webp` | `1459749411175-04bf5292ceea` | concert crowd |
+| `music8.webp` | `1470225620780-dba8ba36b745` | DJ mixer |
+| `food7.webp` | `1504674900247-0877df9cc836` | food plates |
+| `food8.webp` | `1546069901-ba9599a7e63c` | food bowl |
+| `travel7.webp` | `1533105079780-92b9be482077` | coastside escape |
+| `travel8.webp` | `1507525428034-b723cf961d3e` | beach sea |
+| `memes7.webp` | `1517849845537-4d257902454a` | expressive dog |
+| `memes8.webp` | `1529139574466-a303027c1d8b` | friends together |
+| `fitness7.webp` | `1531415074968-036ba1b575da` | cricket ball |
+| `fitness8.webp` | `1534438327276-14e5300c3a48` | gym equipment |
+
+All assembled images live in GitHub source and Netlify preview; no runtime Unsplash requests/hotlinks. Keep the original SVG fallback files and the neon trophy untouched. Full photo QA includes matching art to prompt, ensuring people are not presented as endorsers or as actual Adda members, image decode/alt/reduced-motion and individual source rights approval.
