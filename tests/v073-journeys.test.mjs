@@ -19,7 +19,7 @@ test('five seeds exactly, unique and safe to retry',()=>{
 });
 test('selected interests are two different supported values',()=>{
  assert.match(api,/interests\[0\]===interests\[1\]/);
- assert.match(app,/Choose TWO things your gang loves/);
+ assert.match(app,/Pick TWO things your gang loves/);
  assert.match(app,/journey\.interestDropIds/);
 });
 test('member list is separate from admin-only Crew settings',()=>{
