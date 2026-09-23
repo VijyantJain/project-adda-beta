@@ -19,7 +19,7 @@ function esc(s=''){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;
 function toast(t){const el=$('#toast');el.textContent=t;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1400)}
 async function api(action,opts={}){
   const method=opts.method||'GET',params=new URLSearchParams({action,...(opts.params||{})});
-  const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),9000);
+  const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),opts.timeoutMs||9000);
   try{
     const r=await fetch(`${API}?${params}`,{method,headers:{'content-type':'application/json'},body:method==='POST'?JSON.stringify(opts.body||{}):undefined,signal:ctl.signal});
     const j=await r.json().catch(()=>({}));
@@ -358,13 +358,16 @@ window._saveLocalProfile=()=>{
  catch(e){toast('Device storage is full. Try a smaller photo.')}
 };
 
-async function renderVibe(){
+window._loadFullAura=async()=>{const btn=document.querySelector('.addaAuraWarning button');if(btn){btn.disabled=true;btn.textContent='Syncing…'}try{const data=await api('getVibe',{params:{participantId:pid,crewId:crewId||getKnownCrews()[0]?.id||''},timeoutMs:26000});if(screen==='vibe')renderVibe(data)}catch(e){if(btn){btn.disabled=false;btn.textContent='Try full sync again →'}toast('Full Aura sync is slow. Your saved progress is safe.')}};
+async function renderVibe(prefetched=null){
  app.innerHTML=shell(`${top('')}<section class="card addaAuraError" aria-live="polite"><h2>⚡ Loading your earned Aura…</h2><p>Checking your saved points and trophies.</p></section>`);
- let v,partial=false;
+ let v=prefetched,partial=false;
  try{
-  if(!getKnownCrews().length||journey?.phase==='aura')v=await api('getAuraStarter',{params:{participantId:pid,crewId:journey?.crewId||''}});
-  else try{v=await api('getVibe',{params:{participantId:pid,crewId:crewId||''}})}
-  catch(fullError){partial=true;v=await api('getAuraStarter',{params:{participantId:pid,crewId:crewId||journey?.crewId||getKnownCrews()[0]?.id||''}});track('aura_full_fallback',{reason:String(fullError.message||'').slice(0,90)})}
+  if(!v){
+   const fastCrew=crewId||journey?.crewId||getKnownCrews()[0]?.id||'';
+   v=await api('getAuraStarter',{params:{participantId:pid,crewId:fastCrew}});
+   partial=!!fastCrew;
+  }
   if(v.starter?.bonusCompleted&&v.score<180)throw Error('Your Starter Aura is still syncing. Retry to load your earned points.');
  }catch(e){
   app.innerHTML=shell(`${top('')}<section class="card addaAuraError"><h1>Your Aura is still loading ⚡</h1><p>${esc(e.message||'Could not load saved Aura. Try again.')}</p><button class="btn primary" onclick="window._go('vibe')">Retry my Aura →</button></section>`);
@@ -385,10 +388,10 @@ async function renderVibe(){
       <div class="vibeProgress"><i style="width:${v.progress||0}%"></i></div>
       <div class="vibeProgressCopy">${v.nextLevel?`<span>${v.pointsToNext} Aura to ${esc(v.nextLevel.name)}</span><b>${v.progress}%</b>`:'<span>Top level unlocked</span><b>100%</b>'}</div>
     </section>
-    <section class="card addaAuraBreakdown"><div class="row between"><h2>Your earned Aura</h2><b>⚡ ${v.score} total</b></div>
+    <section class="card addaAuraBreakdown"><div class="row between"><h2>Your earned Aura</h2><b>⚡ ${v.score} ${partial?'verified so far':'total'}</b></div>
       <p>Your Starter picks already count. No Crew needed to get started.</p>
       <div class="addaAuraSplit"><span>Starter choices & trophies</span><strong>${v.starter?.points||0}</strong><span>Guided milestones</span><strong>${v.guided?.points||0}</strong>${v.score>(v.starter?.points||0)+(v.guided?.points||0)?`<span>Actual Crew activity</span><strong>${v.score-(v.starter?.points||0)-(v.guided?.points||0)}</strong>`:""}</div>
-      ${partial?'<small class="addaAuraWarning">Crew activity is temporarily unavailable. Starter points are shown; retry for the full total.</small>':''}</section>
+      ${partial?'<small class="addaAuraWarning">Fast view: Starter plus confirmed answers and membership in this Crew. Other Crews, chats, created Drops and recorded shares are not included yet. <button class="chip chipBtn" onclick="window._loadFullAura()">Sync full Aura →</button></small>':''}</section>
     <section class="card addaAuraHow"><div class="soloTeachEyebrow">MAKE IT YOURS</div><h2>Build it. Earn it. Flex it. ✨</h2>
       <p>Aura grows from real participation, not scrolling. Unlock badges and levels through choices, shared Drops and meaningful activity. Start solo; build with friends when you are ready.</p>
       <div class="addaAuraActions"><span>⚡ Starter answer</span><b>+10</b><span>🏆 First Five completion</span><b>+30</b><span>👑 Tenacious completion</span><b>+50</b><span>🗳️ Crew Drop answer</span><b>+10</b><span>✍️ Create a Drop</span><b>+30</b><span>💬 Crew chat message</span><b>+4</b><span>👥 Join or create Crew</span><b>+10</b><span>↗ Recorded share action</span><b>+20*</b><span>🔥 Active-day streak</span><b>+5/day†</b></div>
@@ -997,7 +1000,7 @@ window._answerAndJoin=async()=>{const nickname=$('#guestName')?.value.trim();if(
 async function refreshCrew(){const c=await api('getCrew',{params:{crewId}});crew=c.crew;members=c.members}
 async function refreshDrops(){const j=await api('listDrops',{params:{crewId,participantId:pid}});drops=j.drops}
 async function renderCrew(){
-  clearTimeout(pollTimer);await refreshCrew();rememberCrew(crew);await refreshDrops();
+  clearTimeout(pollTimer);await Promise.all([refreshCrew(),refreshDrops()]);rememberCrew(crew);
   const totalResponses=drops.reduce((n,d)=>n+(d.responseCount||0),0);
   app.innerHTML=shell(`${crewStickyHeader()}${crew?.starterPack&&crew.createdBy===pid&&totalResponses<2?`<div class="starterCrewBanner"><b>🎉 Your 5 Drops are ready!</b><p>Answer one and invite your mates to compare their picks.</p><button onclick="window._shareCrew()">↗ Invite friends</button></div>`:''}<div class="crewPeoplePreview"><div class="crewAvatarChain" role="img" aria-label="${esc(matesLabel())}">${members.slice(0,6).map(m=>`<span class="crewChainAvatar" title="${esc(m.nickname||'Crew mate')}">${m.id===pid&&ownAvatar()?`<img src="${ownAvatar()}" alt="">`:esc((m.nickname||'?').trim().slice(0,1).toUpperCase()||'?')}</span>`).join('')}${members.length>6?`<span class="crewChainOverflow">+${members.length-6}</span>`:''}</div><span class="crewPeopleCaption">${esc(matesLabel())} · Your people, your Crew</span></div><div class="crewModules"><button onclick="window._go('chat')" class="chatModule"><span class="moduleIcon">💬${hasUnreadChat()?'<i class="unreadDot"></i>':''}</span><b>Chat</b><small>${hasUnreadChat()?'New messages':'Talk here'}</small></button><button onclick="window._go('recap')"><span>✨</span><b>Recap</b><small>${totalResponses} real answers</small></button><button onclick="window._go('mates')"><span>👥</span><b>Mates</b><small>${matesLabel()}</small></button>${crew.createdBy===pid?`<button onclick="window._go('crewSettings')"><span>⚙</span><b>Settings</b><small>Admin only</small></button>`:''}</div><div class="sp18"></div><div class="row between"><h2>Drops</h2><button class="chip chipBtn" onclick="window._go('create')">+ Create</button></div><div class="sp12"></div>${drops.length?drops.slice().sort((a,b)=>Number(!!a.myResponse)-Number(!!b.myResponse)).map(d=>`<button class="drop drop-${d.type} ${d.myResponse?'dropHasAnswer':'dropNeedsAnswer'}" aria-label="${d.myResponse?'Answered':'Not answered'}: ${esc(d.question)}" style="width:100%;text-align:left" onclick="window._openDrop('${d.id}')"><div class="row between"><span class="chip">${labelType(d.type)}</span><span class="dropStatus ${d.myResponse?'isAnswered':'isPending'}">${d.myResponse?d.revealed?'✨ Result ready':'✓ Answered':'○ Your turn'}</span></div><div class="meta" style="margin-top:5px">${dropProgress(d)}</div>${d.mediaA?`<img class="dropThumb" src="${mediaUrl(d.mediaA)}" alt="">`:``}<div class="q">${esc(d.question)}</div><div class="meta">${d.type==='short'?(d.responseCount?`${d.responseCount} repl${d.responseCount===1?'y':'ies'} · live`:'Be first to reply'):d.revealed&&d.myResponse?'Result ready ✨':d.myResponse?'Waiting for friends…':'Tap to answer'}</div></button>`).join(''):`<div class="empty"><div><div style="font-size:44px">⚡</div><h2 style="margin-top:8px">No Drops yet</h2><p class="sub" style="margin-top:6px">Create one, then share it. Friends join when they answer.</p><div class="sp18"></div><button class="btn primary" onclick="window._go('create')">Create first Drop</button></div></div>`}`);
   if(!journey&&crew.createdBy===pid&&!drops.length&&getKnownCrews().length===1&&!localStorage.getItem('addaFirstCreatedCrewGuideDone_'+pid))saveJourney({kind:'creator',phase:'crew_intro',crewId,answers:[],startedAt:Date.now(),legacyEmpty:true});
