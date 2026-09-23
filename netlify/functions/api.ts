@@ -689,7 +689,10 @@ export default async (req: Request, context: Context) => {
       const key=/^[a-zA-Z0-9_-]{8,48}$/.test(requestId)?`crewCreate/v073/${participantId}/${requestId}`:"";
       if(key){const prior=await getJSON(store,key);if(prior?.crewId){const c=await getJSON(store,`crew/${prior.crewId}`);if(c)return ok({crew:c,participantId,reused:true,firstCreatedCrew:!!c.firstCreatedCrew})}}
       const previous=(await listJSON(store,"crew/",2000)).filter((x:any)=>x.createdBy===participantId);
-      const crewId=id("c_"),crew={id:crewId,name,createdAt:now(),createdBy:participantId,firstCreatedCrew:previous.length===0};
+      const crewId=key?"c_"+createHash("sha256").update(participantId+":"+requestId).digest("hex").slice(0,10):id("c_");
+      const already=await getJSON(store,`crew/${crewId}`);
+      if(already)return ok({crew:already,participantId,reused:true,firstCreatedCrew:!!already.firstCreatedCrew});
+      const crew={id:crewId,name,createdAt:now(),createdBy:participantId,firstCreatedCrew:previous.length===0};
       await store.setJSON(`crew/${crewId}`,crew);
       await store.setJSON(`member/${crewId}/${participantId}`,{id:participantId,nickname,joinedAt:now(),provisional:false});
       if(key)await store.setJSON(key,{crewId,createdAt:now()});
@@ -777,7 +780,9 @@ export default async (req: Request, context: Context) => {
       }
       const requestId=clean(body.requestId,48),requestKey=/^[a-zA-Z0-9_-]{8,48}$/.test(requestId)?`dropCreate/v073/${crewId}/${participantId}/${requestId}`:"";
       if(requestKey){const prior=await getJSON(store,requestKey);if(prior?.dropId){const previous=await getJSON(store,`drop/${crewId}/${prior.dropId}`);if(previous)return ok({drop:previous,reused:true})}}
-      const dropId=id("d_");
+      const dropId=requestKey?"d_"+createHash("sha256").update(crewId+":"+participantId+":"+requestId).digest("hex").slice(0,10):id("d_");
+      const duplicate=await getJSON(store,`drop/${crewId}/${dropId}`);
+      if(duplicate)return ok({drop:duplicate,reused:true});
       const thresholdMode = body.thresholdMode === "everyone" ? "everyone" : body.thresholdMode === "manual" ? "manual" : "count";
       const thresholdCount = Math.max(2, Math.min(20, Number(body.thresholdCount)||3));
       const currentMembers = await listJSON(store,`member/${crewId}/`,100);
