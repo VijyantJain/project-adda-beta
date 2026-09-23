@@ -14,7 +14,7 @@ This is the front door for humans, developers and future ChatGPT chats. Do not i
 ## New canonical reading order
 1. This START_HERE.
 2. docs/2026-09-24_PRODUCT_DIRECTION.md — scope, phases and explicit decisions/constraints.
-3. docs/2026-09-24_V08_FOUNDER_DECISIONS.md — **five initial plus six further founder-confirmed v0.8 choices; D040–D050 (achievements, open-ended Aura chapters, rolling Crew Pulse and three selectable solo Charge missions +10/card +10/day); supersedes ambiguous candidate language; DESIGN ONLY.**
+3. docs/2026-09-24_V08_FOUNDER_DECISIONS.md — **five initial plus six further founder-confirmed v0.8 choices; D040–D051 (achievements, open-ended Aura chapters, rolling Crew Pulse and fully specified solo Charge mission criteria pending edge cases); supersedes ambiguous candidate language; DESIGN ONLY.**
 4. docs/2026-09-24_FIELD_TEST_ACCEPTANCE.md — immediate observed bugs and field-test pass/fail.
 5. docs/2026-09-24_V08_DESIGN_BRIEF.md — options for next release; founder discussion, NOT implementation approval.
 5. docs/2026-09-24_VISUAL_REFERENCE_ATLAS.md — uploaded concept references and feature mapping.
