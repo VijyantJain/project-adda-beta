@@ -247,23 +247,32 @@ export default async (req: Request, context: Context) => {
     if (action === "analyticsDashboard") {
       if(!adminOK(req))return bad("Not authorized.",401);
       const days=Math.max(0,Math.min(3650,Number(url.searchParams.get("days"))||30));
+      const cacheKey=`analytics/cache/v073/dashboard_${days}`;
+      const cached=await getJSON(store,cacheKey);
+      if(cached&&Date.now()-Date.parse(cached.generatedAt)<120000)return ok(cached);
       const since=days?new Date(Date.now()-days*86400000).toISOString():"";
       const inRange=(ts:any)=>!since||String(ts||"")>=since;
 
-      const visitors=(await listJSON(store,"analytics/visitor/",100000)).filter((v:any)=>inRange(v.lastSeen));
-      const sessions=(await listJSON(store,"analytics/session/",100000)).filter((v:any)=>inRange(v.lastSeen));
-      const analyticsEvents=(await listJSON(store,"analytics/event/",100000)).filter((e:any)=>inRange(e.createdAt));
-      const legacyEvents=(await listJSON(store,"event/",100000)).filter((e:any)=>String(e.createdAt||"")<ANALYTICS_STARTED_AT&&inRange(e.createdAt));
+      // Independent prefixes can load together rather than 11 serialized remote scans.
+      const [visitorAll,sessionAll,eventAll,legacyAll,memberRows,crewRows,memberListing,dropListing,responseListing,chatListing,currentDrops]=await Promise.all([
+        listJSON(store,"analytics/visitor/",100000),listJSON(store,"analytics/session/",100000),
+        listJSON(store,"analytics/event/",100000),listJSON(store,"event/",100000),
+        listJSON(store,"member/",100000),listJSON(store,"crew/",100000),
+        store.list({prefix:"member/"}),store.list({prefix:"dropIndex/"}),
+        store.list({prefix:"response/"}),store.list({prefix:"chat/"}),listJSON(store,"drop/",100000)
+      ]);
+      const visitors=visitorAll.filter((v:any)=>inRange(v.lastSeen));
+      const sessions=sessionAll.filter((v:any)=>inRange(v.lastSeen));
+      const analyticsEvents=eventAll.filter((e:any)=>inRange(e.createdAt));
+      const legacyEvents=legacyAll.filter((e:any)=>String(e.createdAt||"")<ANALYTICS_STARTED_AT&&inRange(e.createdAt));
       const events=[...legacyEvents.map((e:any)=>({...e,legacy:true,server:{userAgent:e.ua||""}})),...analyticsEvents].sort((a:any,b:any)=>String(a.createdAt).localeCompare(String(b.createdAt)));
-
-      const memberRows=await listJSON(store,"member/",100000),nameMap:any={},crewNamesByPerson:any={};
+      const nameMap:any={},crewNamesByPerson:any={};
       memberRows.forEach((m:any)=>{if(!m?.id)return;if(!nameMap[m.id]||String(m.joinedAt)>String(nameMap[m.id].joinedAt||""))nameMap[m.id]={name:m.nickname||"",joinedAt:m.joinedAt||""};});
-      const crewRows=await listJSON(store,"crew/",100000),crewMap:any={};crewRows.forEach((c:any)=>crewMap[c.id]=c);
-      const memberKeys=(await store.list({prefix:"member/"})).blobs.map((b:any)=>b.key);
-      const dropKeys=(await store.list({prefix:"dropIndex/"})).blobs.map((b:any)=>b.key);
-      const responseKeys=(await store.list({prefix:"response/"})).blobs.map((b:any)=>b.key);
-      const chatKeys=(await store.list({prefix:"chat/"})).blobs.map((b:any)=>b.key);
-      const currentDrops=await listJSON(store,"drop/",100000);
+      const crewMap:any={};crewRows.forEach((c:any)=>crewMap[c.id]=c);
+      const memberKeys=memberListing.blobs.map((b:any)=>b.key);
+      const dropKeys=dropListing.blobs.map((b:any)=>b.key);
+      const responseKeys=responseListing.blobs.map((b:any)=>b.key);
+      const chatKeys=chatListing.blobs.map((b:any)=>b.key);
       const responseCountByDrop:any={};responseKeys.forEach((k:string)=>{const p=k.split("/");if(p[1]&&p[2]){const dk=p[1]+"/"+p[2];responseCountByDrop[dk]=(responseCountByDrop[dk]||0)+1}});
 
       const crewAgg:any={};
@@ -441,7 +450,7 @@ export default async (req: Request, context: Context) => {
       const dropPerformance=currentDrops.map((d:any)=>{const ev=dropEventCounts[d.id]||{},responses=responseCountByDrop[(d.crewId||"")+"/"+d.id]||0,opens=(ev.drop_opened||0)+(ev.drop_link_opened||0),shares=ev.drop_shared||0;return {dropId:d.id,crewId:d.crewId||"",crewName:crewMap[d.crewId]?.name||"",type:d.type||"",question:d.question||"",createdAt:d.createdAt||"",creatorName:d.creatorName||nameMap[d.createdBy]?.name||"",responses,opens,shares,answerRate:pct(responses,opens),hasMedia:!!(d.mediaA||d.mediaB)}}).sort((a:any,b:any)=>b.responses-a.responses);
       const typeMap:any={};dropPerformance.forEach((d:any)=>{const t=d.type||"unknown";typeMap[t]=typeMap[t]||{type:t,drops:0,responses:0,opens:0,shares:0,mediaDrops:0};const x=typeMap[t];x.drops++;x.responses+=d.responses;x.opens+=d.opens;x.shares+=d.shares;if(d.hasMedia)x.mediaDrops++});Object.values(typeMap).forEach((x:any)=>{x.avgResponses=x.drops?Math.round(x.responses/x.drops*10)/10:0;x.answerRate=pct(x.responses,x.opens)});
 
-      return ok({
+      const dashboard={
         generatedAt:now(),days,analyticsStartedAt:ANALYTICS_STARTED_AT,
         summary:{
           uniqueVisitors:uniqueVisitorIds.size,newVisitors,returningVisitors,sessions:sessions.length,pageLoads:visitEvents.length,uniqueIPs:ipSet.size,
@@ -479,7 +488,9 @@ export default async (req: Request, context: Context) => {
         dropPerformance:dropPerformance.slice(0,500),dropTypes:Object.values(typeMap).sort((a:any,b:any)=>b.responses-a.responses),
         visitors:visitorRows.slice(0,1000),
         deepDive,recentEvents,eventCounts
-      });
+      };
+      try{await store.setJSON(cacheKey,dashboard)}catch(e){console.warn("Analytics cache skipped",String(e))}
+      return ok(dashboard);
     }
 
 
