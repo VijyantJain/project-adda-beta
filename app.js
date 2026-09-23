@@ -362,7 +362,7 @@ async function renderVibe(){
  app.innerHTML=shell(`${top('')}<section class="card addaAuraError" aria-live="polite"><h2>⚡ Loading your earned Aura…</h2><p>Checking your saved points and trophies.</p></section>`);
  let v,partial=false;
  try{
-  if(!getKnownCrews().length||journey?.phase==='aura')v=await api('getAuraStarter',{params:{participantId:pid}});
+  if(!getKnownCrews().length||journey?.phase==='aura')v=await api('getAuraStarter',{params:{participantId:pid,crewId:journey?.crewId||''}});
   else try{v=await api('getVibe',{params:{participantId:pid,crewId:crewId||''}})}
   catch(fullError){partial=true;v=await api('getAuraStarter',{params:{participantId:pid}});track('aura_full_fallback',{reason:String(fullError.message||'').slice(0,90)})}
   if(v.starter?.bonusCompleted&&v.score<180)throw Error('Your Starter Aura is still syncing. Retry to load your earned points.');
@@ -387,7 +387,7 @@ async function renderVibe(){
     </section>
     <section class="card addaAuraBreakdown"><div class="row between"><h2>Your earned Aura</h2><b>⚡ ${v.score} total</b></div>
       <p>Your Starter picks already count. No Crew needed to get started.</p>
-      <div class="addaAuraSplit"><span>Starter choices & trophies</span><strong>${v.starter?.points||0}</strong><span>Guided milestones</span><strong>${v.guided?.points||0}</strong></div>
+      <div class="addaAuraSplit"><span>Starter choices & trophies</span><strong>${v.starter?.points||0}</strong><span>Guided milestones</span><strong>${v.guided?.points||0}</strong>${v.score>(v.starter?.points||0)+(v.guided?.points||0)?`<span>Actual Crew activity</span><strong>${v.score-(v.starter?.points||0)-(v.guided?.points||0)}</strong>`:""}</div>
       ${partial?'<small class="addaAuraWarning">Crew activity is temporarily unavailable. Starter points are shown; retry for the full total.</small>':''}</section>
     <section class="card addaAuraHow"><div class="soloTeachEyebrow">MAKE IT YOURS</div><h2>Build it. Earn it. Flex it. ✨</h2>
       <p>Aura grows from real participation, not scrolling. Unlock badges and levels through choices, shared Drops and meaningful activity. Start solo; build with friends when you are ready.</p>

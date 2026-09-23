@@ -492,10 +492,14 @@ export default async (req: Request, context: Context) => {
       const starter=starterPayload(await getJSON(store,`starter/v1/${participantId}`));
       const guide=await getJSON(store,`guide/v1/${participantId}`)||{steps:{}};
       const guidePoints=Object.values(guide.steps||{}).reduce((sum:number,row:any)=>sum+Number(row?.points||0),0);
-      const score=starter.points+guidePoints,tier=auraTier(score);
+      const linkedCrewId=clean(url.searchParams.get("crewId"),40);
+      const linkedMember=linkedCrewId?await getJSON(store,`member/${linkedCrewId}/${participantId}`):null;
+      const linkedAnswers=linkedMember?(await listJSON(store,`response/${linkedCrewId}/`,3000)).filter((r:any)=>r.participantId===participantId):[];
+      const crewBonus=linkedMember?linkedAnswers.length*10+10:0;
+      const score=starter.points+guidePoints+crewBonus,tier=auraTier(score);
       const badges=STARTER_MILESTONES.map((m:any)=>({id:"starter_"+m.at,name:m.name,icon:m.icon,desc:m.text,current:starter.progress,target:m.at,unlocked:starter.progress>=m.at,progress:Math.min(100,Math.round(starter.progress/m.at*100))}));
       const nextUnlock=badges.find((b:any)=>!b.unlocked)||null;
-      return ok({score,...tier,streak:0,answers:starter.progress,starterAnswers:starter.progress,dropsMade:0,chatsSent:0,shares:0,crews:0,badges,nextUnlock,crewRank:null,signature:"",starter:{progress:starter.progress,points:starter.points,firstFiveCompleted:starter.firstFiveCompleted,bonusCompleted:starter.bonusCompleted,earned:starter.earned},guided:{points:guidePoints,steps:guide.steps||{}},scoreMode:"solo_starter"});
+      return ok({score,...tier,streak:0,answers:starter.progress+linkedAnswers.length,starterAnswers:starter.progress,dropsMade:0,chatsSent:0,shares:0,crews:linkedMember?1:0,badges,nextUnlock,crewRank:null,signature:"",starter:{progress:starter.progress,points:starter.points,firstFiveCompleted:starter.firstFiveCompleted,bonusCompleted:starter.bonusCompleted,earned:starter.earned},guided:{points:guidePoints,steps:guide.steps||{}},scoreMode:linkedMember?"starter_plus_linked_crew":"solo_starter"});
     }
     // Separate private guided steps from shared Crew Drops. Never invent votes/results.
     if(action==="guideGet" && req.method==="GET"){
