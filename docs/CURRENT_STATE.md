@@ -142,3 +142,11 @@ Onboarding lock permits private interest-guide overlay interactions while blocki
 
 ## v0.7.2 — Aura-first screenshot regression correction
 The prior direct Tenacious route rendered Aura but did not activate the Crew-scoped guide. Full-store getVibe failure displayed fabricated score=0 and badge 0/0. v0.7.2 adds a separate solo guide with persisted state and three Aura explanation cards, then Home→informational Crew→informational Create→guided optional-avatar/profile→final acknowledgment. Existing 0.7.1 solo browsers with ten stored answers are rescued without resetting their participant ID. Fast getAuraStarter reads existing starter/v1 and guide/v1 records; ten distinct saved answers yield >=180 and six factual Starter milestones. Aura explains real score economics and shows retry rather than invented zeros. New users get versioned v3 questions and 24 bundled photo scenes; old v1/v2 in-flight options remain unchanged. Netlify persistent stores, main, Avengers, Crew/Drop/Chat/media records are not renamed or cleared. Real device QA, high-resolution licensed photography master audit and verified OTP remain outstanding; see RELEASE_v0.7.2.md.
+
+### Verified automated preview checks (not actual Safari/Android device QA)
+- npm test: 8/8 focused static regression tests passed on preview branch.
+- Playwright headless Chromium, mobile 390×844: ten real API-backed Starter answers, First Five=80, Tenacious=180, Aura=180, Starter milestones=6/6 and next tier Main Character; automatic Aura→Home→Crew-info→Create-info→Profile guide; no page exceptions.
+- Separate resumed/seeded test: overlay/background tap did not skip coach; optional default avatar→bio→username draft→display name→final acknowledgement, done=1 and pending cleared, Home rendered, no page exceptions.
+- Invited fresh QA Crew `c_7daf823ca7` and Drop `d_sp1_7daf823ca7` (created only for testing) retained exact invite link after ten answers, reached real private interest guide; no exceptions. Existing Avengers not used or modified by test.
+- All 24 local WebP routes responded HTTP 200 with image/webp. Netlify status success for base v0.7.2 commit; this follow-up copy/analytics correction needs a new preview check.
+- These are browser automation/source checks, not a claim of passing real iPhone Safari, Android Chrome, WhatsApp browser or commercial photo-rights review.

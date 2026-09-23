@@ -14,3 +14,11 @@ Invited NEW: exact /?crew=<id>&drop=<id>; same ten questions; linked Crew/Drop a
 Legacy: in-progress deckVersion=v1/v2 retains answers/options and points. Verify all six Drop formats, unread chat, actual Drop-answer badges, Avengers and old seeded shared five. Check iPhone Safari, Android Chrome, WhatsApp in-app plus narrow desktop, API errors/retry, and photo asset load with no console errors. Dev preview deployment status only proves build, NOT these acceptance tests.
 ## Data / infrastructure protections
 No new Netlify Blob store, no reset or bulk rewrite; no main merge; no fake OTP/profile sync; do not reset persistent test data to reproduce onboarding—use a new browser or storage context. Photo-source IDs in CONTENT_ASSET_REGISTRY.md. CDN-origin photo master rights/release/high-res audit is separate gate before broad commercial launch.
+
+### Verified automated preview checks (not actual Safari/Android device QA)
+- npm test: 8/8 focused static regression tests passed on preview branch.
+- Playwright headless Chromium, mobile 390×844: ten real API-backed Starter answers, First Five=80, Tenacious=180, Aura=180, Starter milestones=6/6 and next tier Main Character; automatic Aura→Home→Crew-info→Create-info→Profile guide; no page exceptions.
+- Separate resumed/seeded test: overlay/background tap did not skip coach; optional default avatar→bio→username draft→display name→final acknowledgement, done=1 and pending cleared, Home rendered, no page exceptions.
+- Invited fresh QA Crew `c_7daf823ca7` and Drop `d_sp1_7daf823ca7` (created only for testing) retained exact invite link after ten answers, reached real private interest guide; no exceptions. Existing Avengers not used or modified by test.
+- All 24 local WebP routes responded HTTP 200 with image/webp. Netlify status success for base v0.7.2 commit; this follow-up copy/analytics correction needs a new preview check.
+- These are browser automation/source checks, not a claim of passing real iPhone Safari, Android Chrome, WhatsApp browser or commercial photo-rights review.

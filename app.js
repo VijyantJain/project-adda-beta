@@ -193,7 +193,7 @@ window._surprise=t=>{
     likely:[['Who’s most likely to disappear from the group chat for 3 days?'],['Who’s most likely to make everyone late?'],['Who would survive a zombie apocalypse longest?']],
     either:[['Pick one','Mountains','Beach'],['Pick one','Late-night chai','Early breakfast'],['Pick one','House party','Go out']],
     vote:[['What should we do this weekend?','Movie','Food','Road trip'],['What do we need right now?','Chai','Coffee','Sleep']],
-    rate:[['Rate the vibe of this plan'],['Rate this look'],['How good is this idea?']],
+    rate:[['Rate the Aura of this plan'],['Rate this look'],['How good is this idea?']],
     predict:[['Will this Crew actually meet this weekend?'],['Will the plan survive till Saturday?'],['Will everyone arrive on time?']]
   };
   const arr=bank[t]||bank.short,item=arr[Math.floor(Math.random()*arr.length)];const q=$('#q');if(q)q.value=item[0]||'';

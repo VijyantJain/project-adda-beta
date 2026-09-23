@@ -551,7 +551,7 @@ export default async (req: Request, context: Context) => {
       await store.setJSON(key,state);
       const n=Object.keys(state.answers).length,milestone=STARTER_MILESTONES.find(x=>x.at===n)||null;
       const earnedPoints=10+(n===5?30:0)+(n===10?50:0);
-      await analyticsEvent(store,"starter_answered",participantId,"",questionId,{step:n,type:q.type,deckVersion:state.deckVersion||"v1",interest:questionId==="s6"&&state.deckVersion==="v2"?answer:undefined,earnedPoints},req,context);
+      await analyticsEvent(store,"starter_answered",participantId,"",questionId,{step:n,type:q.type,deckVersion:state.deckVersion||"v1",interest:questionId==="s6"&&["v2","v3"].includes(state.deckVersion)?answer:undefined,earnedPoints},req,context);
       if(n===5||n===10)await analyticsEvent(store,n===5?"starter_first_five_completed":"starter_bonus_completed",participantId,"","",{step:n,points:starterPayload(state).points},req,context);
       return ok({...starterPayload(state),alreadyAnswered:false,feedback:q.fact,justUnlocked:milestone,earnedPoints,answeredQuestion:{id:q.id,question:q.question,answer,icon:q.icon}});
     }
@@ -875,7 +875,7 @@ export default async (req: Request, context: Context) => {
       const dropMap:any={};dropRows.forEach((d:any)=>dropMap[(d.crewId||"")+"/"+d.id]=d);
       const typeCounts:any={};
       myResponses.forEach((b:any)=>{const p=b.key.split("/");const d=dropMap[(p[1]||"")+"/"+(p[2]||"")];if(d?.type)typeCounts[d.type]=(typeCounts[d.type]||0)+1});
-      STARTER_DECK.filter((q:any)=>starter.answers[q.id]!==undefined).forEach((q:any)=>{typeCounts[q.type]=(typeCounts[q.type]||0)+1});
+      activeStarterDeck(starter).filter((q:any)=>starter.answers[q.id]!==undefined).forEach((q:any)=>{typeCounts[q.type]=(typeCounts[q.type]||0)+1});
       const signature=Object.entries(typeCounts).sort((a:any,b:any)=>Number(b[1])-Number(a[1]))[0]?.[0]||myDrops[0]?.type||"";
 
       const daySet=new Set<string>();
