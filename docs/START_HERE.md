@@ -14,8 +14,9 @@ This is the front door for humans, developers and future ChatGPT chats. Do not i
 ## New canonical reading order
 1. This START_HERE.
 2. docs/2026-09-24_PRODUCT_DIRECTION.md — scope, phases and explicit decisions/constraints.
-3. docs/2026-09-24_FIELD_TEST_ACCEPTANCE.md — immediate observed bugs and field-test pass/fail.
-4. docs/2026-09-24_V08_DESIGN_BRIEF.md — options for next release; founder discussion, NOT implementation approval.
+3. docs/2026-09-24_V08_FOUNDER_DECISIONS.md — **five founder-confirmed v0.8 choices; supersedes ambiguous earlier candidate language; DESIGN ONLY.**
+4. docs/2026-09-24_FIELD_TEST_ACCEPTANCE.md — immediate observed bugs and field-test pass/fail.
+5. docs/2026-09-24_V08_DESIGN_BRIEF.md — options for next release; founder discussion, NOT implementation approval.
 5. docs/2026-09-24_VISUAL_REFERENCE_ATLAS.md — uploaded concept references and feature mapping.
 6. docs/2026-09-24_AI_OPPORTUNITY_MAP.md — actual AI propositions, costs and privacy.
 7. docs/2026-09-24_DOMAIN_AND_MIGRATION_RUNBOOK.md — owned domain, zero/low-cost hosting, safe Blob-to-indexed-DB migration.

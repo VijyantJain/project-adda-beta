@@ -41,3 +41,6 @@ Full Arena public feed, DMs, external event maps, compatibility percentages, gro
 
 ## Founder decisions required before coding
 Which three achievement paths? Should gems be displayed before cosmetic redemption exists? Preferred Daily Aura cadence and reward caps? Existing local Starter + Crew points preservation policy? Should weekly recap be plain factual now or AI assisted in v0.9? This brief is an option menu, not final approval.
+
+## FOUNDER DECISION UPDATE — 2026-09-24 (supersedes earlier candidate language)
+D040: variable 3–5 Daily Aura cards based on interests and genuine activity; Daily Charge in first v0.8, Capsules v0.8.x; three functioning 3-star paths with two Coming Soon; gems earned invisibly until usable cosmetic redemption; small real-metric Crew Pulse experiment first v0.8. The earlier “defer Crew Pulse” and “3-card minimum only” are no longer the complete proposed release cut. Specific economy thresholds, Charge payoff and Pulse experiment are STILL under discussion; no code permission. See docs/2026-09-24_V08_FOUNDER_DECISIONS.md.

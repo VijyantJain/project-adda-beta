@@ -28,3 +28,6 @@ Historical ROADMAP, PRODUCT_BLUEPRINT, FIRST_FIVE_VIBE_RUN and early ONBOARDING 
 
 ## Proposed release naming
 Current = v0.7.3 field test + date-stamped acceptance patch; NEXT = v0.8 only after 2–3 days of feedback. Domain is an infrastructure milestone, not proof of a finished native app or improved speed.
+
+## Founder-confirmed first v0.8 direction update, 2026-09-24
+See docs/2026-09-24_V08_FOUNDER_DECISIONS.md (D040). Daily Aura varies 3–5 by interests/activity; Daily Charge launches but Capsules wait until v0.8.x; three live three-star achievement paths plus two Coming Soon; Gems tracked but hidden until actual cosmetic redemption; a small factual Crew Pulse experiment joins first v0.8. This corrects historical text that placed ALL Crew Pulse after the personal loop. The full Reveal Chain, expensive visual layers and public Arena remain later. No v0.8 implementation approved; field-test hardening / domain / final spec still precede coding.
