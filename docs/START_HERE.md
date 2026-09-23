@@ -8,7 +8,7 @@ This is the front door for humans, developers and future ChatGPT chats. Do not i
 - Current feedback hardening occurs on fix/v073-sept24-field-test; a commit here does NOT mean deployed. Read GitHub HEAD and Netlify deploy status on every new chat. Do not conflate staging, preview and main.
 - Named Netlify stores MUST be preserved: preview adda-v05-fieldtest; main production adda-v03. User Crews, in particular Avengers, plus member/response/chat/media/starter/guide keys must not be cleared, seeded over or renamed casually.
 - Direct/Crew-link/Drop-link guided route order is founder-locked in docs/CREW_AND_DROP_ONBOARDING_V073_SRS.md and docs/CREW_ONBOARDING_FLOWCHARTS_V073.md.
-- Current bugs and unverified releases: docs/2026-09-24_FIELD_TEST_ACCEPTANCE.md. Historic release tests in docs/RELEASE_v0.7.3.md.
+- Current bugs and unverified releases: docs/2026-09-24_FIELD_TEST_ACCEPTANCE.md. Deployed Sept 24 patch evidence: docs/RELEASE_v073_FIELD_PATCH_2026_09_24.md. Historic release tests in docs/RELEASE_v0.7.3.md.
 - Existing stable feature IDs and original specification: docs/FEATURE_SPEC_CHECKLIST.md. Stable existing IDs should NEVER be renumbered. New ideas require IDEA/PROPOSED statuses, not a fake green tick.
 
 ## New canonical reading order
