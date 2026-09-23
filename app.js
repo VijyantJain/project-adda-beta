@@ -558,7 +558,10 @@ function guardGuideInteraction(e){
  const photoInput=guide.profileStage===0&&target.matches('#addaPhotoFile');
  const answer=guide.mode==='answer'&&!modal&&target.closest('.choice,#submitAnswer,#shortAnswer');
  const retry=screen==='vibe'&&target.closest('.addaAuraError button');
- if(withinGuide||photoInput||answer||retry)return;
+ const formatPick=guide.mode==='create_pick'&&target.closest('.formats .format');
+ const createEdit=guide.mode==='create_edit'&&target.closest('.createCard button,.createCard input,.createCard textarea,.createCard label,.createCard select,.createCard .mediaPicker,.createCard .mediaPick');
+ const shareModal=guide.mode==='share'&&target.closest('.shareOverlay,.shareOverlay *');
+ if(withinGuide||photoInput||answer||retry||formatPick||createEdit||shareModal)return;
  e.preventDefault();e.stopImmediatePropagation();
 }
 document.addEventListener('pointerdown',guardGuideInteraction,true);
@@ -614,6 +617,7 @@ function guideDrop(){
 }
 function guideAfterAnswer(){
  if(!guideActive())return;guide.mode='transition';
+ if(journey?.phase==='crew_answers'){journeyAfterRealAnswer();return}
  guide.answers++;
  localStorage.setItem('addaGuideState_'+guide.originCrewId,JSON.stringify({answers:guide.answers,lastDrop:guide.lastDrop,tour:guide.tour}));
  track('crew_guide_answered',{number:guide.answers,crewId,dropId:guide.lastDrop});
@@ -705,7 +709,7 @@ function guideProfileSaved(p){
    guide.active=false;localStorage.setItem('addaGuideDone_'+id,'1');removeGuide();
    if(guide.solo){localStorage.setItem('addaSoloGuideDone_'+pid,'1');localStorage.removeItem('addaSoloGuidePending_'+pid);localStorage.removeItem(soloGuideKey())}
    else localStorage.removeItem('addaGuideState_'+id);
-   track('guide_beta_handoff',{authStatus:'awaiting_provider',entry:guide.solo?'solo':'crew'});window._home()
+   track('guide_beta_handoff',{authStatus:'awaiting_provider',entry:guide.solo?'solo':'crew'});if(journey?.phase==='aura'&&['crew_invite','drop_invite'].includes(journey.kind))journeyAfterProfile();else window._home()
   },'.profileCard')
  },160)
 }
@@ -790,8 +794,9 @@ async function renderCrew(){
   clearTimeout(pollTimer);await refreshCrew();rememberCrew(crew);await refreshDrops();
   const totalResponses=drops.reduce((n,d)=>n+(d.responseCount||0),0);
   app.innerHTML=shell(`${crewStickyHeader()}${crew?.starterPack&&crew.createdBy===pid&&totalResponses<2?`<div class="starterCrewBanner"><b>🎉 Your 5 Drops are ready!</b><p>Answer one and invite your mates to compare their picks.</p><button onclick="window._shareCrew()">↗ Invite friends</button></div>`:''}<div class="crewModules"><button onclick="window._go('chat')" class="chatModule"><span class="moduleIcon">💬${hasUnreadChat()?'<i class="unreadDot"></i>':''}</span><b>Chat</b><small>${hasUnreadChat()?'New messages':'Talk here'}</small></button><button onclick="window._go('recap')"><span>✨</span><b>Recap</b><small>${totalResponses} real answers</small></button><button onclick="window._go('mates')"><span>👥</span><b>Mates</b><small>${matesLabel()}</small></button>${crew.createdBy===pid?`<button onclick="window._go('crewSettings')"><span>⚙</span><b>Settings</b><small>Admin only</small></button>`:''}</div><div class="sp18"></div><div class="row between"><h2>Drops</h2><button class="chip chipBtn" onclick="window._go('create')">+ Create</button></div><div class="sp12"></div>${drops.length?drops.slice().sort((a,b)=>Number(!!a.myResponse)-Number(!!b.myResponse)).map(d=>`<button class="drop drop-${d.type} ${d.myResponse?'dropHasAnswer':'dropNeedsAnswer'}" aria-label="${d.myResponse?'Answered':'Not answered'}: ${esc(d.question)}" style="width:100%;text-align:left" onclick="window._openDrop('${d.id}')"><div class="row between"><span class="chip">${labelType(d.type)}</span><span class="dropStatus ${d.myResponse?'isAnswered':'isPending'}">${d.myResponse?d.revealed?'✨ Result ready':'✓ Answered':'○ Your turn'}</span></div><div class="meta" style="margin-top:5px">${dropProgress(d)}</div>${d.mediaA?`<img class="dropThumb" src="${mediaUrl(d.mediaA)}" alt="">`:``}<div class="q">${esc(d.question)}</div><div class="meta">${d.type==='short'?(d.responseCount?`${d.responseCount} repl${d.responseCount===1?'y':'ies'} · live`:'Be first to reply'):d.revealed&&d.myResponse?'Result ready ✨':d.myResponse?'Waiting for friends…':'Tap to answer'}</div></button>`).join(''):`<div class="empty"><div><div style="font-size:44px">⚡</div><h2 style="margin-top:8px">No Drops yet</h2><p class="sub" style="margin-top:6px">Create one, then share it. Friends join when they answer.</p><div class="sp18"></div><button class="btn primary" onclick="window._go('create')">Create first Drop</button></div></div>`}`);
+  if(journey?.crewId===crewId&&['crew_intro','member_intro','crew_answers','create_required','seed_interests'].includes(journey.phase)&&!guideActive())setTimeout(resumeJourney,130);
   if(!guideActive())schedulePoll('poll',()=>{if(screen==='crew')return renderCrew()},30000);
-  if(guideActive()&&!personalGuideActive&&guide.tour===0&&!document.querySelector('.addaGuidedLayer'))setTimeout(guideCrew,120)
+  if(guideActive()&&!journey&&!personalGuideActive&&guide.tour===0&&!document.querySelector('.addaGuidedLayer'))setTimeout(guideCrew,120)
 }
 window._openDrop=id=>{removeGuide();dropId=id;history.replaceState({},'',`/?crew=${crewId}&drop=${id}`);screen='drop';render()};
 function labelType(t){return ({short:'💬 Quick Answer',likely:'👀 Who’s most likely',either:'⚖️ This or That',vote:'🗳️ Vote',rate:'⭐ Rate',predict:'🔮 Predict'})[t]||'Drop'}
@@ -858,7 +863,7 @@ async function renderDrop(){
   if(d.type==='short'){
     if(j.myResponse)return renderShortResult(d,j);
     app.innerHTML=shell(`${top(labelType(d.type),'crew')}<div class="row between"><span class="chip">${labelType(d.type)}</span>${creatorTools(d)}</div><div class="sp12"></div><h1>${esc(d.question)}</h1><p class="sub" style="margin-top:7px">${j.responsesCount?j.responsesCount+' repl'+(j.responsesCount===1?'y':'ies')+' already':'Be the first to reply'}</p><div class="sp12"></div><div class="field"><label>Your answer</label><input id="shortAnswer" maxlength="160" placeholder="Type a short reply…"></div><div class="sp18"></div><button id="submitAnswer" class="btn primary" style="font-size:18px" onclick="window._submitAnswer()">Send answer</button>`);
-    if(guideActive()&&!j.myResponse)setTimeout(guideDrop,80);
+    if(guideActive()&&!j.myResponse&&guide.mode!=='publish'&&journey?.phase!=='drop_entry')setTimeout(guideDrop,80);
     return
   }
   selected=j.myResponse?.answer||selected;
@@ -866,10 +871,10 @@ async function renderDrop(){
   if(j.revealed&&j.myResponse)return renderResult(d,j);
   if(j.myResponse)return renderWaiting(d,j);
   app.innerHTML=shell(`${top(labelType(d.type),'crew')}<div class="row between"><span class="chip">${labelType(d.type)}</span>${creatorTools(d)}</div><div class="sp12"></div><h1>${esc(d.question)}</h1><p class="sub" style="margin-top:7px">${d.thresholdMode==='manual'?j.responsesCount+' answered · creator reveal':j.responsesCount+'/'+j.threshold+' answered'}</p><div class="sp12"></div>${dropLeadMedia(d)}${d.options.map(o=>choiceMarkup(d,o,selected,false)).join('')}<div class="sp12"></div><button id="submitAnswer" class="btn primary" style="font-size:18px" onclick="window._submitAnswer()" ${!selected?'disabled style="opacity:.45;font-size:18px"':''}>Submit answer</button>`);
-  if(guideActive())setTimeout(guideDrop,80)
+  if(guideActive()&&guide.mode!=='publish'&&journey?.phase!=='drop_entry')setTimeout(guideDrop,80)
 }
 window._select=id=>{selected=id;document.querySelectorAll('.choice').forEach(el=>{const on=el.dataset.answer===id;el.classList.toggle('selected',on);el.setAttribute('aria-pressed',on?'true':'false')});const b=$('#submitAnswer');if(b){b.disabled=false;b.style.opacity='1'}};
-window._submitAnswer=async()=>{const answer=activeDropType==='short'?$('#shortAnswer')?.value.trim():selected;if(!answer)return toast('Add your answer');const btn=$('#submitAnswer');if(btn){btn.disabled=true;btn.textContent='Sending…'}try{await api('answerDrop',{method:'POST',body:{crewId,dropId,participantId:pid,answer}});track('response_submitted',{dropId,type:activeDropType,entry:'crew'});if(guideActive()){guide.mode='transition';guide.lastDrop=dropId;removeGuide();setTimeout(guideAfterAnswer,1100)}selected=null;app.innerHTML=shell(`${top(labelType(activeDropType),'crew')}<div class="sentState"><div class="sentTick">✓</div><h1>Answer sent</h1><p class="sub">Updating the Crew…</p></div>`);setTimeout(()=>{if(screen==='drop')renderDrop()},350)}catch(e){toast(e.message);if(btn){btn.disabled=false;btn.textContent=activeDropType==='short'?'Send answer':'Submit answer'}}};
+window._submitAnswer=async()=>{const answer=activeDropType==='short'?$('#shortAnswer')?.value.trim():selected;if(!answer)return toast('Add your answer');const btn=$('#submitAnswer');if(btn){btn.disabled=true;btn.textContent='Sending…'}try{await api('answerDrop',{method:'POST',body:{crewId,dropId,participantId:pid,answer}});track('response_submitted',{dropId,type:activeDropType,entry:'crew'});if(guideActive()){guide.mode='transition';guide.lastDrop=dropId;removeGuide();if(journey?.phase==='drop_entry')setTimeout(journeyStartStarter,900);else setTimeout(guideAfterAnswer,1100)}selected=null;app.innerHTML=shell(`${top(labelType(activeDropType),'crew')}<div class="sentState"><div class="sentTick">✓</div><h1>Answer sent</h1><p class="sub">Updating the Crew…</p></div>`);setTimeout(()=>{if(screen==='drop')renderDrop()},350)}catch(e){toast(e.message);if(btn){btn.disabled=false;btn.textContent=activeDropType==='short'?'Send answer':'Submit answer'}}};
 function renderWaiting(d,j){
   clearTimeout(pollTimer);
   if(d.thresholdMode==='manual'){
