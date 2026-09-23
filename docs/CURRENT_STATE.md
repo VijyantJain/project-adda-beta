@@ -154,3 +154,6 @@ The prior direct Tenacious route rendered Aura but did not activate the Crew-sco
 
 ## v0.7.3 Crew onboarding — design only / v0.7.2 FROZEN
 Founder observed no default Drops or Crew-specific tour after first ordinary-created Crew. Exact source reason: starterCreateCrew seeds, ordinary createCrew does not, and existing guide primarily enters from older Starter-create/invited paths. Proposed 3-entry direct/Crew-link/Drop-link rework, Creator first-Crew guide and first custom Drop guide are SPEC on separate design branch. These are not yet deployed; working v0.7.2 preview, both Blob store identities and production main remain unchanged. See the new v0.7.3 SRS/flowcharts and pending Crew-link existing-drops Starter order decision.
+
+## v0.7.3 implementation branch checkpoint (not field-test released yet)
+The new route/seed/custom-Drop implementation is on feature/v0.7.3-field-test, isolated from frozen v0.7.2 dev and production main until live preview E2E passes. New module tests: tests/v073-journeys.test.mjs. The feature register's 13 proposed entries remain SPEC/IN_PROGRESS until browser and actual-device acceptance.
