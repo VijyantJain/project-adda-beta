@@ -117,10 +117,14 @@ Differentiate CREATED vs JOINED; reuse existing profile name; spotlight real Cre
 Crew Chat, Recap and Mates are social modules; personal Aura remains in global navigation; admin-only Crew Settings is a distinct gear. Retain non-admin Leave Crew. Recap currently aggregates real all-time Crew activity, not fictional AI or weekly highlights. Status SPEC.
 
 ## PROPOSED D035 — Deep-link priority before generic onboarding
-New Drop invite must answer exact Drop first; new Crew invite enters actual Crew first; direct journey stays frozen. Existing beta user skips compulsory Starter; local browser identity is not verified auth. Crew-invite existing-Drops follow-on Starter rule awaits founder decision. Status SPEC.
+New Drop invite must answer exact Drop first; new Crew invite enters actual Crew first; direct journey stays frozen. Existing beta user skips compulsory Starter; local browser identity is not verified auth. Crew-invite existing-Drops follow-on Starter and Aura/Profile are mandatory after two genuine Crew answers (D038). Status SPEC.
 
 ## PROPOSED D036 — First custom Drop tutorial / no invented share success
 Explain six formats, prohibit one-mate Most Likely, guide type-specific fields/settings, commit once, then offer actual Drop deep link via OS share/fallback. Share sheet opening does not confirm delivery; cancelled share has safe recovery. Status SPEC.
 
 ## PROPOSED D037 — Seed and reward safety
 Only first ordinary-created Crew's opted-in seed flow writes five real shared Drops, 5 different allowed types, backend idempotency and partial-write recovery. Do not modify original seeded five or award a fabricated second reward. Status SPEC.
+
+
+## Founder-confirmed D038, 2026-09-23 — MANDATORY onboarding after first two Crew-link answers
+For a first-time beta visitor opening a Crew invitation with at least two real unanswered Drops, the required order is: enter the EXACT linked Crew → member-specific Crew welcome/tour → answer TWO REAL unanswered Crew Drops → play all TEN Starter questions → unlock Tenacious → complete guided Aura/Home/Crew/Create/Profile setup → return to the SAME original Crew and resume normal usage. Already earned Crew points and response records are retained; Starter's 180 points count once. Preserve the original crewId across refresh. No new Crew creation, duplicate seed, duplicate answer or forced invitation. If fewer than two unanswered Drops remain, answer any genuine available Drop and proceed with a clearly described fallback without trapping the visitor. This decision supersedes any earlier “optional”, “deferred” or “pending” text about this specific cohort. New DROP-link entrants still answer the exact invited Drop FIRST before Starter. Existing visitors do not repeat Starter. DECIDED / SPEC, NOT IMPLEMENTED.

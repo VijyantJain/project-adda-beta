@@ -201,7 +201,7 @@ Six additive IDs; canonical register = **115 items**; BETA ≠ device VERIFIED.
 Separate DESIGN branch; 115 existing IDs retained and 13 additive SPEC IDs below. Canonical proposed register: **128 feature IDs**. No preview implementation/deployment implied.
 - [ ] **P-023** Three-entry direct/Crew-link/Drop-link cohort router, preserve exact Crew/Drop and local returning status, no fake cross-device authentication — SPEC.
 - [ ] **P-024** First-ever CREATED Crew onboarding: name reuse, genuine Aura welcome, Crew element tour → 2 interests → 5 shared seed Drops → 2 genuine answers → Crew invitation — SPEC.
-- [ ] **P-025** New Crew-link arrival member-specific guide; handle real available Drops vs empty Crew, Starter/Aura continuation pending founder cohort decision — SPEC.
+- [ ] **P-025** New Crew-link arrival member-specific guide; handle real available Drops vs empty Crew, mandatory Starter 10/Tenacious/Aura/Profile after two Crew answers, then exact original Crew — SPEC.
 - [ ] **P-026** New Drop-link arrival: explain/answer exact linked Drop FIRST, then Starter/Aura/Profile, exact Crew tour and real next activity — SPEC.
 - [ ] **P-027** Returning/second-Crew cohorts bypass compulsory tutorials, get contextual invite/create CTAs; beta identity recognition is browser-local — SPEC.
 - [ ] **C-022** Crew homepage information architecture: remove redundant Aura card, separate Mates from admin Settings, real Chat/Recap modules — SPEC.
@@ -213,5 +213,9 @@ Separate DESIGN branch; 115 existing IDs retained and 13 additive SPEC IDs below
 - [ ] **A-025** Native Crew/Drop share with editable Hinglish invite, cancellation/fallback, truthful opened vs delivered instrumentation — SPEC.
 - [ ] **V-023** Display backend-confirmed creator/answer Aura, no duplicate +10 or invented rewards and preserve 180-point Starter — SPEC.
 
-Open product decision: new Crew-link entrant who answers two existing Drops — should Starter 10/Aura/Profile become required afterward, optional, or deferred to a later return? No change to deployed old flow until confirmed. New Drop-link entrant explicitly answers invited Drop before Starter as founder requested.
+RESOLVED (D038): new Crew-link entrant completes two actual Crew Drop answers, then mandatory Starter 10/Tenacious/Aura/Profile, then exact original Crew. v0.7.2 unchanged until implemented. New Drop-link entrant explicitly answers invited Drop before Starter as founder requested.
 See docs/CREW_AND_DROP_ONBOARDING_V073_SRS.md and docs/CREW_ONBOARDING_FLOWCHARTS_V073.md.
+
+
+## Founder-confirmed D038, 2026-09-23 — MANDATORY onboarding after first two Crew-link answers
+For a first-time beta visitor opening a Crew invitation with at least two real unanswered Drops, the required order is: enter the EXACT linked Crew → member-specific Crew welcome/tour → answer TWO REAL unanswered Crew Drops → play all TEN Starter questions → unlock Tenacious → complete guided Aura/Home/Crew/Create/Profile setup → return to the SAME original Crew and resume normal usage. Already earned Crew points and response records are retained; Starter's 180 points count once. Preserve the original crewId across refresh. No new Crew creation, duplicate seed, duplicate answer or forced invitation. If fewer than two unanswered Drops remain, answer any genuine available Drop and proceed with a clearly described fallback without trapping the visitor. This decision supersedes any earlier “optional”, “deferred” or “pending” text about this specific cohort. New DROP-link entrants still answer the exact invited Drop FIRST before Starter. Existing visitors do not repeat Starter. DECIDED / SPEC, NOT IMPLEMENTED.

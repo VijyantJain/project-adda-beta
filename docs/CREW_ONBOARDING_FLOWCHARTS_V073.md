@@ -16,7 +16,7 @@ flowchart TD
  G -->|No| I[Exact Crew welcome + member guide]
  I --> J{Actual unanswered Drops?}
  J -->|Two or more| K[Coach TWO real Crew answers]
- K --> L[Normal Crew usage; Starter follow-up decision pending]
+ K --> L[Required Starter 10 → Tenacious → Aura/Profile]
  J -->|Zero| M[Starter 10 + Aura/Profile guide]
  M --> N[Return EXACT invited Crew → guided first custom Drop]
  J -->|One| O[Coach real available answer → honest next-step fallback]
@@ -92,7 +92,11 @@ flowchart TD
 
 ## Entry-order invariants
 - Direct: Starter BEFORE Aura and optional Crew.
-- New Crew invite with Drops: exact Crew and real answers FIRST. Whether subsequent Starter is compulsory is pending founder confirmation.
+- New Crew invite with Drops: exact Crew and real answers FIRST. Starter 10/Tenacious/Aura/Profile is REQUIRED after two Crew answers; return to same Crew.
 - New Drop invite: exact invited Drop and real answer BEFORE Starter, then Aura/Profile, then Crew/other answers or create.
 - Returning linked users: exact Crew/Drop without forced Starter replay.
 - A participant cannot be classified as an authenticated registered human across devices until real auth exists.
+
+
+## Founder-confirmed D038, 2026-09-23 — MANDATORY onboarding after first two Crew-link answers
+For a first-time beta visitor opening a Crew invitation with at least two real unanswered Drops, the required order is: enter the EXACT linked Crew → member-specific Crew welcome/tour → answer TWO REAL unanswered Crew Drops → play all TEN Starter questions → unlock Tenacious → complete guided Aura/Home/Crew/Create/Profile setup → return to the SAME original Crew and resume normal usage. Already earned Crew points and response records are retained; Starter's 180 points count once. Preserve the original crewId across refresh. No new Crew creation, duplicate seed, duplicate answer or forced invitation. If fewer than two unanswered Drops remain, answer any genuine available Drop and proceed with a clearly described fallback without trapping the visitor. This decision supersedes any earlier “optional”, “deferred” or “pending” text about this specific cohort. New DROP-link entrants still answer the exact invited Drop FIRST before Starter. Existing visitors do not repeat Starter. DECIDED / SPEC, NOT IMPLEMENTED.

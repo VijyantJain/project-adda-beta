@@ -59,7 +59,7 @@ B. First-time via CREW link with EXISTING Drops:
   1. Land in actual linked Crew, provisional join if necessary; request one nickname only when a public action needs it; welcome “You’re in [Crew]”.
   2. Full newcomer Crew explanation adapted to MEMBER view (no admin Settings control), without forced new Crew.
   3. Teach and answer the top two genuine unanswered Drops from that Crew; after response, badges and ordering update.
-  4. Continue normal usage. Whether this cohort must ALSO take the 10-Card Starter + Aura/Profile tour afterward is an OPEN FOUNDER DECISION; do not silently force it or silently mark it done. Recommended follow-up: optional clearly labelled “Discover your Aura” path if Starter has not been completed; no false Tenacious status.
+  4. Continue normal usage. REQUIRED (D038): after TWO REAL Crew answers, ten Starter questions and guided Aura/Profile are compulsory, followed by return to the same Crew.
 
 C. First-time via CREW link with ZERO available Drops:
   1. Welcome to linked Crew and explain Crew; do not pretend it has seeded content.
@@ -105,7 +105,7 @@ Track first_crew_created vs crew_joined; crew_guide_started/element_seen/interes
 5. Crew cards Chat/Recap/Mates work; non-admin doesn't see Admin Settings; server returns 403 for unauthorized mutations; Leave remains available.
 6. Recap real/empty state truthful; points label matches backend, no artificial +10.
 7. First custom Drop: all 6 explained, Most Likely locked until 2, every option/settings type exercised, publish exactly once despite timeout, share EXACT Drop ID, completed-guide state persists.
-8. Crew invite new with 2+ available: correct Crew/member guide/two actual drops without phantom new Crew; normal return; pending Starter decision explicitly handled.
+8. Crew invite new with 2+ available: correct Crew/member guide/two actual drops without phantom new Crew; normal return; REQUIRED Starter 10/Tenacious/Aura/Profile and original-Crew return tested.
 9. Crew invite new empty: full Starter/180, Aura/Profile, return exact Crew, first custom Drop guide.
 10. Drop invite new: exact linked Drop answered FIRST, Starter 10 next, return exact Crew, two other Drops or first custom if none; late joiner reveal rules unchanged.
 11. Both returning invite cohorts bypass mandatory onboarding, retain correct Crew/Drop; deep links survive refresh, browser back, slow requests, share cancellation.
@@ -114,3 +114,7 @@ Track first_crew_created vs crew_joined; crew_guide_started/element_seen/interes
 
 ## 12. Explicit scope boundary
 This is v0.7.3 (working milestone name) Crew/onboarding hardening, NOT the v0.8 Daily Aura retention project or domain migration. Home page deep redesign remains for later. OTP/verified identity, global photo syncing and genuine verified invitations remain infrastructure-blocked.
+
+
+## Founder-confirmed D038, 2026-09-23 — MANDATORY onboarding after first two Crew-link answers
+For a first-time beta visitor opening a Crew invitation with at least two real unanswered Drops, the required order is: enter the EXACT linked Crew → member-specific Crew welcome/tour → answer TWO REAL unanswered Crew Drops → play all TEN Starter questions → unlock Tenacious → complete guided Aura/Home/Crew/Create/Profile setup → return to the SAME original Crew and resume normal usage. Already earned Crew points and response records are retained; Starter's 180 points count once. Preserve the original crewId across refresh. No new Crew creation, duplicate seed, duplicate answer or forced invitation. If fewer than two unanswered Drops remain, answer any genuine available Drop and proceed with a clearly described fallback without trapping the visitor. This decision supersedes any earlier “optional”, “deferred” or “pending” text about this specific cohort. New DROP-link entrants still answer the exact invited Drop FIRST before Starter. Existing visitors do not repeat Starter. DECIDED / SPEC, NOT IMPLEMENTED.
