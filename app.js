@@ -206,32 +206,40 @@ window._surprise=t=>{
   if(t==='vote'){['#o1','#o2','#o3'].forEach((id,i)=>{if($(id))$(id).value=item[i+1]||''})}
 };
 
-window._shareCrew=()=>{if(!crewId||!crew)return;track('crew_shared',{crewId});share(`${location.origin}/?crew=${crewId}&utm_source=adda&utm_medium=share&utm_campaign=crew`,`Oye! ${crew.name} ka Adda ready hai 😂👀\n5 fun questions already waiting. Come pick your answers, see what the gang thinks, and expose your friends! 🔥\nJoin the crew: `)};
-window._shareDrop=(id)=>{track('drop_shared',{dropId:id});share(`${location.origin}/?crew=${crewId}&drop=${id}&utm_source=adda&utm_medium=share&utm_campaign=drop`,`Answer this Drop in ${crew.name} 👀`)};
+window._shareCrew=()=>{if(!crewId||!crew)return;track('crew_shared',{crewId});share(`${location.origin}/?crew=${crewId}&utm_source=adda&utm_medium=share&utm_campaign=crew`,`Oye! ${crew.name} ka Adda khul gaya 😂🔥 Gang ke sawaal ready hain, ab tere legendary answers ka wait hai! Aaja dekhte hain kaun kitna shareef hai 👀`)};
+window._shareDrop=(id)=>{track('drop_shared',{dropId:id});share(`${location.origin}/?crew=${crewId}&drop=${id}&utm_source=adda&utm_medium=share&utm_campaign=drop`,`Bhai ek sawaal hai aur tera answer jaan-na zaroori hai 😂 Pehle answer kar, phir dekhte hain ${crew?.name||'gang'} ka scene 👀🔥`)};
 
 async function boot(){try{
  if(profileId){screen='publicVibe';render();return}
+ if(!crewId&&journey?.phase==='starter'){screen='starter';renderStarter();return}
+ if(!crewId&&journey?.phase==='aura'){screen='vibe';render();return}
  if(!crewId){const noCrews=!getKnownCrews().length,soloPending=localStorage.getItem('addaSoloGuidePending_'+pid)==='1'&&localStorage.getItem('addaSoloGuideDone_'+pid)!=='1',legacySolo=noCrews&&localStorage.addaStarterFinished==='1'&&localStorage.getItem('addaSoloGuideDone_'+pid)!=='1'&&localStorage.getItem('addaGuideTourDone_'+pid)!=='1';screen=playFirstFive?'starter':soloPending||legacySolo?'vibe':noCrews&&localStorage.addaStarterFinished!=='1'?'starter':'home';render();return}
  const c=await api('getCrew',{params:{crewId}});crew=c.crew;members=c.members;
  let member=members.find(m=>m.id===pid);
  const firstVisit=needsFirstJourney();
  if(!member&&firstVisit){
-   // A Crew invite constitutes a request to join; use a clearly temporary nickname
-   // until the guest chooses the name their mates will see after First Five.
-   const guestName='New mate '+pid.slice(-4);
+   const guestName=meName||'New mate '+pid.slice(-4);
    const joined=await api('joinCrew',{method:'POST',body:{crewId,participantId:pid,nickname:guestName,provisional:true}});
    member=joined.member;members.push(member);
+   if(!journey)saveJourney({kind:dropId?'drop_invite':'crew_invite',phase:dropId?'drop_entry':'member_intro',crewId,dropId,answers:[],startedAt:Date.now()});
    track('crew_joined',{crewId,entry:'new_invite_provisional'});
  }
  if(member?.provisional){
-   pendingInvite={crewId,crewName:crew.name,dropId};
-   screen='starter';renderStarter();return;
+   pendingInvite={crewId,crewName:crew.name,dropId:journey?.dropId||dropId};
+   if(!journey)saveJourney({kind:dropId?'drop_invite':'crew_invite',phase:dropId?'drop_entry':'member_intro',crewId,dropId,answers:[],startedAt:Date.now()});
+   if(journey?.phase==='starter'){screen='starter';renderStarter();return}
+   if(journey?.phase==='aura'){screen='vibe';render();return}
+   screen=journey?.phase==='drop_entry'?'drop':'crew';await render();if(screen==='drop')setTimeout(startInvitedDropGuide,120);return;
  }
- if(!member){screen=dropId?'joinDrop':'join';render();return}
+ if(!member){
+   if(!firstVisit&&meName){
+     const joined=await api('joinCrew',{method:'POST',body:{crewId,participantId:pid,nickname:meName,provisional:false}});member=joined.member;members.push(member);
+   }else{screen=dropId?'joinDrop':'join';render();return}
+ }
  meName=member.nickname;localStorage.addaName=meName;rememberCrew(crew);
  if(dropId){screen='drop';render();return}
  screen='crew';await render();
- if(localStorage.getItem('addaGuideStarted_'+crewId)==='1'&&localStorage.getItem('addaGuideDone_'+crewId)!=='1'&&!guide.active)setTimeout(startFirstCrewGuide,220);
+ if(!journey&&localStorage.getItem('addaGuideStarted_'+crewId)==='1'&&localStorage.getItem('addaGuideDone_'+crewId)!=='1'&&!guide.active)setTimeout(startFirstCrewGuide,220);
 }catch(e){screen='notfound';render(e.message)}}
 
 function render(err=''){stopPolling();
@@ -354,7 +362,7 @@ async function renderVibe(){
  app.innerHTML=shell(`${top('')}<section class="card addaAuraError" aria-live="polite"><h2>⚡ Loading your earned Aura…</h2><p>Checking your saved points and trophies.</p></section>`);
  let v,partial=false;
  try{
-  if(!getKnownCrews().length)v=await api('getAuraStarter',{params:{participantId:pid}});
+  if(!getKnownCrews().length||journey?.phase==='aura')v=await api('getAuraStarter',{params:{participantId:pid}});
   else try{v=await api('getVibe',{params:{participantId:pid,crewId:crewId||''}})}
   catch(fullError){partial=true;v=await api('getAuraStarter',{params:{participantId:pid}});track('aura_full_fallback',{reason:String(fullError.message||'').slice(0,90)})}
   if(v.starter?.bonusCompleted&&v.score<180)throw Error('Your Starter Aura is still syncing. Retry to load your earned points.');
@@ -408,7 +416,7 @@ async function renderVibe(){
     </section>
   `)
   window._currentVibe=v;
-  if(!getKnownCrews().length&&v.starter?.bonusCompleted&&localStorage.getItem('addaSoloGuideDone_'+pid)!=='1'&&localStorage.getItem('addaGuideTourDone_'+pid)!=='1'&&!soloGuidePending())localStorage.setItem('addaSoloGuidePending_'+pid,'1');
+  if((!getKnownCrews().length||journey?.phase==='aura')&&v.starter?.bonusCompleted&&localStorage.getItem('addaSoloGuideDone_'+pid)!=='1'&&localStorage.getItem('addaGuideTourDone_'+pid)!=='1'&&!soloGuidePending())localStorage.setItem('addaSoloGuidePending_'+pid,'1');
   if(soloGuidePending()&&!guide.active)setTimeout(startSoloGuide,130);
 }
 window._shareVibe=()=>{
@@ -484,11 +492,11 @@ function renderStarter(){
  if(!starterController){
   starterController=createStarterController({
    app,shell,top,api,pid,esc,getKnownCrews,getName:()=>meName,toast,
-   getInvite:()=>pendingInvite,
+   getInvite:()=>journey?.kind?null:pendingInvite,
    onCompleted:()=>{localStorage.addaStarterFinished='1'},
    onEnterInvite:()=>renderInvitedName(),
    onEnterExistingCrew:async id=>window._openKnownCrew(id),
-   onExploreSolo:()=>{localStorage.addaStarterFinished='1';localStorage.setItem('addaSoloGuidePending_'+pid,'1');crewId='';dropId='';crew=null;members=[];drops=[];history.replaceState({},'','/');track('starter_solo_explore',{step:10});screen='vibe';render()},
+   onExploreSolo:()=>{if(journey&&['crew_invite','drop_invite'].includes(journey.kind))saveJourney({...journey,phase:'aura'});localStorage.addaStarterFinished='1';localStorage.setItem('addaSoloGuidePending_'+pid,'1');crewId='';dropId='';crew=null;members=[];drops=[];history.replaceState({},'','/');track('starter_solo_explore',{step:10});screen='vibe';render()},
    onCrewCreated:async(j,nickname)=>{
     crewId=j.crew.id;crew=j.crew;meName=nickname;localStorage.addaName=nickname;
     localStorage.addaStarterFinished='1';rememberCrew(crew);
