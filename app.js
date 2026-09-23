@@ -1071,9 +1071,12 @@ function creatorTools(d){return d.createdBy===pid||(d.firstCrewSeed&&crew?.creat
 window._deleteDrop=async id=>{if(!confirm('Delete this Drop for everyone?'))return;try{await api('deleteDrop',{method:'POST',body:{crewId,dropId:id,participantId:pid}});track('drop_deleted',{dropId:id});dropId='';selected=null;history.replaceState({},'',`/?crew=${crewId}`);screen='crew';render();toast('Drop deleted')}catch(e){toast(e.message)}};
 
 async function renderDrop(){
+  const requestedCrewId=crewId,requestedDropId=dropId;
   clearTimeout(pollTimer);
   if(!crew)await refreshCrew();
-  let j;try{j=await api('getDrop',{params:{crewId,dropId,participantId:pid}})}catch(e){toast(e.message);return}
+  if(screen!=='drop'||crewId!==requestedCrewId||dropId!==requestedDropId)return;
+  let j;try{j=await api('getDrop',{params:{crewId:requestedCrewId,dropId:requestedDropId,participantId:pid}})}catch(e){if(screen==='drop')toast(e.message);return}
+  if(screen!=='drop'||crewId!==requestedCrewId||dropId!==requestedDropId)return;
   const d=j.drop;activeDropType=d.type;
   if(d.type==='short'){
     if(j.myResponse)return renderShortResult(d,j);
@@ -1102,7 +1105,7 @@ function renderWaiting(d,j){
   schedulePoll('poll',()=>{if(screen==='drop')return renderDrop()},5000)
 }
 window._revealNow=async()=>{try{await api('revealDrop',{method:'POST',body:{crewId,dropId,participantId:pid}});sessionStorage.removeItem(`seen_${dropId}`);renderDrop()}catch(e){toast(e.message)}};
-async function revealCountdown(d,j){if(reduced)return renderResult(d,j);for(let n=3;n>=1;n--){app.innerHTML=shell(`${top('Result','crew')}<div class="hero center" style="min-height:420px;display:grid;place-items:center"><div><div class="countdown">${n}</div><h2 style="margin-top:10px">Result ready</h2></div></div>`);await new Promise(r=>setTimeout(r,650))}renderResult(d,j)}
+async function revealCountdown(d,j){const live=()=>screen==='drop'&&dropId===d.id&&crewId===d.crewId;if(!live())return;if(reduced)return renderResult(d,j);for(let n=3;n>=1;n--){if(!live())return;app.innerHTML=shell(`${top('Result','crew')}<div class="hero center" style="min-height:420px;display:grid;place-items:center"><div><div class="countdown">${n}</div><h2 style="margin-top:10px">Result ready</h2></div></div>`);await new Promise(r=>setTimeout(r,650))}if(live())renderResult(d,j)}
 function renderShortResult(d,j){clearTimeout(pollTimer);const entries=j.result?.entries||[];app.innerHTML=shell(`${top('Live answers','crew')}<div class="row between"><span class="chip">${labelType(d.type)}</span>${creatorTools(d)}</div><div class="sp12"></div><div class="questionHero"><span>💬 LIVE ANSWERS</span><h1>${esc(d.question)}</h1><p>${entries.length} repl${entries.length===1?'y':'ies'} so far</p></div><div class="sp12"></div><div class="answerStack">${entries.map(r=>`<div class="answerCard">${identityLink(r.participantId,r.nickname,{avatar:true})}<p>${esc(r.answer)}</p></div>`).join('')}</div><div class="sp12"></div><button class="btn primary" onclick="window._shareDrop('${d.id}')">Share with friends</button>`);schedulePoll('poll',()=>{if(screen==='drop')return renderDrop()},8000)}
 function resultInsights(d,j,byId){
   const ranked=j.result?.ranked||[],total=j.result?.total||0,out=[];
