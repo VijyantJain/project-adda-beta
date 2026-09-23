@@ -851,6 +851,55 @@ function startInvitedDropGuide(){
  const card=document.querySelector('.addaGuideCard'),b=document.createElement('input');b.placeholder='Your display name';b.maxLength=24;b.setAttribute('aria-label','Display name');b.addEventListener('input',()=>{draft=b.value});card?.insertBefore(b,document.getElementById('addaGuideAction'));
 }
 
+
+/* First custom Drop: triggered once by any real Crew Create action, never by system seeds. */
+function startCustomDropGuide(){
+ if(!crewId||!crew)return;
+ if(localStorage.getItem('addaCustomDropGuideDone_'+pid)==='1'&&journey?.phase!=='create_required')return;
+ if(guideActive()&&journey?.phase==='create_tour'&&guide.tour===12)return;
+ if(!journey)saveJourney({kind:'custom',phase:'create_tour',crewId,answers:[],startedAt:Date.now()});
+ else saveJourney({...journey,phase:'create_tour'});
+ guide={active:true,solo:false,journey:true,mode:'transition',originCrewId:crewId,tour:12,profileStage:-1,answers:0,step:0};
+ track('first_custom_drop_guide_started',{crewId,entry:journey.kind});
+ const formats=[
+  ['Quick Answer 💬','Let friends write a short answer—perfect for plans, inside jokes and confessions.'],
+  ['This or That ⚖️','Two choices, one difficult decision. Add two images if you want.'],
+  ['Vote 🗳️','Multiple choices. Watch the real Crew decide together.'],
+  ['Rate ⭐','Five editable labels. Give a plan, look or idea an honest rating.'],
+  ['Predict 🔮','Ask what the Crew thinks will actually happen.'],
+  ["Who’s Most Likely 👀",members.length<2?'Pick a real mate. This unlocks when one more person joins your Crew.':'Pick real mates for an inside joke; everyone must actually be in this Crew.']
+ ];
+ const walk=i=>{
+  if(!guideActive()||journey?.phase!=='create_tour')return;
+  if(i>=formats.length)return guideDisplay('Now pick your format ⚡','Tap one of the six formats below. Who’s Most Likely needs two real mates.','Choose a format →',()=>{guide.mode='create_pick'},'.formats');
+  guideDisplay(formats[i][0],formats[i][1],'Next format →',()=>walk(i+1),'.formats');
+ };
+ walk(0);
+}
+function customPickedType(){
+ if(!journey||journey.phase!=='create_tour'||!guideActive())return;
+ guideDisplay('Ask your Crew something 👀','Write a relatable question. Add options or media if this format needs them. You can edit Rate labels too.','Explain the settings →',()=>{
+  guideDisplay('Reveal & privacy ⚙','Choose when answers reveal, whether names show after reveal, and if mates can change their answers. Each format has its own options.','Build my first Drop →',()=>{
+   guide.mode='create_edit';toast('Fill the real form, then tap Create & share ⚡')
+  },'.createCard')
+ },'.createCard');
+}
+function customDropPublished(id){
+ if(!journey||journey.phase!=='create_tour'||!guideActive())return;
+ guide.mode='publish';
+ guideDisplay('Your first Drop is LIVE! 🔥','You published this real question inside '+crew.name+'. Now invite your friends to answer THIS Drop.','Invite friends to this Drop ↗',()=>{
+  guide.mode='share';
+  const promise=window._shareDrop(id);
+  Promise.resolve(promise).finally(()=>{
+   if(!journey||journey.phase!=='create_tour')return;
+   guideDisplay('Your Drop is safe 💜','The link is yours to share again any time. A share sheet opening does not confirm delivery.','Finish tutorial →',()=>{
+    localStorage.setItem('addaCustomDropGuideDone_'+pid,'1');track('first_custom_drop_guide_completed',{crewId,dropId:id});journeyFinish('Your first custom Drop is live!')
+   },'.appStickyHeader');
+   guide.mode='share';
+  });
+ },'.appStickyHeader');
+}
+
 function renderInvitedName(){
  if(!pendingInvite)return window._home();
  app.innerHTML=shell(`${top('')}<main class="starterInvitedName">
