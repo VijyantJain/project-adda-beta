@@ -155,3 +155,6 @@ Founder chose E2 Explorer 5/300/3000 distinct genuine Crew answers and R3 Regula
 
 ## 2026-09-24 D045 founder identity and full level-curve design
 Hybrid Social Mastery naming + futuristic but performant Aura visuals. Founder wants ENTIRE Aura LEVEL CURVE REBALANCED and all user-facing level names reconsidered (not just beyond 2,000); preserve every earned Aura point and historic reward, version mapping and explain displayed level changes. Collect all legitimately earned title options; users select displayed titles independently within Explorer/Sparkmaker/Regular. Exact thresholds, level naming and 3-path titles still design discussion. Zero v0.8 application implementation approval; original A/B/C sequence maintained. See founder decisions D045.
+
+## 2026-09-24 D046 founder design checkpoint
+Expand exploratory new Aura progression to 25+ levels, full visible name/threshold rebalance and more playful/futuristic achievement titles; keep every earned Aura point and badge but do not preserve old visible Aura level names as collectible by default. Featured user-selected earned profile title AND individual earned titles per path. None of the exact level/name/threshold suggestions are accepted yet. No v0.8 coding; Option A/B/C sequence intact. See D046 founder decisions.
