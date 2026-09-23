@@ -164,3 +164,6 @@ Do not assume the 33-level concept is approved: Aura progression is open-ended, 
 
 ## 2026-09-24 D048 founder checkpoint
 Seven-day rolling hybrid real-activity + unique-mates Crew Pulse selected; exact score and payoff open. Launch 25+ Aura levels with count/thresholds after economy modelling, future named chapters open-ended. Daily Charge completion rule intentionally NOT chosen from earlier options; do not assume 3/3 personal card completion. Founder discussion before A stabilisation, B domain, C final spec; no app code/main change.
+
+## 2026-09-24 D049 Daily Charge decision
+Founder chose CHOOSE YOUR DAILY MISSION with +10 Aura one-time daily completion, and personal Charge completely Crew-INDEPENDENT. Do NOT propose or implement a Social Spark/Creator Mode mission requiring ordinary Crew answer/Drop creation to fill personal Charge; earlier illustrative social routes superseded. Offer solo-only mission choices; up to two genuine social Daily Aura extras still separate and contribute real Crew Pulse but zero personal Charge. Completion thresholds/per-card Aura/timezone unresolved. D040–D048 retained, no code/deploy, A→B→C after discussion.

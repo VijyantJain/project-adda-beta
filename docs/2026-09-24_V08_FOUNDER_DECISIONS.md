@@ -185,3 +185,22 @@ OPEN for founder discussion: choose practical LAUNCH CHAPTER count/levels and fl
 **Unresolved Crew Pulse mechanics:** rolling exact 168-hour window vs recent seven declared calendar dates; genuine Drop answers/created Drops, unique mate counts, minimum 2-mate fallback, disproportionate one-member farming, score weights and concrete honest milestone payoff. Existing original all-time Recap remains distinct.
 
 **Unresolved Aura economics:** new personal card base Aura and Charge bonus; +10 per unique Crew answer, +30 per actual authored Drop, up to 180 Starter, +50/+300/+1500 achievement Star bonuses and retro backfill; trustworthy analytics distribution before choosing long-horizon thresholds.
+
+
+## D049 — Founder selects choice-driven SOLO Daily Charge and +10 once/day (2026-09-24)
+
+FOUNDER CONFIRMED, DESIGN ONLY / NO V0.8 CODING:
+1. **Choose Your Daily Mission:** participant chooses an available personal mission pathway each day rather than a compulsory fixed 3-card checklist. Exact available mission presets, when choice locks/reselects, counts/difficulty and UI still require founder approval.
+2. **Daily Charge is ENTIRELY INDEPENDENT OF CREW.** Qualifying Charge actions and completion must be individually playable with ZERO Crew, ZERO active mates, ZERO social responses or real-activity extras. A Crew answer, Crew Drop creation, share or invitation CANNOT be necessary or contribute Charge credit under this founder rule. The earlier illustrative Social Spark / Creator Mode missions that REQUIRED a Crew action are explicitly superseded as Charge choices. Social extras (up to two genuine Crew activities) remain optional Daily Aura content and earn normal action Aura/Crew Pulse where legitimate, but NO personal Charge credit or second Charge completion. “Choose Your Daily Mission” is a SOLO choice among variants such as Quick Play (personal opinions), Creative Spark (personal micro-creation/private writing) and Discover (personal themed/surprise prompts); exact labels/number/reward equivalence are OPEN.
+3. **Once-daily Daily Charge completion bonus = +10 Aura**, separate from any approved ordinary personal-card base Aura; one confirmed Charge-completed day (source for The Regular Star II/III); cannot replay reward by retrying, switching mission, timezone change or completing extra daily cards. The base Aura award PER personal daily card, qualification threshold, time/day definition, daily deck content and replay/edit semantics are pending. Avoid asserting already approved separate +10-per-card. No Capsules in v0.8 (v0.8.x per D040).
+4. D041 three guaranteed personal cards + up to two GENUINE real-activity extras remains intact. The user may complete Charge via the chosen solo mission without necessarily finishing all three guaranteed personal cards if the final selected mission definition permits; unopened daily personal cards may still be answered once. D048 rolling seven-day hybrid Crew Pulse is independently measured from genuine Crew activity plus unique mates and is unaffected by a solo Daily Charge.
+5. Preservation: all earned Aura/badges and genuine Crew records untouched, D043 +50/+300/+1500 once per Star unchanged, D044 Explorer/Sparkmaker/Regular targets unchanged, no fictitious pre-v0.8 Charge backfill. No data/model/API implementation or deployment permission.
+
+PENDING DESIGN:
+A. Mission menu: 2–3 distinct SOLO pathways that each earn exactly ONE daily completion at broadly comparable effort; category selection, fallback for interest exclusions/low content, accessibility/skip.
+B. Completion rules: 1 vs 2 personal actions, meaningful writing vs one-tap fairness, whether switching mission mid-day is allowed, fixed chosen route vs nonexclusive completion, effect on 3 available personal daily cards.
+C. Economic model: per-personal-card earned Aura and daily cap in addition to fixed +10 completion; potential legacy share/visit farming and expected returns for 25+ initial Aura levels.
+D. Charging day/time zone: server-authoritative one completion/day, explicit local day/time zone policy and travelling/timezone-change anti-double-credit.
+E. No forced Crew actions, fabricated percentages, paid Capsule/Gems claims or secretly added group Daily Charge reward.
+
+D049 supersedes any example in earlier notes that suggested Crew/social/creator Drop activity may count toward or be required for personal Daily Charge. Group participation continues as separate optional extras and rolling Crew Pulse.
