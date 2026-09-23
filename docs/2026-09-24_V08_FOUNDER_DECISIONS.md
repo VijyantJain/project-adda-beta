@@ -129,3 +129,21 @@ Completing the first 3-star achievements yields 3 * (50+300+1500) = **5,550** cu
 6. Founder-approved visual/icon naming map and accessibility/performance fallback before implementation.
 
 Status: DECIDED TARGETS / NAMING-DISCUSSION ONLY. No v0.8 code change or deployment authorisation. Supersedes all E1/E3, R1/R2 and earlier E2/R3 target alternatives without deleting their historical consideration.
+
+
+## D045 — Founder locks hybrid language/visuals, Aura display-curve rebalance and collectible titles (2026-09-24)
+
+Confirmed design choices, **NOT code or migration authorisation**:
+1. **Hybrid design system:** warm, human, globally legible **Social Mastery** naming and core Adda brand/interaction design, with futuristic luminous Aura visual language (Orb/glass/glow/rare celebration) as progressively enhanced accents. Do not copy PROXIMA brand or replace Adda with an impersonal science-fiction app. Preserve real overlapping mate avatars, legibility, low-end fallback and reduced motion. Exact individual names/icons/Orb implementation still OPEN.
+2. **Rebalance FULL user-visible Aura level curve**, not just extend existing 2,000 ceiling. Every participant's ORIGINAL EARNED AURA POINTS and all base activity/reward history remain intact. The previously documented thresholds (0,10,25,45,60,100,150,300,600,1000,2000) are LEGACY, not automatically retained. Future numerical thresholds, all visible level names, level counts and mapping of current users to recalibrated levels are UNAPPROVED pending real-score distribution and founder review. No score overwrite, retroactive subtraction, legacy milestone deletion, silently asserted old level entitlement or misleading old/new level comparison. Achievement +50/+300/+1500 rewards and v0.8 scoped migration must account for display-level jumps. New level definition should be versioned and communicate level-number/title changes to existing beta participants.
+3. **Collect every earned title**, not only the highest title. Allow the person to choose a displayed TITLE independently for EACH achievement path (Explorer, Sparkmaker, The Regular) among titles genuinely earned in that path. User may separately choose an optional featured title for profile header if founder approves that display, but NEVER expose locked titles as earned. Stars/individual path progress always represent genuine qualification. Do not conflate chosen display title with automatic global Aura level title or existing Starter achievement badges.
+4. **No v0.8 code yet.** Field-test stabilisation (Option A), affordable domain/web path (B), then consolidated v0.8 SRS/roadmap (C) follow completion of this founder discussion.
+
+### Reconciliation
+D044 invited three complete naming systems; D045 selects the HYBRID direction, so A/B/C naming-system comparison is concluded but INDIVIDUAL achievement and Aura LEVEL names remain a creative review. D044 says level threshold rebalance not approved; D045 supersedes this: the **INTENT to rebalance the entire displayed threshold curve IS approved**, but numeric mapping and implementation remain unapproved. D042-D044 exact achievement path logic/targets and D043 per-star Aura bonuses remain unchanged. Gemini/AI, full 3D orb, DMs/Arena, full Mystery Reveal Chain, Gems UI and cosmetic store are NOT thereby approved.
+
+### Pending founder design approval
+- Complete unified naming set: three achievement path names, nine earned star titles, 11+ revised Aura level titles, avoid collisions with Starter trophies and Aura "Legend"; allow translations without changing internal stable IDs.
+- A modelled level curve, considering existing 180 Starter, base Crew answer +10, authored Drop +30, the full 5,550 maximum achievement bonus and realistic daily Aura+Charge budget. Use privacy-safe observed score distribution where accessible; do not pretend to have fetched founder-only analytics. Decide how to recognise historic legacy level labels without promising a permanent preserved numeric level.
+- Featured profile title selection vs three per-path titles, and optional display/title privacy; visual fit at 320px width.
+- Orb visual scope (static/lightweight first, full interactive 3D later), assets ownership, performance/reduced-motion fallbacks.
