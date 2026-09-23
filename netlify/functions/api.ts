@@ -629,14 +629,83 @@ export default async (req: Request, context: Context) => {
       const name = clean(body.name, 42);
       const nickname = clean(body.nickname, 24);
       if (!name || !nickname) return bad("Crew name and your name are required.");
-      const crewId = id("c_");
       const participantId = clean(body.participantId, 40) || id("p_");
-      const crew = { id:crewId, name, createdAt:now(), createdBy:participantId };
-      await store.setJSON(`crew/${crewId}`, crew);
-      await store.setJSON(`member/${crewId}/${participantId}`, { id:participantId, nickname, joinedAt:now() });
-      return ok({ crew, participantId });
+      const requestKey=clean(body.requestKey,80);
+      const stable=/^[a-zA-Z0-9_-]{12,80}$/.test(requestKey);
+      const crewId=stable?"c_"+createHash("sha256").update(participantId+":"+requestKey).digest("hex").slice(0,10):id("c_");
+      const prior=await getJSON(store,`crew/${crewId}`);
+      if(prior){
+        const mk=`member/${crewId}/${participantId}`;
+        if(!await getJSON(store,mk))await store.setJSON(mk,{id:participantId,nickname,joinedAt:prior.createdAt,provisional:false});
+        return ok({crew:prior,participantId,reused:true,firstCreated:prior.firstCreatorCrew===true});
+      }
+      const previous=(await listJSON(store,"crew/",10000)).some((x:any)=>x.createdBy===participantId);
+      const crew = {id:crewId,name,createdAt:now(),createdBy:participantId,firstCreatorCrew:!previous};
+      await store.setJSON(`crew/${crewId}`,crew);
+      await store.setJSON(`member/${crewId}/${participantId}`,{id:participantId,nickname,joinedAt:crew.createdAt,provisional:false});
+      return ok({crew,participantId,reused:false,firstCreated:!previous});
     }
 
+
+    // v0.7.3: server-side first-created-Crew seed pack. Stable IDs make network retries safe.
+    if(action==="seedFirstCrew"&&req.method==="POST"){
+      const crewId=clean(body.crewId,40),participantId=clean(body.participantId,40);
+      const crew=await getJSON(store,`crew/${crewId}`);
+      if(!crew||crew.createdBy!==participantId)return bad("Only the creator can prepare their first Crew.",403);
+      if(crew.firstCreatorCrew!==true)return bad("This guided starter pack is for the first created Crew only.",400);
+      const member=await getJSON(store,`member/${crewId}/${participantId}`);
+      if(!member)return bad("Join the Crew first.",403);
+      const allowed=["rides","style","music","food","travel","memes","fitness"];
+      const interests=Array.isArray(body.interests)?body.interests.filter((x:any)=>allowed.includes(x)).slice(0,2):[];
+      if(interests.length!==2||interests[0]===interests[1])return bad("Choose two different interests.");
+      const saved=await getJSON(store,`crewSeeds/v1/${crewId}`);
+      if(saved?.interests?.length===2&&saved.interests.join("/")!==interests.join("/"))
+        return bad("This Crew's first five are already saved; refresh to see them.");
+      const packs:any={
+        rides:{a:["Road trip NOW: which ride gets your keys? 🏍️","Sportbike chaos ⚡","Sunset cruiser 🌅"],b:["What's the ultimate ride-day vibe?","Open highway","Mountain hairpins","Track day"]},
+        style:{a:["Your big entrance look? ✨","Bold statement fit","Clean quiet luxury"],b:["Choose the crew dress code 👟","Streetwear","Full glam","Comfy classics"]},
+        music:{a:["One concert pass! 🎵","Front row screaming","Rooftop unplugged"],b:["Who's controlling the AUX tonight?","The DJ friend","The driver","Democratic playlist"]},
+        food:{a:["Midnight hunger mission? 🍟","Street-food crawl","Dessert café"],b:["What are we ordering for the gang?","Pizza","Momos","Chaat"]},
+        travel:{a:["48-hour getaway. Where to? 🌊","Mountains","Beach"],b:["Crew's next escape?","Road trip","Train adventure","Last-minute flight"]},
+        memes:{a:["Biggest group-chat crime? 😂","Leaving on read","57 reels at once"],b:["Choose our Crew's chaos style","Roast battle","Cursed memes","Bad karaoke"]},
+        fitness:{a:["Perfect match day? 🏏","Watch from the stands","Play it ourselves"],b:["Crew challenge of the month?","Weekend cricket","Morning run","Badminton battle"]}
+      };
+      const a=packs[interests[0]],b=packs[interests[1]];
+      const pack=[
+        {type:"either",question:a.a[0],options:a.a.slice(1)},
+        {type:"vote",question:b.b[0],options:b.b.slice(1)},
+        {type:"short",question:"One crazy thing this Crew MUST do this year? 👀",options:[]},
+        {type:"rate",question:"Rate our gang's ability to make plans happen 😂",options:["😬 Zero","😕 Rare","🙂 Sometimes","😍 Often","🔥 Legendary"]},
+        {type:"predict",question:"Will this Crew actually meet this weekend? 🔮",options:["Yes","No"]}
+      ];
+      const createdAt=Date.parse(crew.createdAt)||Date.now();
+      const seeded:any[]=[];
+      for(let i=0;i<pack.length;i++){
+        const p=pack[i],dropId=`d_gc${i+1}_${crewId.slice(2)}`;
+        const key=`drop/${crewId}/${dropId}`,ts=new Date(createdAt+i+1).toISOString();
+        let d=await getJSON(store,key);
+        if(!d){
+          d={id:dropId,crewId,type:p.type,question:p.question,
+            options:p.options.map((label:string,j:number)=>({id:p.type==="rate"?String(j+1):`o${j+1}`,label})),
+            mediaA:"",mediaB:"",createdBy:participantId,creatorName:member.nickname,createdAt:ts,
+            thresholdMode:"count",thresholdCount:2,memberCountAtCreate:1,
+            showNames:false,allowChange:true,status:"open",starterPack:true,seedKind:"first_creator_interest",interest:i<2?interests[i]:""};
+          await store.setJSON(key,d);
+        }
+        await store.setJSON(`dropIndex/${crewId}/${d.createdAt}-${dropId}`,{dropId,createdAt:d.createdAt});
+        seeded.push({id:dropId,type:d.type,interest:d.interest||""});
+      }
+      if(!saved)await store.setJSON(`crewSeeds/v1/${crewId}`,{crewId,interests,drops:seeded,at:now()});
+      return ok({crewId,interests:saved?.interests||interests,drops:seeded,alreadySeeded:!!saved});
+    }
+    if(action==="customDropStatus"){
+      const participantId=clean(url.searchParams.get("participantId"),40);
+      if(!/^p_[a-zA-Z0-9]{6,40}$/.test(participantId))return bad("Invalid participant.");
+      const recorded=await getJSON(store,`customDrop/v1/${participantId}`);
+      if(recorded)return ok({hasCustom:true,firstDropId:recorded.dropId});
+      const old=(await listJSON(store,"drop/",10000)).find((d:any)=>d.createdBy===participantId&&!d.starterPack);
+      return ok({hasCustom:!!old,firstDropId:old?.id||""});
+    }
     if (action === "joinCrew" && req.method === "POST") {
       const crewId=clean(body.crewId,40),nickname=clean(body.nickname,24);
       const participantId=clean(body.participantId,40)||id("p_");
@@ -716,7 +785,15 @@ export default async (req: Request, context: Context) => {
         const labels=defaults.map((d,i)=>custom[i]||d);
         options=labels.map((label,i)=>({id:String(i+1),label}));
       }
-      const dropId=id("d_");
+      const requestKey=clean(body.requestKey,80);
+      const stable=/^[a-zA-Z0-9_-]{12,80}$/.test(requestKey);
+      const dropId=stable?"d_"+createHash("sha256").update(crewId+":"+participantId+":"+requestKey).digest("hex").slice(0,10):id("d_");
+      const existing=await getJSON(store,`drop/${crewId}/${dropId}`);
+      if(existing){
+        if(existing.createdBy!==participantId)return bad("This Drop belongs to another creator.",403);
+        await store.setJSON(`dropIndex/${crewId}/${existing.createdAt}-${dropId}`,{dropId,createdAt:existing.createdAt});
+        return ok({drop:existing,reused:true});
+      }
       const thresholdMode = body.thresholdMode === "everyone" ? "everyone" : body.thresholdMode === "manual" ? "manual" : "count";
       const thresholdCount = Math.max(2, Math.min(20, Number(body.thresholdCount)||3));
       const currentMembers = await listJSON(store,`member/${crewId}/`,100);
@@ -727,7 +804,9 @@ export default async (req: Request, context: Context) => {
       const drop={id:dropId,crewId,type,question,options,mediaA,mediaB,createdBy:participantId,creatorName:member.nickname,createdAt:now(),thresholdMode,thresholdCount,memberCountAtCreate,showNames,allowChange,status:"open"};
       await store.setJSON(`drop/${crewId}/${dropId}`,drop);
       await store.setJSON(`dropIndex/${crewId}/${drop.createdAt}-${dropId}`,{dropId,createdAt:drop.createdAt});
-      return ok({drop});
+      const firstKey=`customDrop/v1/${participantId}`;
+      if(!await getJSON(store,firstKey))await store.setJSON(firstKey,{dropId,crewId,at:drop.createdAt});
+      return ok({drop,reused:false});
     }
 
     if (action === "listDrops") {
