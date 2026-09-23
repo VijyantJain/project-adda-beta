@@ -33,3 +33,6 @@ v0.7.1 adds user-facing Aura, non-skippable in-app guide, optional local avatars
 Direct Tenacious automatically launches real-scored Aura and a resumable Aura→Home→Crew-explainer→+ explainer→guided Profile mission. getAuraStarter returns first-session points/badges without scanning every Crew. New users see Starter v3, bundled 24 real-photo scenes with original local SVG fallback; v1/v2 Starter progress and original Crew/Drop/chat/media persist unchanged. Preview only; high-resolution asset/license audit, mobile E2E and verified accounts are separate gates. See [release protocol](docs/RELEASE_v0.7.2.md), [115-feature checklist](docs/FEATURE_SPEC_CHECKLIST.md), and [photo registry](docs/CONTENT_ASSET_REGISTRY.md).
 
 Static regression suite: `npm test`. It is NOT a substitute for real iPhone/Android end-to-end testing. Production main is not merged.
+
+### Current v0.7.3 field-test preview
+The Crew/Drop onboarding changes are now on the development preview, not production main. See [release evidence and unresolved device QA](docs/RELEASE_v0.7.3.md); v0.7.2 recoverable at commit `8b1da1789c2e7bad6110c6bdafbf911b1b11b377`. Foundational v0.8 and domain release are NOT bundled. Complete three-entry field tests before production acceptance.
