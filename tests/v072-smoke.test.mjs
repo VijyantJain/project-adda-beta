@@ -35,6 +35,6 @@ test('Netlify persistent store identities remain unchanged',()=>{
  assert.match(api,/FIELD_TEST_STORE="adda-v05-fieldtest"/);assert.match(api,/name:"adda-v03"/);
  assert.match(css,/addaAuraBreakdown/);
 });
-test('feature checklist count remains canonical 115',()=>{
- assert.equal([...read('docs/FEATURE_SPEC_CHECKLIST.md').matchAll(/\*\*[PDCVA]-\d{3}\*\*/g)].length,115);
+test('v0.7.3 feature checklist retains 128 canonical IDs',()=>{
+ assert.equal([...read('docs/FEATURE_SPEC_CHECKLIST.md').matchAll(/\*\*[PDCVA]-\d{3}\*\*/g)].length,128);
 });

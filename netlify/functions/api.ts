@@ -635,7 +635,13 @@ export default async (req: Request, context: Context) => {
       if(interests.length!==2||interests[0]===interests[1]||interests.some((x:string)=>!allowed.includes(x)))return bad("Choose two different interests.");
       const existing=(await listJSON(store,`drop/${crewId}/`,100)).filter((x:any)=>x.starterPack===true);
       if(existing.length>=5)return ok({crew,seeded:5,reused:true,interestDropIds:existing.filter((x:any)=>x.seedInterest).map((x:any)=>x.id)});
-      if(!crew.firstCreatedCrew||!Array.isArray(crew.seedInterests)&&existing.length)return bad("This Crew cannot be re-seeded.",409);
+      if(!crew.firstCreatedCrew){
+        const authored=(await listJSON(store,"crew/",2000)).filter((x:any)=>x.createdBy===participantId).sort((a:any,b:any)=>String(a.createdAt).localeCompare(String(b.createdAt)));
+        const hasAny=(await listJSON(store,`drop/${crewId}/`,100)).length>0;
+        if(hasAny||authored[0]?.id!==crewId)return bad("This is not a first-created empty Crew.",409);
+        crew.firstCreatedCrew=true;await store.setJSON(`crew/${crewId}`,crew);
+      }
+      if(!Array.isArray(crew.seedInterests)&&existing.length)return bad("Existing seed must be recovered with its original interests.",409);
       const bank:any={
        rides:{either:["Sportbike or cruiser: which keys? 🏍️","Sportbike","Cruiser"],vote:["Road trip AUX: who gets control? 🎧","Driver","DJ friend","Me","Shuffle"]},
        style:{either:["Your entrance: which look? ✨","Streetwear","Classy"],vote:["Dress code for our next plan? 👀","All black","Statement fit","Comfy","Surprise"]},
@@ -848,7 +854,7 @@ export default async (req: Request, context: Context) => {
       const crewId=clean(body.crewId,40), dropId=clean(body.dropId,40), participantId=clean(body.participantId,40);
       const drop=await getJSON(store,`drop/${crewId}/${dropId}`);
       if(!drop) return bad("Drop not found.",404);
-      if(drop.createdBy!==participantId) return bad("Only the creator can delete this Drop.",403);
+      if(drop.createdBy!==participantId&&!(drop.firstCrewSeed&&(await getJSON(store,`crew/${crewId}`))?.createdBy===participantId)) return bad("Only the creator can delete this Drop.",403);
       const { blobs:responseBlobs } = await store.list({ prefix:`response/${crewId}/${dropId}/` });
       await Promise.all(responseBlobs.map((b:any)=>store.delete(b.key)));
       if(drop.mediaA) await store.delete(drop.mediaA); if(drop.mediaB) await store.delete(drop.mediaB);
