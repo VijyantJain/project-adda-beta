@@ -206,8 +206,8 @@ window._surprise=t=>{
   if(t==='vote'){['#o1','#o2','#o3'].forEach((id,i)=>{if($(id))$(id).value=item[i+1]||''})}
 };
 
-window._shareCrew=()=>{if(!crewId||!crew)return;track('crew_shared',{crewId});share(`${location.origin}/?crew=${crewId}&utm_source=adda&utm_medium=share&utm_campaign=crew`,`Oye! ${crew.name} ka Adda khul gaya 😂🔥 Gang ke sawaal ready hain, ab tere legendary answers ka wait hai! Aaja dekhte hain kaun kitna shareef hai 👀`)};
-window._shareDrop=(id)=>{track('drop_shared',{dropId:id});share(`${location.origin}/?crew=${crewId}&drop=${id}&utm_source=adda&utm_medium=share&utm_campaign=drop`,`Bhai ek sawaal hai aur tera answer jaan-na zaroori hai 😂 Pehle answer kar, phir dekhte hain ${crew?.name||'gang'} ka scene 👀🔥`)};
+window._shareCrew=()=>{if(!crewId||!crew)return;track('crew_shared',{crewId});return share(`${location.origin}/?crew=${crewId}&utm_source=adda&utm_medium=share&utm_campaign=crew`,`Oye! ${crew.name} ka Adda khul gaya 😂🔥 Gang ke sawaal ready hain, ab tere legendary answers ka wait hai! Aaja dekhte hain kaun kitna shareef hai 👀`)};
+window._shareDrop=(id)=>{track('drop_shared',{dropId:id});return share(`${location.origin}/?crew=${crewId}&drop=${id}&utm_source=adda&utm_medium=share&utm_campaign=drop`,`Bhai ek sawaal hai aur tera answer jaan-na zaroori hai 😂 Pehle answer kar, phir dekhte hain ${crew?.name||'gang'} ka scene 👀🔥`)};
 
 async function boot(){try{
  if(profileId){screen='publicVibe';render();return}
@@ -1013,6 +1013,7 @@ function renderCreate(){
   ];
   const settings=revealSettingsHtml(type);
   app.innerHTML=shell(`${top('Create a Drop','crew')}<div class="createHero"><div><h1>What do you want from the Crew?</h1></div><span class="sparkle">✦</span></div><div class="sp12"></div><div class="formats">${cards.map(x=>`<button data-type="${x[0]}" class="format ${type===x[0]?'on':''} ${x[0]==='likely'&&members.length<2?'locked':''}" onclick="window._type('${x[0]}')"><span class="fic">${x[1]}</span><span class="ftxt"><b>${x[2]}</b><small>${x[3]}</small></span></button>`).join('')}</div>${members.length<2?'<p class="sub" style="margin-top:7px">Most Likely unlocks after one mate joins.</p>':''}<div class="sp12"></div><div class="card createCard"><div class="field"><div class="row between"><label>${questionLabel(type)}</label><button type="button" class="surpriseBtn" onclick="window._surprise('${type}')">🎲 Surprise me</button></div><textarea id="q" maxlength="120" placeholder="${placeholder(type)}">${esc(selected?.question||'')}</textarea></div>${extraFields(type)}${settings}<div class="sp18"></div><button class="btn primary" onclick="window._publish()">Create & share</button></div>`);
+ if(!guideActive()&&!localStorage.getItem('addaCustomDropGuideDone_'+pid)&&(journey?.phase==='create_tour'||(!journey&&!(localStats().drop_created>0))))setTimeout(startCustomDropGuide,120);
 }
 function questionLabel(t){if(t==='short')return 'Ask your Crew';if(t==='rate')return 'What should your Crew rate?';if(t==='predict')return 'What should they predict?';return 'What do you want to ask?'}
 function placeholder(t){return t==='short'?'What’s the plan for tonight?':t==='likely'?"Who’s most likely to cancel the plan?":t==='either'?'Chai or coffee?':t==='vote'?'Where should we go this weekend?':t==='predict'?'Will we actually meet this weekend?':'Rate our last hangout'}
@@ -1026,19 +1027,38 @@ function extraFields(t){
   }
   return ''
 }
-window._type=t=>{if(t==='likely'&&members.length<2)return toast('Most Likely unlocks after one mate joins');const prev=selected?.type||(members.length<2?'short':'likely');if(prev!==t)resetMedia();selected={type:t,question:$('#q')?.value||''};renderCreate()};
+window._type=t=>{if(t==='likely'&&members.length<2)return toast('Most Likely unlocks after one mate joins');const tutorial=guideActive()&&journey?.phase==='create_tour'&&guide.mode==='create_pick';const prev=selected?.type||(members.length<2?'short':'likely');if(prev!==t)resetMedia();selected={type:t,question:$('#q')?.value||''};if(tutorial)guide.mode='transition';renderCreate();if(tutorial)setTimeout(customPickedType,120)};
 window._setReveal=(mode,count)=>{window._thresholdMode=mode;window._thresholdCount=count;renderCreate()};
 window._toggleDropSettings=()=>{window._showDropSettings=!window._showDropSettings;renderCreate()};
 window._publish=async()=>{
-  const type=selected?.type||(members.length<2?'short':'likely'),question=$('#q').value.trim();
-  const firstReveal=dynamicRevealOptions()[0];const aState=mediaState('A'),bState=mediaState('B');if(aState.uploading||bState.uploading)return toast('Let the image finish uploading first');const body={crewId,participantId:pid,type,question,thresholdMode:window._thresholdMode||firstReveal.mode,thresholdCount:window._thresholdCount??firstReveal.count??2,showNames:window._showNames===true,allowChange:window._allowChange!==false,mediaA:aState.ref||'',mediaB:type==='either'?(bState.ref||''):''};
-  if(type==='either'){body.optionA=$('#a')?.value;body.optionB=$('#b')?.value}
-  if(type==='vote'){body.options=[$('#o1')?.value,$('#o2')?.value,$('#o3')?.value]}
-  if(type==='rate'){body.ratingLabels=window._ratingLabels||undefined}
-  try{const j=await api('createDrop',{method:'POST',body});track('drop_created',{type});dropId=j.drop.id;history.replaceState({},'',`/?crew=${crewId}&drop=${dropId}`);screen='drop';selected=null;window._thresholdMode=null;window._thresholdCount=null;window._showNames=false;window._allowChange=true;window._showDropSettings=false;window._showRatingLabels=false;window._ratingLabels=null;resetMedia();render();setTimeout(()=>window._shareDrop(dropId),500)}catch(e){toast(e.message)}
+ const type=selected?.type||(members.length<2?'short':'likely'),question=$('#q')?.value.trim();
+ const firstReveal=dynamicRevealOptions()[0],aState=mediaState('A'),bState=mediaState('B');
+ if(aState.uploading||bState.uploading)return toast('Let the image finish uploading first');
+ const requestKey='addaDropCreateRequest_'+pid+'_'+crewId,requestId=localStorage.getItem(requestKey)||crypto.randomUUID();localStorage.setItem(requestKey,requestId);
+ const body={crewId,participantId:pid,requestId,type,question,thresholdMode:window._thresholdMode||firstReveal.mode,
+  thresholdCount:window._thresholdCount??firstReveal.count??2,showNames:window._showNames===true,
+  allowChange:window._allowChange!==false,mediaA:aState.ref||'',mediaB:type==='either'?(bState.ref||''):''};
+ if(type==='either'){body.optionA=$('#a')?.value;body.optionB=$('#b')?.value}
+ if(type==='vote'){body.options=[$('#o1')?.value,$('#o2')?.value,$('#o3')?.value]}
+ if(type==='rate')body.ratingLabels=window._ratingLabels||undefined;
+ const button=document.querySelector('.createCard .btn.primary');if(button?.disabled)return;
+ if(button){button.disabled=true;button.textContent='Publishing your Drop…'}
+ try{
+  const result=await api('createDrop',{method:'POST',body});
+  if(!result.reused)track('drop_created',{type});
+  localStorage.removeItem(requestKey);
+  const newId=result.drop.id,tutorial=journey?.phase==='create_tour';
+  dropId=newId;history.replaceState({},'',`/?crew=${crewId}&drop=${newId}`);screen='drop';
+  selected=null;window._thresholdMode=null;window._thresholdCount=null;window._showNames=false;
+  window._allowChange=true;window._showDropSettings=false;window._showRatingLabels=false;window._ratingLabels=null;resetMedia();
+  if(tutorial)guide.mode='publish';
+  await render();
+  if(tutorial)customDropPublished(newId);
+  else toast('Your Drop is live! Tap Share Drop to invite mates.');
+ }catch(e){toast(e.message);if(button){button.disabled=false;button.textContent='Create & share'}}
 };
 
-function creatorTools(d){return d.createdBy===pid?`<button class="deleteLink" onclick="window._deleteDrop('${d.id}')">Delete Drop</button>`:''}
+function creatorTools(d){return d.createdBy===pid||(d.firstCrewSeed&&crew?.createdBy===pid)?`<button class="deleteLink" onclick="window._deleteDrop('${d.id}')">Delete Drop</button><button class="chip chipBtn" onclick="window._shareDrop('${d.id}')">↗ Share Drop</button>`:''}
 window._deleteDrop=async id=>{if(!confirm('Delete this Drop for everyone?'))return;try{await api('deleteDrop',{method:'POST',body:{crewId,dropId:id,participantId:pid}});track('drop_deleted',{dropId:id});dropId='';selected=null;history.replaceState({},'',`/?crew=${crewId}`);screen='crew';render();toast('Drop deleted')}catch(e){toast(e.message)}};
 
 async function renderDrop(){
