@@ -714,6 +714,143 @@ function guideProfileSaved(p){
  },160)
 }
 
+
+/* v0.7.3 resumable Crew-specific activation. The first-time Aura guide remains separate. */
+function journeyGuideOn(){
+ if(!journey||!crewId||journey.crewId!==crewId)return false;
+ guide={active:true,solo:false,journey:true,mode:'transition',step:0,answers:0,lastDrop:'',originCrewId:crewId,tour:11,profileStage:-1};
+ return true;
+}
+function resumeJourney(){
+ if(!journey||journey.crewId!==crewId||guideActive()||screen!=='crew')return;
+ if(!journeyGuideOn())return;
+ if(['crew_intro','member_intro'].includes(journey.phase))return journeyCrewWelcome();
+ if(journey.phase==='seed_interests'||journey.phase==='seeding')return journeyChooseInterests();
+ if(journey.phase==='crew_answers')return journeyNextDrop();
+ if(journey.phase==='create_required')return journeyCreateCTA();
+ guide.active=false;
+}
+function journeyCrewWelcome(){
+ if(!journey||!guideActive())return;
+ const creator=journey.kind==='creator';
+ const steps=[
+  [creator?'Your first Crew is LIVE! 👥':'Welcome to '+crew.name+'! 👥',creator?'Your very own gang now has a place on Adda. Your real Crew membership adds Aura.':'You are in the real Crew your friend invited you to. Let us show you around.','.crewStickyName'],
+  ['This Crew has a name and invite ↗','Invite people when you want their REAL choices. Only actual mates can answer its Drops.','.invitePill'],
+  ['Chat 💬','Group chat for this Crew. Every Crew has its own conversations.','.chatModule'],
+  ['Recap ✨','The Crew’s real Drops, answers and highlights—not made-up stats.','.crewModules button:nth-child(2)'],
+  ['Your mates 👥','See every person in this Crew and who created it.','.crewModules button:nth-child(3)']
+ ];
+ if(creator)steps.push(['Crew Settings ⚙','As this Crew’s creator, you can manage its name, membership and settings.','.crewModules button:nth-child(4)']);
+ steps.push(['Drops ⚡','Fun questions you actually answer together. Your unanswered Drops stay above those you have already answered.','.drop']);
+ steps.push(['Create +','A Drop is a question you create for your own Crew. We will show you how to make your first one.','.nav5 button:nth-child(3)']);
+ const walk=i=>{
+  if(!guideActive())return;
+  if(i>=steps.length){
+   if(creator){saveJourney({...journey,phase:'seed_interests'});journeyChooseInterests()}
+   else if(drops.some(d=>!d.myResponse)){saveJourney({...journey,phase:'crew_answers',answers:journey.answers||[]});journeyNextDrop()}
+   else journeyStartStarter();
+   return;
+  }
+  const [title,body,target]=steps[i];guideDisplay(title,body,'Next →',()=>walk(i+1),target);
+ };
+ walk(0);
+}
+function journeyChooseInterests(){
+ if(!journey||journey.kind!=='creator'||!journeyGuideOn())return;
+ const list=[['rides','🏍️ Wheels'],['style','✨ Style'],['music','🎧 Music'],['food','🍕 Food'],['travel','🏖️ Travel'],['memes','😂 Memes'],['fitness','🏏 Sports']];
+ const picked=Array.isArray(journey.interests)?journey.interests.slice(0,2):[];
+ if(!picked.length&&localProfile().interest)picked.push(localProfile().interest);
+ guideDisplay('Pick TWO things your gang loves 🔥','Your top two picks will inspire two of your five real shared Drops.','Create my five Drops →',async()=>{
+   if(picked.length!==2){toast('Choose two interests');journeyChooseInterests();return}
+   saveJourney({...journey,phase:'seeding',interests:picked});
+   guideDisplay('Preparing your Crew ⚡','Saving five real, different Drops. Your choices will survive a retry.','Retry if needed →',()=>journeyChooseInterests(),'.crewModules');
+   try{
+    const result=await api('seedFirstCrew',{method:'POST',body:{crewId:journey.crewId,participantId:pid,interests:picked}});
+    crew=result.crew;saveJourney({...journey,phase:'crew_answers',interestDropIds:result.interestDropIds||[],answers:journey.answers||[]});
+    removeGuide();await refreshDrops();await renderCrew();journeyNextDrop();
+   }catch(e){toast(e.message);saveJourney({...journey,phase:'seed_interests',interests:picked});journeyChooseInterests()}
+ },'.crewModules');
+ const card=document.querySelector('.addaGuideCard'),next=document.getElementById('addaGuideAction');if(!card||!next)return;
+ const grid=document.createElement('div');grid.className='addaInterestGrid addaCrewInterestGrid';
+ list.forEach(([key,label])=>{const btn=document.createElement('button');btn.type='button';btn.className='addaInterestPick';btn.textContent=label;const sync=()=>{btn.classList.toggle('selected',picked.includes(key));btn.setAttribute('aria-pressed',String(picked.includes(key)))};sync();btn.addEventListener('click',()=>{const ix=picked.indexOf(key);if(ix>=0)picked.splice(ix,1);else{if(picked.length===2)picked.shift();picked.push(key)}grid.querySelectorAll('button').forEach(b=>b.classList.toggle('selected',picked.includes(b.dataset.interest)));next.disabled=picked.length!==2});btn.dataset.interest=key;grid.appendChild(btn)});
+ card.insertBefore(grid,next);next.disabled=picked.length!==2;
+}
+function journeyNextDrop(){
+ if(!journey||journey.phase!=='crew_answers'||!guideActive())return;
+ const answered=new Set(journey.answers||[]);
+ const available=drops.filter(d=>!d.myResponse&&d.id!==journey.dropId&&!answered.has(d.id));
+ const interest=journey.kind==='creator'&&Array.isArray(journey.interestDropIds)?journey.interestDropIds:[];
+ const candidates=journey.kind==='creator'?interest.map(id=>available.find(d=>d.id===id)).filter(Boolean):available;
+ if(answered.size>=2||!candidates.length)return journeyAnswersDone();
+ const target=candidates[0],number=answered.size+1;
+ guideDisplay(number===1?'This is a real Drop ⚡':'One more Drop! 👀','Answer this genuine Crew question. After you answer, it moves below unanswered Drops.','Answer Drop '+number+' →',()=>window._openDrop(target.id),'.drop');
+}
+async function journeyAfterRealAnswer(){
+ if(!journey||journey.phase!=='crew_answers')return;
+ const answerId=guide.lastDrop;const answers=[...new Set([...(journey.answers||[]),answerId])];
+ saveJourney({...journey,answers});
+ try{await refreshDrops()}catch(e){toast('Could not load the next Drop. Retry.');return}
+ if(answers.length>=2||!drops.some(d=>!d.myResponse&&d.id!==journey.dropId&&!answers.includes(d.id)))return journeyAnswersDone();
+ guideDisplay('Your answer is in! ⚡','One more genuine Drop, then we will continue your Adda journey.','Next Drop →',async()=>{dropId='';screen='crew';await renderCrew();journeyNextDrop()},'.appStickyHeader');
+}
+function journeyAnswersDone(){
+ if(!journey)return;
+ if(journey.kind==='creator')return journeyInviteCrew();
+ if(journey.kind==='crew_invite')return guideDisplay('Your Crew picks are saved 🏆','Now unlock your personal Aura with ten quick Starter Drops. We will bring you back here.','Start my Aura Run →',journeyStartStarter,'.appStickyHeader');
+ if(journey.kind==='drop_invite'){
+  if((journey.answers||[]).length<2){saveJourney({...journey,phase:'create_required'});return journeyCreateCTA()}
+  return journeyFinish('You are ready to play with your Crew. 💜')
+ }
+}
+function journeyStartStarter(){
+ if(!journey)return;
+ saveJourney({...journey,phase:'starter'});guide.active=false;removeGuide();dropId='';
+ history.replaceState({},'','/?play=1');screen='starter';renderStarter();starterController.begin();
+}
+async function journeyAfterProfile(){
+ if(!journey||!['crew_invite','drop_invite'].includes(journey.kind))return window._home();
+ const target=journey.crewId;
+ saveJourney({...journey,phase:journey.kind==='crew_invite'?'create_required':'member_intro',answers:journey.kind==='drop_invite'?[]:(journey.answers||[])});
+ try{
+  await api('joinCrew',{method:'POST',body:{crewId:target,participantId:pid,nickname:meName||localProfile().displayName||'Adda mate',provisional:false}});
+  pendingInvite=null;await window._openKnownCrew(target);
+ }catch(e){
+  guide.active=true;guide.originCrewId=target;guide.tour=11;
+  guideDisplay('Your Crew is waiting','Your profile is safe; the Crew is taking a little longer to load.','Retry return →',journeyAfterProfile,'.appStickyHeader');
+ }
+}
+function journeyCreateCTA(){
+ if(!journey||journey.phase!=='create_required'||!guideActive())return;
+ guideDisplay('Now create YOUR first Drop ⚡','Time to add your own question inside '+(crew?.name||'your Crew')+'. We will guide every step.','Let’s create a Drop →',()=>{screen='create';render();startCustomDropGuide()},'.nav5 button:nth-child(3)');
+}
+function journeyInviteCrew(){
+ guideDisplay('You answered your first TWO! 🏆','More real mates mean more real answers. Invite your friends to '+crew.name+'!','Invite my gang ↗',()=>{
+  guide.mode='share';window._shareCrew();setTimeout(()=>guideDisplay('Your Crew is ready 💜','Your link is available any time. Opening the sharing menu does not confirm a message was delivered.','Finish Crew tour →',()=>{localStorage.setItem('addaFirstCreatedCrewGuideDone_'+pid,'1');journeyFinish('Your Crew is ready!')},'.invitePill'),150)
+ },'.invitePill');
+}
+function journeyFinish(message){
+ guide.active=false;removeGuide();const target=journey?.crewId||crewId;saveJourney(null);pendingInvite=null;track('journey_v073_completed',{crewId:target});if(target)window._openKnownCrew(target);else window._home();if(message)toast(message);
+}
+function startInvitedDropGuide(){
+ if(!journey||journey.phase!=='drop_entry'||!journeyGuideOn())return;
+ const run=async()=>{
+  let existing=null;try{existing=await api('getDrop',{params:{crewId:journey.crewId,dropId:journey.dropId,participantId:pid}})}catch(e){toast(e.message)}
+  if(existing?.myResponse)return journeyStartStarter();
+  guideDisplay('This is the Drop your friend sent 👀','A Drop is a question you answer with real Crew mates. Answer this one FIRST, then we will show you Adda.','I’ll answer this Drop →',()=>{guide.mode='answer'},'.appStickyHeader');
+ };
+ const current=meName||localProfile().displayName;
+ if(current)return run();
+ let draft='';
+ guideDisplay('First, what should mates call you? 👋','One quick name for your REAL answer. Your full profile comes after Tenacious.','Save name & see my Drop →',async()=>{
+  if(!draft.trim()){toast('Add your name');startInvitedDropGuide();return}
+  try{
+   await api('joinCrew',{method:'POST',body:{crewId:journey.crewId,participantId:pid,nickname:draft.trim(),provisional:false}});
+   meName=draft.trim();localStorage.addaName=meName;await refreshCrew();run();
+  }catch(e){toast(e.message);startInvitedDropGuide()}
+ },'.appStickyHeader');
+ const card=document.querySelector('.addaGuideCard'),b=document.createElement('input');b.placeholder='Your display name';b.maxLength=24;b.setAttribute('aria-label','Display name');b.addEventListener('input',()=>{draft=b.value});card?.insertBefore(b,document.getElementById('addaGuideAction'));
+}
+
 function renderInvitedName(){
  if(!pendingInvite)return window._home();
  app.innerHTML=shell(`${top('')}<main class="starterInvitedName">
