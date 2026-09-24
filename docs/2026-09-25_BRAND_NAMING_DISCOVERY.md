@@ -37,3 +37,47 @@ F. Emotional promise/tagline and brand personality; 3 brands liked and disliked 
 
 ## Sequence
 A functional field test founder-accepted. B0 temporary preview retained; B1 permanent domain ON HOLD. D055 founder explicitly selected BRAND DISCOVERY FIRST, before final SRS. No v0.8 coding, site configuration, deployment, data import/reset or production merge.
+
+
+## D056 — Founder final-name brief confirmed, Round 1 initial creative territories and preliminary collision sweep (2026-09-25)
+
+FOUNDER CONFIRMED:
+- Geography: GLOBAL from first branded launch. Primary age: 18–35; brand may stretch with product later.
+- Name style: OPEN to English, adapted, coined, internationally pronounceable; brand more important than exact TLD.
+- Voice: balanced PLAYFUL + FUTURISTIC + HUMAN; subtle confidence, grown-up not childish/cartoonish/cringe; short, clear spoken pronunciation and uncomplicated spelling, not generic.
+- Name independent of Aura Orb; Orb is permanent central graphic and master app icon motif, but final brand wordmark/name need not literally mean orbit, glow, light or Aura.
+- Inspiration brand examples founder supplied: Pinterest, Facebook, WhatsApp, Snapchat, BeReal, Moods, Vaio, PhonePe, Paytm, PostPe, CRED, Zepto, Blinkit, BookMyShow, Jeevansaathi, Lenskart, Rapido, Telegram, Mercedes, L'Oréal. Analytic takeaway: short phonetic identity, clear word rhythm and recognisable distinctiveness; DO NOT imitate exact logos, protected stems, X/Z gimmicks or specific product categories.
+- Intended emotional association: people enjoy being there, have FUN, meaningful voluntary return/recall; do not frame manipulative compulsion/addiction or invent friend FOMO as explicit brand promise.
+- No name or spelling approved. No domain, handles, trade mark or social app-store availability certified. No app code or store modifications.
+
+**Brand positioning working hypothesis (NOT chosen tagline):** 'An inviting social playground for real people and personally rewarding downtime: pop in alone, get pulled into real interactions with your people, leave with moments and a more expressive Aura.' Avoid 'always-on AI friend', 'metaverse', 'crypto' and 'just another quiz'.
+
+### Territories in first creative round (no numerical scoring)
+A / YOUR PLACE: human belonging without generic 'friend/chat/crew' roots. Explore short expressive names Nolyo (NOHL-yo; pronunciation may vary), Ravilo (rah-VEE-lo), Jovelo (jo-VEL-oh), Kinoro (ki-NOR-oh). ALL unchecked/NOT cleared. Also 'The Usual' and 'Afterglow' as messaging moodboards ONLY, not claims of name availability.
+B / THE GOOD INTERRUPT: casual playful invitation, energetic but adult; names Tavlo, Swaylo were ideation examples but online direct adjacent crowd-voting/conversation-card collisions require exclusion from active shortlist. New speculative candidates Rovelo (roh-VEL-oh), Valiro (va-LEE-roh), Meyro (MAY-roh) require search and phonetic/semantic review.
+C / PERSONAL MOMENTUM: enjoyment+return/evolving identity without literal Glow/Orb names; proposed exploratory candidates Orvela (or-VEL-ah), Kivaro (ki-VAH-roh), Vairo (VAI-roh) require thorough search; 'Aura' stays FEATURE name, not an automatically clean final parent brand.
+D / OWNABLE FUTURE WORDMARK: distinctive coinage suitable for visual master Orb without literal meaning; exploratory candidates Nolyo, Ravilo, Jovelo, Kinoro, Rovelo, Valiro, Orvela, Kivaro; several names shared across territories intentionally test brand story rather than adding arbitrary random syllables. THESE ARE CREATIVE WORKSHOP PROPOSALS, NOT SHORTLISTED OR CLEARED.
+
+### Preliminary web collision sweep as of 2026-09-25 (not full clearance)
+Strong directly adjacent conflicts, do not advance unchanged without exceptional founder rationale and professional review:
+- Tavlo: Google Play conversation-card app exactly about conversation prompts (https://play.google.com/store/apps/details?id=com.tavlo.conversations).
+- Veylo: Google Play outfit social voting/levels (https://play.google.com/store/apps/details?id=com.veylo.app).
+- Nuvra: Google Play emotional social/connection product (https://play.google.com/store/apps/details?id=com.nuvra.app).
+- Nerivo: Google Play dating/nearby connections (https://play.google.com/store/apps/details?id=com.nerivo.app).
+- Rivvo: Discord interactive/game-like AI experiences (https://rivvo.ai/terms/).
+- Swaylo: venue crowd voting (https://swaylo.net/).
+
+Other exact uses found, DO NOT ASSUME clear:
+Meyvo online retail (https://meyvoapp.com/terms); Mivio casual games (https://miviostudio.com/); Orvyn iOS publisher (https://orvynhq.com/); Veluno entertainment app (https://play.google.com/store/apps/details?id=com.veluno.lulv); Movari fitness app (https://play.google.com/store/apps/details?id=com.raf.movari); Sovela planned app (https://joinsovela.com/); Moroa collaborative digital workspace (https://moroa.io/); Norevo app publisher (https://norevo.io/about); Kavori software brand (https://kavori.ai/); Vemlo tech-marketing brand (https://vemlo.com/); Mavlo consumer AI app (https://getmavlo.app/en/privacy); Zavro creator/audience participation platform (https://zavro.net/about).
+
+Quick exact-name engine queries returned no confidently identified matching brand for some *unvetted ideas*; absence of a returned indexed result is NOT proof of free domain, no trademark or existing brand. No authoritative domain registrar availability/renewal checkout, national trademark class similarity or app-store all-territory search performed.
+
+### Round 2 next: founder qualitative reaction to territory AND candidate words, not a blind forced name selection
+Ask for 2–4 'yes/maybe' names and 'no' names; whether names sound too arbitrary, romance/dating-ish, fintech/crypto, Indian-only or synthetic. Next, generate second much stronger controlled batch guided by reaction, eliminating web conflicts. Only THEN deep-screen founder shortlist on WIPO + India official + relevant global jurisdictions, app stores, domains including renewals, trademark counsel when needed.
+
+References:
+https://www.wipo.int/en/web/global-brand-database
+https://www.ipindia.gov.in/trade-marks-before-you-apply-search-existing-trademarks
+WIPO notes national/regional registers may also be necessary. This record documents SCREENING ONLY, not legal opinion.
+
+**Important:** Some candidate naming explorations are deliberately different from current release code's 'Adda' technical labels; no environment rename, DNS purchase, app icon export, external share URL switch, v0.8 code or data action authorised.

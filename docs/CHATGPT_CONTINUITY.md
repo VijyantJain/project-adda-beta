@@ -191,3 +191,6 @@ Adda temporary label only, permanent branded domain purchase paused. A founder-f
 
 ## 2026-09-25 D055 brand naming sprint FIRST
 Founder selected proper naming and brand-discovery exercise BEFORE final SRS, not immediate C. A functionally accepted; B0 old preview remains, B1 final domain held. Formal brand brief docs/2026-09-25_BRAND_NAMING_DISCOVERY.md. Ask founder launch age/geographies, naming language/tone/Orb relation/domain preference; research conflicts and pronunciation before proposing final name, preserve old Crew scores/stores/main. No code.
+
+## 2026-09-25 D056 naming discovery progress
+Founder selected global-first 18–35, brand-wordmark independent of permanent Orb, name stronger priority than domain, short speakable adult playful/futuristic/human tone, detailed inspired-by brands in brand naming brief. First creative territories and preliminary web collision sweep appended docs/2026-09-25_BRAND_NAMING_DISCOVERY.md. Tavlo/Veylo/Nuvra/Nerivo/Rivvo/Swaylo are adjacent visible name collisions, other similar names visible, NO final name/availability asserted. Collect qualitative reaction, iterate into screened shortlist. No v0.8 coding/DNS/data/main.
