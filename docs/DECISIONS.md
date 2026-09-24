@@ -170,3 +170,6 @@ Quick Play=2 distinct personal cards; Curious Mode=1 curiosity card +1 OTHER dis
 
 ## D052 — Eight earned titles locked, Orb core first v0.8, phased ledger (2026-09-24)
 Explorer Star I/II/III = Pathfinder / Opinion Magnet / Infinite Explorer; Sparkmaker = First Mover / Scene Architect / third REQUIRES new founder-approved replacement for Legendary Catalyst; The Regular = Familiar Face / Constant Star / Here to Stay. Evolving real-Aura Orb permanent CENTRAL visual, featured first v0.8 as brand motif and master visual app-icon concept. Only advanced heavy 3D remains later; old optional-v0.8.x Orb entry superseded. Full first v0.8/0.8.x/0.9/future scope and feature lineage: docs/2026-09-24_V08_RELEASE_SCOPE_LEDGER.md. No v0.8 coding permission.
+
+## D053 — Social Supernova + Option A starts (2026-09-25)
+Founder selected **Social Supernova** Sparkmaker Star III title; nine title set now complete. Started Option A v0.7.3 field-test stabilisation, which allows verified-beta defect fixes, not v0.8 feature implementation or changes to main/Blobs without separate approval. Option A audit docs/2026-09-25_OPTION_A_FIELD_TEST_AUDIT.md.
