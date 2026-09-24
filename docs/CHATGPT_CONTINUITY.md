@@ -185,3 +185,6 @@ Founder says Test 1 existing browser, Test 2 private fresh visitor, Test 3 mobil
 
 ## 2026-09-25 A founder final acceptance / proceed B
 Founder reports all four focused A tests PASS: new Crew invite exact Crew/2 answers/Starter/first custom published Drop; exact Drop-link first answer; truthfully partial then successful full Aura sync without score loss; private founder Analytics loads without abort/error. Plus 3 prior smoke tests passed on mobile/laptop. Functional A ACCEPTED by founder; proceed B domain. Still not claiming fresh full automated Node test suite, quantified p75/p95 latency, or full DB export audit. No v0.8 code or main/store change. docs/2026-09-25_OPTION_A_FIELD_TEST_AUDIT.md.
+
+## 2026-09-25 D054 founder final-name clarification
+Adda temporary label only, permanent branded domain purchase paused. A founder-functionally accepted; B0 keep preview link, B1 after naming/domain/conflict/app-store check; C can begin brand-agnostic before B1. Preserve old internal storage/addav05/addav03 and cross-origin guest identity; future user-facing rebrand must not break links or earned Aura. Evolving Orb still central and brand-independent. No v0.8 coding.

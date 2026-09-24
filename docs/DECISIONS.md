@@ -173,3 +173,6 @@ Explorer Star I/II/III = Pathfinder / Opinion Magnet / Infinite Explorer; Sparkm
 
 ## D053 — Social Supernova + Option A starts (2026-09-25)
 Founder selected **Social Supernova** Sparkmaker Star III title; nine title set now complete. Started Option A v0.7.3 field-test stabilisation, which allows verified-beta defect fixes, not v0.8 feature implementation or changes to main/Blobs without separate approval. Option A audit docs/2026-09-25_OPTION_A_FIELD_TEST_AUDIT.md.
+
+## D054 — Working name and domain gate (2026-09-25)
+Founder clarified Adda is NOT final name; no Adda-branded domain commitment. Keep current preview as B0 distribution, defer B1 branded domain to final naming/diligence, begin C brand-agnostic SRS if founder chooses. Preserve internal Blob/client IDs and historic Aura/Crew data; only later migrate outward-facing branding with compatibility. See domain runbook D054. No code/production/data changes.

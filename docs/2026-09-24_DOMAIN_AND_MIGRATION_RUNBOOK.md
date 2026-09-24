@@ -51,3 +51,16 @@ Cloudflare domain setup: https://developers.cloudflare.com/pages/configuration/c
 
 ## Option B starts after founder functional A acceptance (2026-09-25)
 Founder explicitly passed all targeted exact invite, Aura full sync, founder Analytics and general mobile/laptop smoke checks. A functional acceptance permits domain discovery and a safe proposed beta URL but DOES NOT approve deploying main, changing preview's backed store or migrating from Netlify to Cloudflare. Pending founder: candidate owned names/TLD, ceiling for first-year/renewal, registrar/company ownership, whether use beta.<domain> first; decide intended main/root later. Keep old deep links and production main d88cb5c... separate. Approved Star title Social Supernova unaffected.
+
+## D054 — Adda is working name ONLY; postpone permanent branded domain (2026-09-25)
+
+Founder explicitly confirms Adda is NOT the final app/brand name; all user-facing Adda name, wordmark, welcome, metadata, share copy and eventually branded app-icon packaging will be renamed. Earlier getadda/playadda/etc. domain examples are NOT approved purchases.
+
+Option A functional acceptance stands. Split Option B:
+- B0: retain existing Netlify Deploy Preview as temporary PRIVATE beta distribution; preserve live Crew/Drop deep links, preview/production separation and old Blob stores. No new owned vanity domain needed for this cohort.
+- B1 ON HOLD until final brand selection: evaluate memorable/pronounceable naming, candidate domain availability, first-year AND renewal costs, trademark/conflict diligence, store listings and handles; initial searches do not constitute legal clearance. Founder confirms and purchases in founder-controlled account only. Then plan beta/root URL rollout safely.
+- Option C may proceed BEFORE B1 as BRAND-AGNOSTIC v0.8 SRS. Make display brand/name, logos, metadata, URLs, asset naming, sharing copy configurable; use temporary Adda label in UI until approved replacement. Aura Orb stays permanent core icon motif independent of brand name.
+
+Critical migration rule: only rename USER-FACING branding, never blindly search-and-replace INTERNAL historical keys and identifiers such as adda-v05-fieldtest, adda-v03, localStorage keys, getVibe, event names, participant/Crew/Drop IDs, old deep links. A new custom domain is a NEW browser origin; device-local guest/profile data does not automatically transfer. Plan explicit identity/link recovery and safe staged link handling, snapshots and rollback without losing Aura, badges or Crew data.
+
+No domain purchased, no DNS edits, no source/application v0.8 changes, no main merge and no live data mutation authorised. This supersedes the suggestion to purchase an Adda-named domain immediately.

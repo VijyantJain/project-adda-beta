@@ -101,3 +101,6 @@ STATUS: FOUNDER-APPROVED DIRECTION / PRODUCT DESIGN, NOT SHIPPED OR CODE-AUTHORI
 
 ## Execution decision
 Founder may MOVE ON TO A NOW: these are mostly acceptance parameters/design choices for C, not blockers to v0.7.3 field-test stabilisation or safe domain selection. Next A (field test QA/performance/reliability), then B (domain and store safety), then C (canonical full v0.8 SRS and final approved feature checklist/acceptance and economy), then explicit engineering authority for v0.8. The founder has NOT authorized code or deploy by requesting a clean roadmap.
+
+## D054 brand-neutral roadmap sequencing (supersedes domain-before-SRS requirement)
+Adda WORKING brand only. Existing Deploy Preview is safe temporary distribution; avoid Adda-named domain purchase. Option C brand-agnostic SRS may proceed now while permanent B1 domain waits for final brand selection, availability/conflict checks and founder purchase. Aura Orb central first v0.8 stays but final app wordmark/icon lock waits for brand. No blind internal key rename or cross-origin guest identity reset. Canonical runbook D054.
