@@ -51,3 +51,15 @@ Status update for A acceptance matrix:
 - A-10 Node test runner remains unexecuted in current connector/runtime context; latest test assertion statically validated (128 legacy +11 SPEC); no full-suite pass claimed.
 
 Next: request concise founder answers on exact Crew-link vs Drop-link visitor, first custom Drop/share, full Aura vs partial, founder Analytics cold/warm/error, and whether blockers exist. If clean, close A conditional on source regression and focused deep-link acceptance; move to B with no silent data migration. D040-D053 product decisions unchanged, no v0.8 code authorisation.
+
+## Founder final A targeted checks — 2026-09-25
+
+Founder explicitly reports PASS for each of four requested focused checks:
+1. New Crew-link participant → 2 REAL answers → Starter/guide → exact linked Crew → first CUSTOM Drop published in that Crew.
+2. New exact Drop-link participant sees and answers THAT Drop first.
+3. Existing participant sees truthful initial scoped Aura and successful full sync without lost earned Aura.
+4. Private founder Analytics authenticates/loads without aborted request or error using owner's existing key; key never shared.
+
+**Option A functional acceptance: FOUNDER-ACCEPTED / READY TO PROCEED TO OPTION B.** Initial smoke also reported clean on mobile + laptop. This does not establish measured p75/p95 mobile latency, an independently inspected analytics dataset, automated full-suite pass at latest docs/test head, hardware/browser enumeration, backup/restore rehearsal or complete offline/weak-network load testing. Those remain explicitly recorded non-blocking monitoring/engineering gates, NOT claims of failure or fully verified completion. Do not keep asking founder to repeat passed checks. Current production main remains intentionally older and must not be conflated with accepted preview; keep current beta data/store intact.
+
+**Option B entry:** domain/hosting plan and owned name only. Maintain existing Deploy Preview and data until a safe beta-domain mapping is verified. No automatic Cloudflare migration, new live Blob store, destructive guest-ID reset, v0.8 coding or main merge.

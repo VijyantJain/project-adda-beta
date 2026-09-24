@@ -48,3 +48,6 @@ Netlify preview domains: https://docs.netlify.com/manage/domains/manage-domains/
 Cloudflare Pages: https://developers.cloudflare.com/pages/functions/pricing/
 Cloudflare D1: https://developers.cloudflare.com/d1/platform/pricing/
 Cloudflare domain setup: https://developers.cloudflare.com/pages/configuration/custom-domains/
+
+## Option B starts after founder functional A acceptance (2026-09-25)
+Founder explicitly passed all targeted exact invite, Aura full sync, founder Analytics and general mobile/laptop smoke checks. A functional acceptance permits domain discovery and a safe proposed beta URL but DOES NOT approve deploying main, changing preview's backed store or migrating from Netlify to Cloudflare. Pending founder: candidate owned names/TLD, ceiling for first-year/renewal, registrar/company ownership, whether use beta.<domain> first; decide intended main/root later. Keep old deep links and production main d88cb5c... separate. Approved Star title Social Supernova unaffected.
