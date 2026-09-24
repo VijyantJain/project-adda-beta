@@ -188,3 +188,6 @@ Founder reports all four focused A tests PASS: new Crew invite exact Crew/2 answ
 
 ## 2026-09-25 D054 founder final-name clarification
 Adda temporary label only, permanent branded domain purchase paused. A founder-functionally accepted; B0 keep preview link, B1 after naming/domain/conflict/app-store check; C can begin brand-agnostic before B1. Preserve old internal storage/addav05/addav03 and cross-origin guest identity; future user-facing rebrand must not break links or earned Aura. Evolving Orb still central and brand-independent. No v0.8 coding.
+
+## 2026-09-25 D055 brand naming sprint FIRST
+Founder selected proper naming and brand-discovery exercise BEFORE final SRS, not immediate C. A functionally accepted; B0 old preview remains, B1 final domain held. Formal brand brief docs/2026-09-25_BRAND_NAMING_DISCOVERY.md. Ask founder launch age/geographies, naming language/tone/Orb relation/domain preference; research conflicts and pronunciation before proposing final name, preserve old Crew scores/stores/main. No code.

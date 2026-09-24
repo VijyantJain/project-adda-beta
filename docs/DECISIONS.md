@@ -176,3 +176,6 @@ Founder selected **Social Supernova** Sparkmaker Star III title; nine title set 
 
 ## D054 — Working name and domain gate (2026-09-25)
 Founder clarified Adda is NOT final name; no Adda-branded domain commitment. Keep current preview as B0 distribution, defer B1 branded domain to final naming/diligence, begin C brand-agnostic SRS if founder chooses. Preserve internal Blob/client IDs and historic Aura/Crew data; only later migrate outward-facing branding with compatibility. See domain runbook D054. No code/production/data changes.
+
+## D055 — Founder selects naming/brand discovery BEFORE final v0.8 SRS (2026-09-25)
+Project Adda is working name only. Founder chooses dedicated brand naming research/positioning/clearance sprint BEFORE Option C final SRS; maintain accepted Netlify beta B0, postpone permanent B1 domain. Evolving Orb permanent brand motif independent of eventual wordmark. No candidate or domain is locked, no v0.8 code/data change. Full brief docs/2026-09-25_BRAND_NAMING_DISCOVERY.md.

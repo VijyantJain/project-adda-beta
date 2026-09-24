@@ -28,3 +28,6 @@ This is the front door for humans, developers and future ChatGPT chats. Do not i
 ## Full-originals archival guarantee
 A byte-for-byte copy of ALL 22 source docs before this cleanup is in docs/archive/2026-09-24-pre-cleanup/ with Git blob SHA manifest. Also a separate backup Git branch backup/v073-before-sept24-feedback at f281d55e012e2ef96e92826b4d8958ce34cc2194. Do not delete or squash either. New files clarify the canonical direction; original docs remain untouched in their historical paths and archive, including contradictory phase labels and Vibe→Aura vocabulary.
 User-uploaded original visuals and field-test screenshots are preserved in the conversation archive ZIP Adda_Visual_References_Archive_2026-09-24.zip; these are references, not automatically cleared licensing.
+
+## D055 named brand discovery gate
+Before final v0.8 SRS, founder chose dedicated naming/brand discovery. Read docs/2026-09-25_BRAND_NAMING_DISCOVERY.md. All names/domains pending; no app code or data mutation.

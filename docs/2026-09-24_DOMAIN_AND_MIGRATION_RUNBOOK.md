@@ -64,3 +64,6 @@ Option A functional acceptance stands. Split Option B:
 Critical migration rule: only rename USER-FACING branding, never blindly search-and-replace INTERNAL historical keys and identifiers such as adda-v05-fieldtest, adda-v03, localStorage keys, getVibe, event names, participant/Crew/Drop IDs, old deep links. A new custom domain is a NEW browser origin; device-local guest/profile data does not automatically transfer. Plan explicit identity/link recovery and safe staged link handling, snapshots and rollback without losing Aura, badges or Crew data.
 
 No domain purchased, no DNS edits, no source/application v0.8 changes, no main merge and no live data mutation authorised. This supersedes the suggestion to purchase an Adda-named domain immediately.
+
+## D055 founder sequence selection (2026-09-25)
+Founder selected naming and brand discovery BEFORE final v0.8 SRS. First complete brand brief/candidates, pronunciation and preliminary official trademark/app-store/domain screening, then founder approves final name, then owned domain purchase/B1 safe deployment and final named C SRS sequencing. B0 existing beta stays; no payment, rename, build, DNS or migration approved. See docs/2026-09-25_BRAND_NAMING_DISCOVERY.md.
