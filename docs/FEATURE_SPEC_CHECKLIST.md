@@ -224,8 +224,8 @@ For a first-time beta visitor opening a Crew invitation with at least two real u
 New stable IDs are additive after the proposed 128 previous entries; do not mark these checked until code + acceptance.
 - [ ] **V-024** Three guaranteed daily personal Aura cards, up to two genuine Crew extras; finite, personalised, reward-once, skip/resume — SPEC / first v0.8.
 - [ ] **V-025** Three solo mission-aware Daily Charge routes, safe pre-completion switching, +10/card capped 3, +10/day completed Charge — SPEC / first v0.8.
-- [ ] **V-026** Three real long-horizon 3-star achievement paths, genuine historic source backfill, 8 approved earned titles + final Sparkmaker title pending — SPEC / first v0.8.
-- [ ] **V-027** Permanent CENTRAL evolving actual-Aura Orb and master master-orb brand/app icon/favicon/PWA visual assets, static/motion fallback — SPEC / first v0.8; heavier 3D later.
+- [ ] **V-026** Three real long-horizon 3-star achievement paths, genuine historic source backfill, 9 founder-approved earned titles — SPEC / first v0.8.
+- [ ] **V-027** Permanent CENTRAL evolving actual-Aura Orb and master-orb brand/app icon/favicon/PWA visual assets, static/motion fallback — SPEC / first v0.8; heavier 3D later.
 - [ ] **V-028** User-owned earned title collection: one featured title and independent selected title per achievement path — SPEC / first v0.8.
 - [ ] **V-029** Rebalanced 25+ first published Aura levels with named expandable chapters and preserved ALL earned Aura/badges — SPEC / first v0.8.
 - [ ] **V-030** Hidden earned-Gems versioned ledger, no visible balance until working cosmetic redemption — SPEC / first v0.8 internal; usable catalogue later.

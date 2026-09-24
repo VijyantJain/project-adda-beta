@@ -29,3 +29,6 @@ Sparkmaker Star III earned title = **Social Supernova**, replacing the rejected 
 
 ## Next action
 Founder should run a short controlled device pass on the REAL deploy-preview URL with separate fresh and returning browsers, return results (device/browser, link cohort, screenshot/error text, rough timing). Assistant can triage actual failures and make NON-DESTRUCTIVE v0.7.3 fixes on development branch, backed by tests. Owner founder key remains private, enter only into live authorised Analytics page. Do NOT move domain or data store in Option A.
+
+## Additional audit maintenance
+Corrected literal escaping in the new v072-smoke test assertion on follow-up commit; verified static registry split: 128 historical IDs, 11 new unshipped SPEC IDs, 139 unique total, all 11 shown unchecked and SPEC. This was a targeted JS/source-data preflight; full Node test runner remains not executed in this environment.
