@@ -32,3 +32,22 @@ Founder should run a short controlled device pass on the REAL deploy-preview URL
 
 ## Additional audit maintenance
 Corrected literal escaping in the new v072-smoke test assertion on follow-up commit; verified static registry split: 128 historical IDs, 11 new unshipped SPEC IDs, 139 unique total, all 11 shown unchecked and SPEC. This was a targeted JS/source-data preflight; full Node test runner remains not executed in this environment.
+
+## Founder field-test feedback — 2026-09-25 (A round 1)
+
+Founder reports **ALL THREE requested smoke tests OK on BOTH mobile and laptop**:
+- Test 1 existing browser: preview opens, existing Avengers/Aura/Crew navigation/Analytics inspected at the founder's level of smoke testing.
+- Test 2 fresh private/incognito: Starter/Tenacious/guide smoke flow OK per founder report.
+- Test 3 mobile opening and navigation, including the requested phone/browser path, OK per founder report. Specific phone model, OS, Safari vs Chrome vs WhatsApp browser combination not individually recorded; do not fabricate individual-browser results.
+
+This is **founder-reported functional acceptance**, not independently reproduced E2E instrumentation, precise latency measurement or server-authoritative dataset equality; no screenshot, timing, cold/warm Analytics timing, real invitation cohort recording or tester identity received.
+
+Status update for A acceptance matrix:
+- A-01 basic mobile/laptop shell **FOUNDER SMOKE PASS**, device/browser matrix not fully enumerated.
+- A-02 direct private fresh-user smoke **FOUNDER SMOKE PASS**, numerical score/badge and cross-browser idempotence not independently audited.
+- A-05 existing browser Avengers/Aura/Crew **FOUNDER SMOKE PASS** at user-reported level; deep stored-record export/hash not independently audited.
+- A-07 Analytics access **FOUNDER SMOKE PASS AS PART OF TEST 1 IF INCLUDED**, exact authorized cold/warm time, count correctness and cold server scan remain outstanding.
+- A-03/A-04 exact Crew-link and Drop-link new-user routes, A-06 partial-versus-full Aura total, A-08 retries/idempotence/create/share, A-09 weak-network/timing remain NOT EXPLICITLY CONFIRMED. Do not misstate these as fails; ask targeted confirmation, not repeat the three passed smoke tests.
+- A-10 Node test runner remains unexecuted in current connector/runtime context; latest test assertion statically validated (128 legacy +11 SPEC); no full-suite pass claimed.
+
+Next: request concise founder answers on exact Crew-link vs Drop-link visitor, first custom Drop/share, full Aura vs partial, founder Analytics cold/warm/error, and whether blockers exist. If clean, close A conditional on source regression and focused deep-link acceptance; move to B with no silent data migration. D040-D053 product decisions unchanged, no v0.8 code authorisation.
