@@ -39,12 +39,12 @@ test('feature checklist keeps 128 legacy IDs and 11 new v0.8 SPEC IDs without du
  const register=read('docs/FEATURE_SPEC_CHECKLIST.md');
  const parts=register.split('## D052 — v0.8 phased intake');
  assert.equal(parts.length,2,'v0.8 register boundary exists exactly once');
- const idPattern=/\\*\\*[PDCVA]-\\d{3}\\*\\*/g;
+ const idPattern=/\*\*[PDCVA]-\d{3}\*\*/g;
  const legacy=[...parts[0].matchAll(idPattern)].map(m=>m[0]);
  const planned=[...parts[1].matchAll(idPattern)].map(m=>m[0]);
  assert.equal(legacy.length,128,'existing stable IDs preserved');
  assert.equal(planned.length,11,'planned first-v0.8 IDs additive');
  assert.equal(new Set([...legacy,...planned]).size,139,'no ID reused');
- for(const line of parts[1].split('\\n').filter(x=>/^- \\[ \\] \\*\\*[PDCVA]-\\d{3}\\*\\*/.test(x)))
+ for(const line of parts[1].split('\n').filter(x=>/^- \[ \] \*\*[PDCVA]-\d{3}\*\*/.test(x)))
    assert.match(line,/— SPEC/,'v0.8 planned feature must not be marked shipped');
 });
