@@ -191,3 +191,6 @@ Founder likes OurTurns (concept, not final), QuipBack maybe, rejects SayRound/Ba
 
 ## D060 — Global natural pronunciation and meaningful OurTurns concept (2026-09-26)
 Founder wants naturally pronounceable around globe for non-English speakers, positive meaning for English speakers. Likes OurTurns for belonging + participation + return; QuipBack MAYBE; neither final. Existing OurTurn, social Turnly, OurTale, SayGo, WePlay, SayPlay, PlaySay and WePop uses noted in brand brief; avoid false clearance, no domain or code. Read-aloud and repeat/spelling test recommended. See docs/2026-09-25_BRAND_NAMING_DISCOVERY.md.
+
+## D061 — Standalone social meaning, three-part constraint (2026-09-26)
+Founder wants stronger standalone social words beyond OurTurns, with balanced belonging, play/conversation, return; reject concept that fails any one. OurTurns LIKE and QuipBack MAYBE remain not selected. Preliminary collisions and WeTurn/OurJam/MoreUs concept cautions in naming brief; no name cleared. No app, data or v0.8 changes.
