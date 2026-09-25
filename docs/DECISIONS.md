@@ -188,3 +188,6 @@ Founder wants natural short meaningful naming that conveys real social exchange,
 
 ## D059 — OurTurns liked, simpler pronunciation required (2026-09-26)
 Founder likes OurTurns (concept, not final), QuipBack maybe, rejects SayRound/BanterLoop/SayCircle; wants simpler sound in India interior and non-native English global audiences, preserving shared turns, fun conversation, belonging. Several simplifications collide with existing apps. Record in brand naming discovery. No name approval/domain/code.
+
+## D060 — Global natural pronunciation and meaningful OurTurns concept (2026-09-26)
+Founder wants naturally pronounceable around globe for non-English speakers, positive meaning for English speakers. Likes OurTurns for belonging + participation + return; QuipBack MAYBE; neither final. Existing OurTurn, social Turnly, OurTale, SayGo, WePlay, SayPlay, PlaySay and WePop uses noted in brand brief; avoid false clearance, no domain or code. Read-aloud and repeat/spelling test recommended. See docs/2026-09-25_BRAND_NAMING_DISCOVERY.md.

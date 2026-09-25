@@ -200,3 +200,6 @@ All three emotional territories combined and natural/unforced meaning-first soci
 
 ## 2026-09-26 D059 naming feedback
 OurTurns liked, QuipBack maybe; SayRound/BanterLoop/SayCircle rejected. Make idea easy to say and spell by non-native speakers; need tested alternatives to difficult Our/Turns consonant clusters. OurTurn already active Google Play family app; WeSay direct social feedback app; WeGo social app, etc. No final brand and no v0.8 code. Brief docs/2026-09-25_BRAND_NAMING_DISCOVERY.md.
+
+## D060 2026-09-26 naming
+User chose naturally conversational Indian/international pronunciation, globally readable even without English comprehension; positive semantic meaning for those who understand. OurTurns = likes all 3 dimensions, QuipBack = maybe; NOT brand approval. Don't recycle prior names, and don't present small apparent exact-name search result as legal/availability clearance. Collision/research notes docs/2026-09-25_BRAND_NAMING_DISCOVERY.md. No code/data/domain changes.
