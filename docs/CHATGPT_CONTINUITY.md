@@ -197,3 +197,6 @@ Founder selected global-first 18–35, brand-wordmark independent of permanent O
 
 ## 2026-09-26 D058 naming creative round
 All three emotional territories combined and natural/unforced meaning-first social/conversational name; round-three workshop SayRound / QuipBack / BanterLoop / SayCircle / OurTurns / PopRound; HeyRound and TalkBounce weaker. Obvious direct competitor collisions excluded with links in brand brief. Nothing cleared/locked, no code or purchase.
+
+## 2026-09-26 D059 naming feedback
+OurTurns liked, QuipBack maybe; SayRound/BanterLoop/SayCircle rejected. Make idea easy to say and spell by non-native speakers; need tested alternatives to difficult Our/Turns consonant clusters. OurTurn already active Google Play family app; WeSay direct social feedback app; WeGo social app, etc. No final brand and no v0.8 code. Brief docs/2026-09-25_BRAND_NAMING_DISCOVERY.md.

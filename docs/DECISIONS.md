@@ -185,3 +185,6 @@ Global from day one, 18–35, all naming styles, playful/futuristic/human balanc
 
 ## D058 — Round 3 name-design direction (2026-09-26)
 Founder wants natural short meaningful naming that conveys real social exchange, games and a reason to return, rather than arbitrary words; emotional territories combined, app name independent of Orb. Brainstorm/research docs/2026-09-25_BRAND_NAMING_DISCOVERY.md; all concepts unapproved, conflicts documented; no domain or v0.8 code.
+
+## D059 — OurTurns liked, simpler pronunciation required (2026-09-26)
+Founder likes OurTurns (concept, not final), QuipBack maybe, rejects SayRound/BanterLoop/SayCircle; wants simpler sound in India interior and non-native English global audiences, preserving shared turns, fun conversation, belonging. Several simplifications collide with existing apps. Record in brand naming discovery. No name approval/domain/code.
