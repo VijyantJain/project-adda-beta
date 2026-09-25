@@ -81,3 +81,6 @@ https://www.ipindia.gov.in/trade-marks-before-you-apply-search-existing-trademar
 WIPO notes national/regional registers may also be necessary. This record documents SCREENING ONLY, not legal opinion.
 
 **Important:** Some candidate naming explorations are deliberately different from current release code's 'Adda' technical labels; no environment rename, DNS purchase, app icon export, external share URL switch, v0.8 code or data action authorised.
+
+## D057 Founder round-two feedback
+All eight Round-2 names rejected: Sparejoy, Sidehour, Afterfolk, Goodspill, Goodtangle, Breakfolk, Funbetween, Playbetween. Founder retains meaningful combinations without limiting formula and requests MUCH MORE SOCIAL AND CONVERSATIONAL direction. Do not reuse spare/joy/side/hour/folk/goodspill style. No name locked. Preliminary web research shows direct competitor overlap for CatchUp, YourTake, WhatsGood, DropBy, TalkAround, BanterBox and more. Next creative exercise should center on actual speech/interaction dynamics and invite language, distinguish label for mechanic from parent-brand semantics, and avoid falsely claiming availability. No domain, production, data or v0.8 change.
