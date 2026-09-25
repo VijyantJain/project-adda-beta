@@ -84,3 +84,37 @@ WIPO notes national/regional registers may also be necessary. This record docume
 
 ## D057 Founder round-two feedback
 All eight Round-2 names rejected: Sparejoy, Sidehour, Afterfolk, Goodspill, Goodtangle, Breakfolk, Funbetween, Playbetween. Founder retains meaningful combinations without limiting formula and requests MUCH MORE SOCIAL AND CONVERSATIONAL direction. Do not reuse spare/joy/side/hour/folk/goodspill style. No name locked. Preliminary web research shows direct competitor overlap for CatchUp, YourTake, WhatsGood, DropBy, TalkAround, BanterBox and more. Next creative exercise should center on actual speech/interaction dynamics and invite language, distinguish label for mechanic from parent-brand semantics, and avoid falsely claiming availability. No domain, production, data or v0.8 change.
+
+
+## D058 — Founder Round 3: naturally descriptive, social+conversational, all three feelings (2026-09-26)
+
+FOUNDER'S EXACT DIRECTION: combine all three emotional ideas (friends/belonging, conversation/play, rewarding return); natural and unforced; short, cool, internationally intelligible name whose construction REFLECTS WHAT THE APP DOES (examples founder cites: Blinkit, Zepto, Facebook, Snapchat, Pinterest). Name independent of Orb literal words. No former synthetic names, Round-2 names or near variants should be recycled. No final name approved.
+
+CREATIVE ROUND 3, concepts for reaction only (NOT CLEARANCE OR DOMAIN AVAILABILITY):
+- **SayRound** = say + round: your answer starts a round of responses; maps to solo card, Crew Drop and reveal. Pronunciation SAY-round. Caveat may sound like 'say around', may signal quiz rounds too strongly.
+- **QuipBack** = quip + back: friendly witty back-and-forth, original take provokes a genuine reply. Caveat "quip" may be less globally understood; narrower to humour.
+- **BanterLoop** = banter + loop: real conversation keeps moving between friends; personal and Crew reasons to return. Caveat word length 10 and 'loop' can imply manipulative retention; brand should promise enjoyment, not addiction.
+- **SayCircle** = say + circle: your say among your own people, mapped private Crews. Caveat generic descriptive combination, possible similarly named companies, needs heavier screening.
+- **OurTurns** = our + turns: everyone's turn to weigh in, vote and reveal. Caveat unusual plural and potential gaming/quiz-only interpretation.
+- **PopRound** = pop + round: spontaneous short answer round for solo or Crew. Caveat 'pop' semantics ambiguous, and another Popround video startup exists.
+- **HeyRound** = hey + round: friendly opening starts a shared activity, but unnatural construction; exploratory/weak.
+- **TalkBounce** = talk + bounce: one person's thought bounces to another, but sounds unnatural; exploratory/weak.
+Only present a compact founder-selection workshop, not make all eight sound equally strong; ask "what fits actual invited-user copy?" Never present absence of indexed result as proof of availability.
+
+PRELIMINARY CLEARLY OBSERVED COLLISIONS/ADJACENT USES to exclude as proposed final names:
+- DropBy actual social-network apps: https://apps.apple.com/in/app/dropby/id6739990883 and https://www.dropbynow.com/
+- OpenUp daily private Q&A among friends (highly adjacent): https://apps.apple.com/us/app/openup-check-in-with-friends/id6757166312
+- SayMore US trademark entry for online community/social networking: https://trademarks.justia.com/982/63/saymore-98263574.html (secondary registry mirror, not full status/clearance) and AI/social Saymore https://saymore.app/privacy-policy
+- smallTalk social app: https://play.google.com/store/apps/details?id=com.smalltalk.social
+- TalkLoop volunteer conversation https://talkloop.org/
+- TalkTrail community forum https://talktrail.tracverse.com/
+- ReplyRoom conversation/chat app https://apps.apple.com/in/app/replyroom-ai-character-chat/id6776506245
+- TalkTide romance chat https://play.google.com/store/apps/details?id=com.TalkTide
+- SayNext conversation-related apps https://apps.apple.com/us/app/saynext-ai-dating-copilot/id6793312066 and https://www.saynext.app/
+- TurnTalk social/translation https://turntalk.netlify.app/ and https://www.turntalk.app/
+- PlayRound solo/friends games https://play.google.com/store/apps/details?id=com.playpero.app
+- SayMate speech communication https://play.google.com/store/apps/details?id=com.mreycode.say_mate
+- PlayReply business AI https://www.playreply.com/
+- BanterDay fan chat https://www.sideprojectors.com/project/94335/banterday-live-football-updates-and-fan-chats
+- Popround existing video startup https://www.linkedin.com/posts/daveli-deckbird_an-intro-video-is-powerful-and-effective-activity-7503473387491442688-H7pT
+No comprehensive exact/phonetic trademark/app store, domains, global-language screening has been completed for creative concepts above. Flag less-visible names only "no obvious exact indexed social app surfaced in limited search" not clear/available. Do not buy, alter DNS, rename UI, change storage or implement v0.8.

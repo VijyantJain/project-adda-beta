@@ -194,3 +194,6 @@ Founder selected proper naming and brand-discovery exercise BEFORE final SRS, no
 
 ## 2026-09-25 D056 naming discovery progress
 Founder selected global-first 18–35, brand-wordmark independent of permanent Orb, name stronger priority than domain, short speakable adult playful/futuristic/human tone, detailed inspired-by brands in brand naming brief. First creative territories and preliminary web collision sweep appended docs/2026-09-25_BRAND_NAMING_DISCOVERY.md. Tavlo/Veylo/Nuvra/Nerivo/Rivvo/Swaylo are adjacent visible name collisions, other similar names visible, NO final name/availability asserted. Collect qualitative reaction, iterate into screened shortlist. No v0.8 coding/DNS/data/main.
+
+## 2026-09-26 D058 naming creative round
+All three emotional territories combined and natural/unforced meaning-first social/conversational name; round-three workshop SayRound / QuipBack / BanterLoop / SayCircle / OurTurns / PopRound; HeyRound and TalkBounce weaker. Obvious direct competitor collisions excluded with links in brand brief. Nothing cleared/locked, no code or purchase.
