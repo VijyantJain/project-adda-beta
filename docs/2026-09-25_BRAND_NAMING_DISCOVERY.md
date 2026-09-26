@@ -163,3 +163,31 @@ Research-led exploratory candidates ONLY: Palloop (pal=English friend/Hindi mome
 Collision screen: PLAYKIN existing playthings mark (https://furm.com/trademarks/playkin-98416565); JAMLOOP active musician social app (https://apps.apple.com/in/app/jamloop/id6762392512) and advertising platform (https://jamloop.com/); TALKLOOP direct voice social service (https://talkloop.org/); TALKPOP digital media news brand (https://talkpop.in/about-us/); TALKJOY human-conversation coaching/therapy app (https://www.talkjoy.co/); JAMPAL US pending mark in class 011 (https://trademarks.justia.com/500/87/jampal-50087770.html); POPKIN child learning game (https://play.google.com/store/apps/details?id=com.inficia.popkin); POPMATE learning game (https://prtimes.jp/main/html/rd/p/000000003.000110933.html); PALMORE education app (https://apps.apple.com/us/app/palmore/id1500529304); PALBIT engineering retailer/app (https://shop.palbitusa.com/login/?url=%2F); JAMGO commerce software (https://jamgo.website/); SAYPOP children's product (https://www.shopsaypop.com/); TURNJOY reported pending fuel/lubricant mark (https://trademarks.justia.com/999/25/turnjoy-99925034.html). These do not amount to global clearance or necessarily legal disqualification; proactively remove closely adjacent names from current creative options. Paloom existing business https://paloom.com/about-us/; not suggest as clean.
 
 No purchase, trademark clearance, domain/handle claim, application rename, v0.8 code, production merge, data key mutation or preview switch.
+
+## D063 — Round 4 response: natural action-derived ONE-WORD names (2026-09-26)
+
+Founder reaction: Palloop MAYBE, Palpop REJECT, Chitloop REJECT; do NOT anchor brand in PAL. OurTurns LIKE and QuipBack MAYBE retained as conceptual benchmarks, neither selected. Direct instruction: NATURAL ACTION WORDS transformed into brands, one written/spoken word, easy read/say/spell globally, meaningful belonging + playful interaction + authentic return; no recycling old rejects or dumping manufactured phonemes.
+
+Preliminary exact/near-name public screening (NOT trademark/domain clearance, status may change):
+- Loopin: existing direct social activity-with-friends app https://loopin.app/ — don't recycle loop/loopin variants casually.
+- ChimeUp: existing meet-new-friends video chat app https://play.google.com/store/apps/details?id=com.oceaniax.chime.up .
+- JoinJoy: existing trusted-friends activity app https://joinjoy.org/ .
+- PopBy: existing local social networking app https://popby.app/ and App Store https://apps.apple.com/us/app/popby-messages-on-real-places/id6749003976 ; Popby company has a US application in software/social category as reported by independent public database https://uspto.report/TM/99466202 .
+- Rejoyn: current prescription digital-therapeutic brand https://www.rejoyn.com/ (not a social app but exact name in regulated consumer healthcare).
+- Riffback: pre-existing AI email platform/LLC reported publicly https://www.linkedin.com/posts/krieffel_riffback-generative-ai-email-platform-activity-7170257648901152769-unwM and patent assignee https://patents.google.com/patent/US20250274409A1/en .
+- Jambit: current multi-person online games name https://playjambit.com/ and technology company https://iplus.jambit.com/en/innovation-stories/foodfittery-app/ .
+- Riffside: US entertainment trademark reported registration https://www.trademarkia.com/riffside-99567803 .
+- SayDay: active diary app https://play.google.com/store/apps/details?id=com.sophiegold.app_sayday .
+- PlayTell: previous private video-chat storytelling startup https://www.socialbrite.org/2012/06/14/playtell-video-chat-and-storytelling-that-connects-loved-ones/ .
+- Funfold: current Google Play app https://play.google.com/store/apps/details?id=top.way2free.funfold and existing Indian company https://www.zaubacorp.com/companies-FUNF .
+- Funturn: existing product business https://funturn.com.tw/ .
+- Joyturn: reported Chinese gaming/toys mark https://tm.aliyun.com/detail/8df6_91088953_28 .
+
+VERY SMALL NEW CONCEPT EXERCISE, NOT SHORTLIST, UNCLEARED:
+- Sayjam (say + jam together): direct participation/social play; users may hear 'say jam' as music or traffic, authentic habitual return only implicit. No trustworthy exact same-name app surfaced in limited queries, NOT availability proof.
+- Funtold (fun + told / untold): friends' responses, new stories, revealing personalities; direct 'FUNtold' historic kids festival recorded https://clujbusiness.ro/wp-content/uploads/2016/08/Funtold-Press-Release.pdf ; may sound too child/festival and focus on storytelling; should NOT be positioned as cleared.
+- Jamside (jam + alongside/side): being in the fun together; existing music artist https://m.soundcloud.com/jamside/js6 and film business https://www.pappers.fr/entreprise/jamside-films-514781251 ; 'jam' risks music/traffic interpretations, not a clean brand.
+- Quipjam (quip + collaborative jam): stronger expression/play story but quip meaning/sound is not universal (founder wants simpler); unchecked.
+Do not promote weak concepts simply to fill batch. OurTurns and QuipBack remain anchors, Palloop remains MAYBE despite not using PAL to generate further names.
+
+Research status: only preliminary search-engine observations; no complete app-store regional, official trademark phonetic, domain/renewal, slang/multilingual user or name-meaning clearance. NEXT: test 3–5 genuinely meaning-bearing action roots through native speaker read/hear/spell and focus on unforced short natural compounds; founder can reject every proposal. No code, DNS purchase, name selection, main deploy, Blob/localStorage change or v0.8 implementation.

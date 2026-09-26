@@ -197,3 +197,6 @@ Founder wants stronger standalone social words beyond OurTurns, with balanced be
 
 ## D062 — One fused spoken name; three earlier concepts rejected (2026-09-26)
 Founder rejects WeTurn, OurJam, MoreUs. Next names must feel like ONE word in speech (can fuse two meaningful components), natural globally speakable, grounded in friends/interaction/return. OurTurns LIKE, QuipBack MAYBE retained, neither chosen. New exploratory Pal- and conversation-root forms, collision exclusions in brand discovery brief. No code/domain/data mutation.
+
+## D063 — Action-word naming direction, no Pal-centred further generation (2026-09-26)
+Founder Palloop MAYBE, Palpop/Chitloop REJECT; do not anchor naming in Pal. Explore natural one-word action-derived meaningful names with all three social/play/return concepts. OurTurns LIKE, QuipBack MAYBE unchanged, no selection. First conflict review + limited new concept exercise in docs/2026-09-25_BRAND_NAMING_DISCOVERY.md. No app/domain/v0.8 changes.

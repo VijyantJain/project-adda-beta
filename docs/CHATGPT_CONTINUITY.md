@@ -209,3 +209,6 @@ Move beyond OurTurns to stronger standalone meaning, require all three: belong/s
 
 ## D062 founder naming feedback
 Reject WeTurn OurJam MoreUs; wants a SINGLE spoken word, possibly a genuine compound/fusion, globally easy, balanced social/play/return, not pseudo-coined random syllables. OurTurns LIKE QuipBack MAYBE. Brainstorm and preliminary collision links in brand brief D062. No app/domain/v0.8 changes.
+
+## 2026-09-26 D063 brand feedback
+Palloop MAYBE, Palpop and Chitloop rejected, stop PAL-root batch. Founder wants meaningful naturally spoken transformed ACTION word, single written/spoken word, balanced social/play/return. Prior OurTurns LIKE QuipBack MAYBE remain. Public name collisions noted in branding brief; no cleared candidate. No code/domain/data.
