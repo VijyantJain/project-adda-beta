@@ -206,3 +206,6 @@ User chose naturally conversational Indian/international pronunciation, globally
 
 ## 2026-09-26 D061 founder naming direction
 Move beyond OurTurns to stronger standalone meaning, require all three: belong/social, active fun/dialogue, return; globally sayable. OurTurns LIKE QuipBack MAYBE not locked. First exact search found crowded WeSay/PlayUs/OurNow/UsHere/WeMeet/OneMore/ComeBy/PopIn etc; exploratory WeTurn/OurJam/MoreUs NOT cleared/approved and have limitations. Naming brief D061; no app or domain changes.
+
+## D062 founder naming feedback
+Reject WeTurn OurJam MoreUs; wants a SINGLE spoken word, possibly a genuine compound/fusion, globally easy, balanced social/play/return, not pseudo-coined random syllables. OurTurns LIKE QuipBack MAYBE. Brainstorm and preliminary collision links in brand brief D062. No app/domain/v0.8 changes.

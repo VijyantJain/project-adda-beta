@@ -194,3 +194,6 @@ Founder wants naturally pronounceable around globe for non-English speakers, pos
 
 ## D061 — Standalone social meaning, three-part constraint (2026-09-26)
 Founder wants stronger standalone social words beyond OurTurns, with balanced belonging, play/conversation, return; reject concept that fails any one. OurTurns LIKE and QuipBack MAYBE remain not selected. Preliminary collisions and WeTurn/OurJam/MoreUs concept cautions in naming brief; no name cleared. No app, data or v0.8 changes.
+
+## D062 — One fused spoken name; three earlier concepts rejected (2026-09-26)
+Founder rejects WeTurn, OurJam, MoreUs. Next names must feel like ONE word in speech (can fuse two meaningful components), natural globally speakable, grounded in friends/interaction/return. OurTurns LIKE, QuipBack MAYBE retained, neither chosen. New exploratory Pal- and conversation-root forms, collision exclusions in brand discovery brief. No code/domain/data mutation.
