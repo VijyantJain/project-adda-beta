@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 680" role="img" aria-labelledby="t">
+<title id="t">Neon blue and purple trophy with electric green lightning</title>
+<defs>
+<radialGradient id="bg"><stop stop-color="#101832"/><stop offset=".62" stop-color="#080d1f"/><stop offset="1" stop-color="#080816"/></radialGradient>
+<linearGradient id="cup" x1="0" y1="0" x2=".84" y2="1"><stop stop-color="#49f8ff"/><stop offset=".36" stop-color="#65a0ff"/><stop offset=".69" stop-color="#a376ff"/><stop offset="1" stop-color="#fa68ff"/></linearGradient>
+<linearGradient id="bolt"><stop stop-color="#5bffbf"/><stop offset=".7" stop-color="#28fbb1"/><stop offset="1" stop-color="#65ffff"/></linearGradient>
+<filter id="blur"><feGaussianBlur stdDeviation="11"/></filter>
+<filter id="glow"><feGaussianBlur stdDeviation="4" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<g id="bolt1" fill="#4affb5"><path d="M0 7 54 83 39 87 86 167 68 101 88 106 26 20 42 63z"/></g>
+<g id="trophy" fill="none" stroke="url(#cup)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
+<path d="M280 64c-12 21-24 30-9 42 6 5-17 21-16 29h50c-1-11-21-23-16-29 16-12 3-23-9-42z"/>
+<path d="M254 137c-1 17-25 26-33 34l-12 12h142l-12-12c-8-8-32-17-33-34"/>
+<rect x="170" y="183" width="220" height="21" rx="10"/>
+<path d="M183 205q0 107 39 183c13 25 36 40 58 40s45-15 58-40q39-76 39-183"/>
+<path d="M203 209q-6 135 54 204M357 209q6 135-54 204" opacity=".7"/>
+<path d="M174 225h-42c-14 0-25 11-23 26 4 62 28 114 80 137l34 6-16-24-24-14c-26-19-36-58-41-98h36"/>
+<path d="M386 225h42c14 0 25 11 23 26-4 62-28 114-80 137l-34 6 16-24 24-14c26-19 36-58 41-98h-36"/>
+<rect x="254" y="425" width="52" height="13" rx="6"/>
+<path d="M267 440v29q-2 25-44 44h114q-42-19-44-44v-29"/>
+<rect x="215" y="513" width="130" height="21" rx="4"/>
+<path d="M201 536h158v49H201zM181 587h198v21H181zM167 610h226v25H167z"/>
+</g>
+</defs>
+<path fill="url(#bg)" d="M0 0h560v680H0z"/>
+<g opacity=".7" filter="url(#blur)"><use href="#bolt1" transform="translate(20 92) rotate(-22 40 80) scale(1.4)"/><use href="#bolt1" transform="translate(365 48) rotate(25 40 80) scale(1.5)"/><use href="#bolt1" transform="translate(10 320) rotate(-95 40 80) scale(1.1)"/><use href="#bolt1" transform="translate(405 320) rotate(92 40 80) scale(1.2)"/><use href="#bolt1" transform="translate(60 465) rotate(-47 40 80) scale(1.2)"/><use href="#bolt1" transform="translate(375 465) rotate(41 40 80) scale(1.2)"/><use href="#trophy" stroke-width="17"/></g>
+<g filter="url(#glow)">
+<use href="#bolt1" transform="translate(18 72) rotate(-22 40 80) scale(1.35)"/>
+<use href="#bolt1" transform="translate(359 51) rotate(25 40 80) scale(1.5)"/>
+<use href="#bolt1" transform="translate(20 342) rotate(-95 40 80) scale(1.2)"/>
+<use href="#bolt1" transform="translate(397 343) rotate(92 40 80) scale(1.2)"/>
+<use href="#bolt1" transform="translate(68 478) rotate(-47 40 80) scale(1.2)"/>
+<use href="#bolt1" transform="translate(385 474) rotate(41 40 80) scale(1.2)"/>
+<use href="#trophy"/>
+</g>
+<g fill="#5afcdb"><circle cx="42" cy="46" r="1.7"/><circle cx="103" cy="218" r="2.2"/><circle cx="451" cy="119" r="2.2"/><circle cx="481" cy="266" r="1.7"/><circle cx="75" cy="417" r="1.5"/><circle cx="493" cy="459" r="2.4"/><circle cx="100" cy="594" r="1.5"/><circle cx="460" cy="580" r="2"/><circle cx="322" cy="25" r="1.7"/><circle cx="383" cy="665" r="1.8"/></g>
+</svg>

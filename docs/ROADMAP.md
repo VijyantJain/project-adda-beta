@@ -1,0 +1,182 @@
+# Project Adda — Product Roadmap
+Updated: 2026-09-22
+Roadmap is milestone-based; dates should follow validation rather than force feature shipping.
+
+## M0 — Current Field Test (NOW)
+Goal: validate both entry-through-Drop and a direct first-timer's play-before-create experience.
+Ship only:
+- blocking UX fixes
+- stable global app shell
+- clickable identities -> Vibe profile
+- analytics/error instrumentation
+- current Drop/Chat/Vibe feature set
+- First Five + optional Bonus 5 + cumulative Vibe + introductory trophies
+- preseed 5 real Drops for a new Crew without requiring question authoring
+- separate First Five funnel and completion-to-Crew conversion
+
+Do not add major new social systems during the live wave.
+
+Exit evidence:
+- usable/stable on mobile
+- measurable funnel
+- several real Crews tested
+- qualitative feedback captured
+- understanding of top Drop formats and abandonment points
+
+## M1 — Identity + Realtime Foundation
+Goal: make Adda a durable account-based product.
+- Supabase migration
+- authentication
+- stable profile IDs
+- avatars
+- cross-device Crew membership
+- RLS/security
+- realtime Crew updates
+- notification inbox foundation
+- media storage/CDN foundation
+- block/report primitives
+- public/private profile controls
+
+## M2 — Personal Retention Beta: Daily Vibe Loop
+Expand the finite v0.6 Starter Deck into a daily/seasonal reward supply, not an infinite reward loop for repeating the same starter questions.
+Goal: prove return behavior even when friends are inactive.
+- Daily Deck (small personalized set of micro-actions)
+- Vibe XP/score
+- Daily Charge meter
+- streak
+- Mystery Capsule
+- missions
+- badge progress
+- unlockable profile/Vibe cosmetics
+- next-action chain
+- Arena-backed fallback actions
+- retention cohort analytics
+
+Exit evidence:
+- D1/D7 return improvement
+- repeat Daily Deck completion
+- users care about score/streak/unlocks without prompting
+
+## M3 — Private Social Suite
+Goal: deepen direct social use.
+- DMs v1 (text, emoji, Drop/profile sharing)
+- message requests
+- mute/block/report
+- Moment/Story v1 (24h photo/text)
+- audience controls: Crew / accepted followers / custom circle
+- Moment replies -> DM
+- viewers list
+- reactions
+- view-once "Blink" image in DM/Crew
+- expiry/deletion worker
+- notifications
+- templates/remix
+- richer prompt packs
+
+## M4 — Crew Depth
+Goal: make each Crew valuable beyond Drops.
+- Crew Pulse + Mystery Reveal Chain
+- weekly Crew challenges
+- Plans/events/RSVP
+- shared lists
+- pinned memories/inside jokes
+- Moments inside Crew
+- Recap -> Memory archive
+- recurring rituals
+- Crew titles/cosmetics
+- lightweight moderation roles
+
+## M5 — Arena Growth Beta
+Goal: create always-available discovery and public participation.
+- rolling public feed
+- public Drops
+- public Moments where permitted
+- follow graph / accepted-private account model
+- interest model
+- personalized candidate generation/ranking
+- "not interested" / hide controls
+- diversity/freshness/exploration
+- creator/profile discovery
+- deep links back to profiles/Crews/Drops
+- safety moderation and rate limits
+- feed experiment framework
+
+## M6 — Ephemeral + Messaging Expansion
+- short video Moments
+- voice/image messaging
+- view-once video
+- replay policies
+- message search
+- richer group DMs if validated
+- story highlights (optional permanent saves)
+- native-app media capture UX
+- push notification controls
+
+## M7 — GTM Hardening
+- native-quality client (PWA/native decision based on usage)
+- push notifications
+- robust abuse/moderation operations
+- scalable recommendation service
+- media transcoding/CDN
+- observability/SLOs
+- experimentation platform
+- onboarding localization
+- regional/Hinglish packs
+- accessibility
+- privacy/security review
+- app-store readiness if native
+- brand/name finalization
+
+## M8 — Monetisation (only after retention)
+See docs/REWARD_ECONOMY.md for free gifts, premium cosmetic gifts and fairness/anti-farming questions; no paid Vibe purchases are approved.
+Candidate—not locked:
+- profile/Vibe cosmetics
+- Crew themes/effects
+- premium Crew/admin tools
+- collectible/event badge packs
+- brand/campus/event experiences
+- creator tools
+Avoid damaging the core social loop with premature ads.
+
+
+## v0.6.1 corrective activation milestone (preview)
+- Full-width visual Starter cards and screenshot-exact neon trophy reward stage.
+- Solo user at Tenacious has one Create Crew CTA, a seeded pack and in-app invite dialog.
+- Invited newcomer joins provisionally, completes Starter once per beta browser and lands in original Crew/Drop.
+- Home becomes a useful real Crew/Vibe dashboard; the Arena/public feed is not yet shipped.
+- Exit check: first-five completion, refresh/idempotent points, ten completion, five seeded Drops, native share, invited return, existing Avengers data, fixed header/bottom bar after onboarding and real mobile usability.
+
+## M1 account/profile/contact dependencies
+Real email + phone OTP (configured Supabase/email/SMS provider), verified profile IDs, merged browser guests and Vibe, unique handle availability, DP/avatar, optional bio, per-profile privacy, optional permission-on-intent Find Friends. See ONBOARDING_IDENTITY_CONTACTS.md.
+
+## v0.6.2 current preview gate
+- Identical intro for both new-user cohorts, ten Starter answers required, Tenacious CTA routed to seeded Crew or existing invited Crew/Drop.
+- Guided first-Crew spotlight/real first two Drop answers and skip path.
+- Analytics v2 as decision room (direct vs invited, eligible D1/D7, quality, detailed event/screen/error panels).
+- Device-local profile editor tested; M1 is verified OTP and stable profiles.
+- Professional domain on a stable production build before wider field-test invitations; Cloudflare Pages + Supabase staged migration after freeze/backup, not a blind hosting switch.
+
+
+## M0.7 — Guided and personal activation (preview; device QA pending)
+Implemented preview: versioned ten-card Starter v2, interest-selected cards, seven private interest packs, optional gender secondary, two private guided cards, one-time guided Vibe, two real Crew replies, all five-tab tour, local photo/bio/username draft setup, tour replay/resume and activation instrumentation.
+Open before campaign freeze: photorealistic/high-quality original licensed content for ten common and fourteen pack variants, real mobile/in-app WhatsApp acceptance, ensure all guided highlight actions & forms on iOS/Android, accessibility/motion review.
+Infrastructure-blocked: real email/mobile OTP, globally unique @handle availability, public/synced DP/bio, provider-backed friend discovery. See ONBOARDING_M07_SRS, CONTENT_ASSET_REGISTRY, FEATURE_SPEC_CHECKLIST.
+
+## v0.7.1 — Founder activation and tour-fix preview
+Aura user-facing rename while preserving internal state, constrained coach marks and concise copy, local avatar/profile wizard, no-crew solo continuation after Tenacious, answered/unanswered Drop statuses, new conversion instrumentation. Exit requires real Safari/Chrome/WhatsApp-in-app device QA, retry/resume, original Avengers readback and storage-key regression checks; no main merge before owner approval.
+## v0.8 candidate — Daily Aura Deck / personal return loop
+Small finite daily interest-led cards and one real next action, streak/reward with server deduplication and reasonable caps; a Creator/Community content supply only when actual content and moderation exist. Evaluate meaningful returns and Solo→Crew conversions versus compelled invitations. Not yet deployed; no fake Arena results or imaginary social graph.
+
+## v0.7.2 release priority (before v0.8)
+Preview patch: Tenacious→server real Aura→automatic non-skippable solo guide→Home→Crew info→Create + info→profile with avatar/default. Preserve invited first-Crew tutorial and v1/v2 state; introduce v3 content and 24 app-local photographic images with SVG failover. QA: score=180 plus actual guide credits, six Starter badges, no fictitious 100% top level, refresh card 6–9 and tour, iPhone Safari, WhatsApp in-app, Android Chrome, old Avengers and persistent Netlify data. No main merge until founder approval. Broader 720px photo licensing/release audit and authenticated OTP remain separate gates; Daily Aura Deck remains v0.8 only.
+
+
+## Proposed v0.7.3 — Crew and first custom Drop activation (DESIGN, not deployed)
+Founder review of docs/CREW_AND_DROP_ONBOARDING_V073_SRS.md + flowcharts first; freeze v0.7.2. Implement distinct invite-entry state machines, first creator-interest seeding, truthful Crew home permissions/Recap, first custom Drop guide/share, then run direct/invited/current-user/legacy regression and actual mobile QA. Preserve main and Blob stores. Hold v0.8 Daily Aura and domain work until v0.7.3 accepted.
+
+
+## Founder-confirmed D038, 2026-09-23 — MANDATORY onboarding after first two Crew-link answers
+For a first-time beta visitor opening a Crew invitation with at least two real unanswered Drops, the required order is: enter exact Crew → explain Crew and answer two genuine Drops → required Starter 10/Tenacious → guided Aura/Profile → original Crew → mandatory first custom + Create Drop tutorial and real publish within linked Crew → exact Drop share offer → normal use. Already earned Crew points and response records are retained; Starter's 180 points count once. Preserve the original crewId across refresh. No new Crew creation, duplicate seed, duplicate answer or forced invitation. If fewer than two unanswered Drops remain, answer any genuine available Drop and proceed with a clearly described fallback without trapping the visitor. This decision supersedes any earlier “optional”, “deferred” or “pending” text about this specific cohort. New DROP-link entrants still answer the exact invited Drop FIRST before Starter. Existing visitors do not repeat Starter. DECIDED / SPEC, NOT IMPLEMENTED.
+
+## 2026-09-24 current scope override D052
+The historical M0–M8 roadmap above retains provenance but broad feature families have been explicitly split. Canonical FIRST v0.8/v0.8.x/v0.9/v1.0/later launch-intent and feature lineage: docs/2026-09-24_V08_RELEASE_SCOPE_LEDGER.md. In particular core evolving Aura Orb and app icon identity are FIRST v0.8 not optional 0.8.x; capsule/catalog/advanced orb later; small rolling Crew Pulse first 0.8, full Mystery Reveal Chain later; legacy 5–10 daily deck becomes 3 guaranteed solo + <=2 actual social extras, Charge SOLO chosen mission. D052 is DESIGN not shipped; current field-test A and domain B precede finalized C SRS/explicit v0.8 engineering approval.
